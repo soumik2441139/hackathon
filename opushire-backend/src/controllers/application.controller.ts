@@ -25,7 +25,7 @@ export const getMyApplications = async (req: AuthRequest, res: Response, next: N
 export const getAllApplications = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { jobId } = req.query as { jobId?: string };
-        const applications = await AppService.getAllApplications(jobId as string);
+        const applications = await AppService.getAllApplications(jobId);
         res.json({ success: true, data: applications });
     } catch (err) {
         next(err);

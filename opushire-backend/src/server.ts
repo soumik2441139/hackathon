@@ -43,11 +43,13 @@ app.use(errorHandler);
 
 // Start
 const start = async () => {
-    await connectDB();
+    // Start HTTP server immediately — don't block on DB
     app.listen(env.PORT, () => {
         console.log(`🚀 Opushire API running on http://localhost:${env.PORT}`);
         console.log(`🌍 Environment: ${env.NODE_ENV}`);
     });
+    // Connect to DB in background (auto-retries)
+    connectDB();
 };
 
 start().catch(console.error);
