@@ -30,11 +30,11 @@ graph TD
     Render --> API
     API -->|Mongoose ODm| Mongo
     
-    subgraph Frontend "Frontend (opushire/)"
+    subgraph Frontend ["Frontend (opushire/)"]
     Vercel
     end
     
-    subgraph Backend "Backend (opushire-backend/)"
+    subgraph Backend ["Backend (opushire-backend/)"]
     Render
     API
     end
