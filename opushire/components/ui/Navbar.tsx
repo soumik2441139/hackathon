@@ -1,11 +1,15 @@
 "use client";
 import Link from 'next/link';
 import { Button } from './Button';
-import { Briefcase, User, Menu, X } from 'lucide-react';
+import { Briefcase, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 export const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const { user, logout } = useAuth();
+
+    const dashboardHref = user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/student';
 
     return (
         <nav className="fixed top-0 left-0 w-full z-50 px-6 py-4">
@@ -27,12 +31,28 @@ export const Navbar = () => {
                 </div>
 
                 <div className="hidden md:flex items-center gap-4">
-                    <Link href="/login">
-                        <Button variant="ghost">Login</Button>
-                    </Link>
-                    <Link href="/register">
-                        <Button variant="primary" size="sm">Get Started</Button>
-                    </Link>
+                    {user ? (
+                        <>
+                            <Link href={dashboardHref}>
+                                <Button variant="ghost" className="gap-2">
+                                    <LayoutDashboard size={16} />
+                                    {user.name.split(' ')[0]}
+                                </Button>
+                            </Link>
+                            <Button variant="outline" size="sm" className="gap-2 border-white/10" onClick={logout}>
+                                <LogOut size={15} /> Logout
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Link href="/login">
+                                <Button variant="ghost">Login</Button>
+                            </Link>
+                            <Link href="/register">
+                                <Button variant="primary" size="sm">Get Started</Button>
+                            </Link>
+                        </>
+                    )}
                 </div>
 
                 {/* Mobile Toggle */}
@@ -45,11 +65,19 @@ export const Navbar = () => {
             {isOpen && (
                 <div className="md:hidden absolute top-24 left-6 right-6 p-6 glass-card flex flex-col gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
                     <Link href="/jobs" className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>Jobs</Link>
-                    <Link href="/companies" className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>Companies</Link>
-                    <Link href="/login" className="text-lg py-2" onClick={() => setIsOpen(false)}>Login</Link>
-                    <Link href="/register" onClick={() => setIsOpen(false)}>
-                        <Button className="w-full">Get Started</Button>
-                    </Link>
+                    {user ? (
+                        <>
+                            <Link href={dashboardHref} className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>Dashboard</Link>
+                            <button className="text-lg py-2 text-left text-red-400" onClick={() => { logout(); setIsOpen(false); }}>Logout</button>
+                        </>
+                    ) : (
+                        <>
+                            <Link href="/login" className="text-lg py-2" onClick={() => setIsOpen(false)}>Login</Link>
+                            <Link href="/register" onClick={() => setIsOpen(false)}>
+                                <Button className="w-full">Get Started</Button>
+                            </Link>
+                        </>
+                    )}
                 </div>
             )}
         </nav>

@@ -3,6 +3,7 @@ import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/ui/Navbar";
 import { Footer } from "@/components/ui/Footer";
+import { AuthProvider } from "@/context/AuthContext";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -27,9 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${outfit.variable} ${inter.variable} font-body bg-brand-dark text-white`}>
-        <Navbar />
-        {children}
-        <Footer />
+        <AuthProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

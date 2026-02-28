@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Job, IJob } from '../models/Job';
+import { Job } from '../models/Job';
 import { createError } from '../middleware/errorHandler';
 
 export const createJobSchema = z.object({
@@ -21,6 +21,9 @@ export const createJobSchema = z.object({
     deadline: z.string().datetime().optional(),
     featured: z.boolean().optional().default(false),
 });
+
+// Allowlist for updates — prevents overwriting postedBy, _id, etc.
+export const updateJobSchema = createJobSchema.partial();
 
 export const jobFilterSchema = z.object({
     q: z.string().optional(),
@@ -74,7 +77,8 @@ export const createJob = async (data: z.infer<typeof createJobSchema>, adminId: 
     return job;
 };
 
-export const updateJob = async (id: string, data: Partial<IJob>) => {
+export const updateJob = async (id: string, rawData: unknown) => {
+    const data = updateJobSchema.parse(rawData);
     const job = await Job.findByIdAndUpdate(id, data, { new: true, runValidators: true });
     if (!job) throw createError('Job not found', 404);
     return job;

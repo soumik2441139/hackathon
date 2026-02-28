@@ -58,7 +58,18 @@ export const getProfile = async (userId: string) => {
     return user;
 };
 
-export const updateProfile = async (userId: string, data: Partial<IUser>) => {
+// Allowlist of safe-to-update fields — prevents overwriting passwordHash, role, _id, etc.
+const updateProfileSchema = z.object({
+    name: z.string().min(2).optional(),
+    college: z.string().optional(),
+    degree: z.string().optional(),
+    year: z.string().optional(),
+    skills: z.array(z.string()).optional(),
+    bio: z.string().optional(),
+});
+
+export const updateProfile = async (userId: string, rawData: unknown) => {
+    const data = updateProfileSchema.parse(rawData);
     const user = await User.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
     if (!user) throw createError('User not found', 404);
     return user;

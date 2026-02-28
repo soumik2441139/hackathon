@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { ZodError } from 'zod';
 import { env } from '../config/env';
 
 export interface AppError extends Error {
@@ -7,12 +8,22 @@ export interface AppError extends Error {
 }
 
 export const errorHandler = (
-    err: AppError,
+    err: AppError | ZodError,
     _req: Request,
     res: Response,
     _next: NextFunction
 ): void => {
-    const statusCode = err.statusCode || 500;
+    // Handle Zod validation errors thrown from schema.parse() in controllers/services
+    if (err instanceof ZodError) {
+        res.status(400).json({
+            success: false,
+            message: 'Validation failed',
+            errors: err.flatten().fieldErrors,
+        });
+        return;
+    }
+
+    const statusCode = (err as AppError).statusCode || 500;
     const message = err.message || 'Internal Server Error';
 
     if (env.NODE_ENV === 'development') {
