@@ -1,0 +1,57 @@
+"use client";
+import Link from 'next/link';
+import { Button } from './Button';
+import { Briefcase, User, Menu, X } from 'lucide-react';
+import { useState } from 'react';
+
+export const Navbar = () => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <nav className="fixed top-0 left-0 w-full z-50 px-6 py-4">
+            <div className="max-w-7xl mx-auto glass-card h-16 px-6 flex items-center justify-between border-white/5">
+                <Link href="/" className="flex items-center gap-2 group">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-violet to-brand-cyan flex items-center justify-center text-brand-dark font-bold text-xl transition-transform group-hover:rotate-12">
+                        O
+                    </div>
+                    <span className="font-display text-2xl font-bold tracking-tight text-brand-text">
+                        Opushire<span className="text-brand-cyan">.</span>
+                    </span>
+                </Link>
+
+                {/* Desktop Nav */}
+                <div className="hidden md:flex items-center gap-8">
+                    <Link href="/jobs" className="text-brand-text/70 hover:text-brand-text transition-colors">Jobs</Link>
+                    <Link href="/companies" className="text-brand-text/70 hover:text-brand-text transition-colors">Companies</Link>
+                    <Link href="/salaries" className="text-brand-text/70 hover:text-brand-text transition-colors">Salaries</Link>
+                </div>
+
+                <div className="hidden md:flex items-center gap-4">
+                    <Link href="/login">
+                        <Button variant="ghost">Login</Button>
+                    </Link>
+                    <Link href="/register">
+                        <Button variant="primary" size="sm">Get Started</Button>
+                    </Link>
+                </div>
+
+                {/* Mobile Toggle */}
+                <button className="md:hidden text-white" onClick={() => setIsOpen(!isOpen)}>
+                    {isOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+            </div>
+
+            {/* Mobile Nav */}
+            {isOpen && (
+                <div className="md:hidden absolute top-24 left-6 right-6 p-6 glass-card flex flex-col gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <Link href="/jobs" className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>Jobs</Link>
+                    <Link href="/companies" className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>Companies</Link>
+                    <Link href="/login" className="text-lg py-2" onClick={() => setIsOpen(false)}>Login</Link>
+                    <Link href="/register" onClick={() => setIsOpen(false)}>
+                        <Button className="w-full">Get Started</Button>
+                    </Link>
+                </div>
+            )}
+        </nav>
+    );
+};
