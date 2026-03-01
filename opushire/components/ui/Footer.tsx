@@ -26,10 +26,18 @@ export const Footer = () => {
                     <div>
                         <h4 className="font-bold mb-6 text-brand-text">Platform</h4>
                         <ul className="space-y-4 text-sm text-brand-text/50">
-                            <li className="hover:text-brand-text transition-colors cursor-pointer">Find Jobs</li>
-                            <li className="hover:text-brand-text transition-colors cursor-pointer">Post a Job</li>
-                            <li className="hover:text-brand-text transition-colors cursor-pointer">Company Search</li>
-                            <li className="hover:text-brand-text transition-colors cursor-pointer">Salaries</li>
+                            <li className="hover:text-brand-text transition-colors cursor-pointer">
+                                <Link href="/jobs">Find Jobs</Link>
+                            </li>
+                            <li className="hover:text-brand-text transition-colors cursor-pointer">
+                                <Link href="/register">Post a Job</Link>
+                            </li>
+                            <li className="hover:text-brand-text transition-colors cursor-pointer">
+                                <Link href="/companies">Company Search</Link>
+                            </li>
+                            <li className="hover:text-brand-text transition-colors cursor-pointer">
+                                <Link href="/salaries">Salaries</Link>
+                            </li>
                         </ul>
                     </div>
 

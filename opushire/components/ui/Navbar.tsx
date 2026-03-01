@@ -9,7 +9,10 @@ export const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const { user, logout } = useAuth();
 
-    const dashboardHref = user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/student';
+    const dashboardHref =
+        user?.role === 'admin' ? '/dashboard/admin' :
+            user?.role === 'recruiter' ? '/dashboard/recruiter' :
+                '/dashboard/student';
 
     return (
         <nav className="fixed top-0 left-0 w-full z-50 px-6 py-4">
@@ -28,8 +31,11 @@ export const Navbar = () => {
                     <Link href="/jobs" className="text-brand-text/70 hover:text-brand-text transition-colors">Jobs</Link>
                     <Link href="/companies" className="text-brand-text/70 hover:text-brand-text transition-colors">Companies</Link>
                     <Link href="/salaries" className="text-brand-text/70 hover:text-brand-text transition-colors">Salaries</Link>
-                    {user?.role === 'recruiter' && (
-                        <Link href="/dashboard/recruiter/post-job" className="text-brand-cyan font-bold hover:text-brand-cyan/80 transition-colors flex items-center gap-1">
+                    {(!user || user.role === 'recruiter') && (
+                        <Link
+                            href={user?.role === 'recruiter' ? "/dashboard/recruiter/post-job" : "/register"}
+                            className="text-brand-cyan font-bold hover:text-brand-cyan/80 transition-colors flex items-center gap-1"
+                        >
                             <Briefcase size={16} /> Post a Job
                         </Link>
                     )}
@@ -72,11 +78,15 @@ export const Navbar = () => {
                     <Link href="/jobs" className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>Jobs</Link>
                     {user ? (
                         <>
+                            {user?.role === 'recruiter' && (
+                                <Link href="/dashboard/recruiter/post-job" className="text-lg py-2 border-b border-white/5 font-bold text-brand-cyan" onClick={() => setIsOpen(false)}>Post a Job</Link>
+                            )}
                             <Link href={dashboardHref} className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>Dashboard</Link>
                             <button className="text-lg py-2 text-left text-red-400" onClick={() => { logout(); setIsOpen(false); }}>Logout</button>
                         </>
                     ) : (
                         <>
+                            <Link href="/register" className="text-lg py-2 border-b border-white/5 font-bold text-brand-cyan" onClick={() => setIsOpen(false)}>Post a Job</Link>
                             <Link href="/login" className="text-lg py-2" onClick={() => setIsOpen(false)}>Login</Link>
                             <Link href="/register" onClick={() => setIsOpen(false)}>
                                 <Button className="w-full">Get Started</Button>
