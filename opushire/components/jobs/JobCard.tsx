@@ -14,8 +14,12 @@ export const JobCard = ({ job }: JobCardProps) => {
         <div className="glass-card p-6 flex flex-col gap-6 hover:border-white/20 hover:bg-white/[0.05] transition-all group">
             <div className="flex justify-between items-start">
                 <div className="flex gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-3xl border border-white/5 transition-transform group-hover:scale-110">
-                        {job.companyLogo}
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-3xl border border-white/5 transition-transform group-hover:scale-110 overflow-hidden">
+                        {job.companyLogo?.startsWith('http') ? (
+                            <img src={job.companyLogo} alt={`${job.company} logo`} className="w-full h-full object-contain p-1" />
+                        ) : (
+                            job.companyLogo || '🏢'
+                        )}
                     </div>
                     <div>
                         <h3 className="text-xl font-bold group-hover:text-brand-violet transition-colors text-brand-text">{job.title}</h3>

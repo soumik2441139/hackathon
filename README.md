@@ -20,22 +20,22 @@ The project is built using a decoupled architecture, separating the client appli
 ```mermaid
 graph TD
     Client[Next.js Frontend Client]
-    Vercel[Vercel Edge Network]
-    Render[Render Web Service]
+    AzureFront[Azure App Service - Frontend]
+    AzureBack[Azure App Service - Backend]
     API[Express.js REST API]
-    Mongo[(MongoDB Database)]
+    Mongo[(MongoDB Atlas)]
 
-    Client -->|HTTP / React Server Components| Vercel
-    Vercel -->|REST API Calls fetch| Render
-    Render --> API
-    API -->|Mongoose ODm| Mongo
+    Client -->|HTTP / React Server Components| AzureFront
+    AzureFront -->|REST API Calls fetch| AzureBack
+    AzureBack --> API
+    API -->|Mongoose ODM| Mongo
     
     subgraph Frontend [Frontend opushire]
-    Vercel
+    AzureFront
     end
     
     subgraph Backend [Backend opushire-backend]
-    Render
+    AzureBack
     API
     end
 ```
@@ -47,7 +47,7 @@ sequenceDiagram
     actor User
     participant NextJS as Frontend (Next.js)
     participant API as Backend API (Express)
-    participant DB as MongoDB
+    participant DB as MongoDB Atlas
 
     User->>NextJS: Visits Jobs Page
     NextJS->>API: GET /api/jobs
@@ -77,7 +77,7 @@ sequenceDiagram
 **Backend (`/opushire-backend`):**
 - Runtime: [Node.js](https://nodejs.org/)
 - Framework: [Express](https://expressjs.com/)
-- Database: [MongoDB](https://www.mongodb.com/) with Mongoose
+- Database: [MongoDB Atlas](https://www.mongodb.com/) with Mongoose
 - Security: Helmet, CORS, JWT Auth
 
 ---
@@ -132,15 +132,14 @@ sequenceDiagram
 
 ---
 
-## 🚀 Deployment
+## 🚀 Live Deployment
 
-The repository is configured for automated deployments with leading cloud providers.
+The application is fully deployed and hosted on **Microsoft Azure App Services** with continuous integration via **GitHub Actions**.
 
-### Frontend Deployment (Vercel)
-The `/opushire` application is configured to deploy easily on Vercel. Connect your GitHub repository to Vercel, set the Framework Preset to Next.js, and configure the Root Directory to `opushire`.
-- Required Environment Variable: `NEXT_PUBLIC_API_URL`
+- **Live Frontend URL:** [https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
+- **Live Backend API:** [https://opushire-backend.azurewebsites.net/api](https://opushire-backend.azurewebsites.net/api)
+- **Database:** MongoDB Atlas (Cloud)
 
-### Backend Deployment (Render)
-The `/opushire-backend` application includes a `render.yaml` configuration for Infrastructure-as-Code setups. Use the **Blueprint** feature on Render to automatically provision the server.
-- The blueprint path should be set to: `opushire-backend/render.yaml`
-- Required Environment Variables: `MONGODB_URI`, `JWT_SECRET`, `FRONTEND_URL`
+### CI/CD Pipeline
+- **Frontend Workflow:** Changes pushed to the repository automatically trigger a GitHub Action sequence that builds the Next.js standalone application and zips it before deploying to the designated Azure App Service slot.
+- **Backend Workflow:** Changes trigger an automated deployment to the Azure Node.js App Service container.

@@ -80,8 +80,12 @@ export default function JobDetailPage() {
                             <ScrollReveal direction="right">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
                                     <div className="flex gap-6">
-                                        <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-5xl">
-                                            {job.companyLogo}
+                                        <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-5xl overflow-hidden shrink-0">
+                                            {job.companyLogo?.startsWith('http') ? (
+                                                <img src={job.companyLogo} alt={`${job.company} logo`} className="w-full h-full object-contain p-2" />
+                                            ) : (
+                                                job.companyLogo || '🏢'
+                                            )}
                                         </div>
                                         <div>
                                             <h1 className="text-3xl md:text-5xl font-black mb-2 text-brand-text">{job.title}</h1>
