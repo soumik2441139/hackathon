@@ -18,11 +18,21 @@ const STEPS = [
 ];
 
 export default function PostJobPage() {
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [done, setDone] = useState(false);
+
+    // Security & Auth Guard
+    React.useEffect(() => {
+        if (!authLoading) {
+            if (!user) router.push('/login');
+            else if (user.role !== 'recruiter' && user.role !== 'admin') {
+                router.push(user.role === 'admin' ? '/dashboard/admin' : '/dashboard/student');
+            }
+        }
+    }, [user, authLoading, router]);
 
     const [form, setForm] = useState({
         title: '',
@@ -37,6 +47,10 @@ export default function PostJobPage() {
         requirements: '',
         tags: '',
     });
+
+    if (authLoading || (!user || (user.role !== 'recruiter' && user.role !== 'admin'))) {
+        return <div className="min-h-screen flex items-center justify-center font-bold text-white/20 uppercase tracking-widest animate-pulse">Initializing Suite...</div>;
+    }
 
     const update = (field: string, value: any) => setForm(s => ({ ...s, [field]: value }));
 
