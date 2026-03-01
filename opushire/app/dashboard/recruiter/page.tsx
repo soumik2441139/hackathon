@@ -19,7 +19,7 @@ export default function RecruiterDashboard() {
                                 <Sparkles size={14} /> Recruiter Hub
                             </div>
                             <h1 className="text-4xl md:text-5xl font-black mb-4 uppercase tracking-tighter">
-                                Welcome back, <span className="text-gradient">{user?.name.split(' ')[0]}</span>
+                                Welcome back, <span className="text-gradient">{user?.name?.split(' ')[0] || 'Recruiter'}</span>
                             </h1>
                             <p className="text-white/40 text-lg">Manage your company presence and find top talent.</p>
                         </div>
