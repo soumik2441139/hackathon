@@ -1,144 +1,158 @@
-# Opushire
+<div align="center">
+  <br />
+  <h1>Opushire 🚀</h1>
+  <p><strong>Elevate your Career from Campus.</strong></p>
+  <p>The premium job portal designed explicitly for high-growth students and top-tier tech startups.</p>
+  <br />
 
-Opushire is a modern, full-stack recruitment platform designed to seamlessly connect elite talent with top-tier technology companies. Built with a focus on **premium user experience** and **enterprise-grade architecture**, Opushire offers an intuitive glassmorphic interface for job seekers and a powerful candidate management system for recruiters.
+  [![Deploy on Azure](https://img.shields.io/badge/Deploy_on_Azure-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white)](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
+  [![Frontend Tech](https://img.shields.io/badge/Next.js_14-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](#)
+  [![Styling](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](#)
+  [![Animation](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)](#)
 
----
-
-## ✨ Key Features
-
-**🎨 Premium UI / UX Design**
-- Fully responsive "Glassmorphism" aesthetic built with Tailwind CSS.
-- Smooth page transitions and micro-animations powered by Framer Motion.
-- Clean, distraction-free dashboards for both students and admins.
-
-**🔐 Role-Based Access Control (RBAC)**
-- Secure JWT authentication with strict `httpOnly` cookies.
-- Differentiated user experiences: 
-  - **Students**: Browse featured roles, apply to open positions, and track application statuses (Interview, Shortlisted, Hired) in real-time.
-  - **Admins/Recruiters**: Manage company profiles, manually post/delete jobs, and review candidate applications through a dedicated operational portal.
-
-**💼 Dynamic Job Board & Search Engine**
-- Integrated with Clearbit for automatic, high-quality company logo loading via URL.
-- Localized Indian recruitment options displaying INR salaries (e.g., ₹35 LPA - ₹50 LPA) and major tech hubs (Bangalore, Gurgaon, Pune).
-- Live filtering capabilities by Category (Engineering, Product, Design), Job Type (Full-time, Internship, Contract), and Work Mode (Remote, Hybrid, Onsite).
-
-**🚀 Fully Automated Cloud Infrastructure**
-- Fully deployed on **Microsoft Azure App Services**.
-- Backend infrastructure utilizes automated CI/CD pipelines via **GitHub Actions** for instant zero-downtime updates upon merging to the master branch.
+</div>
 
 ---
 
-## 🏗 System Architecture
+## 🌟 Overview
 
-The project is built using a decoupled architecture, separating the Next.js client application from the high-throughput Express.js REST API backend.
+Opushire is a modern, full-stack recruitment platform and application tracking system (ATS) crafted to seamlessly connect elite student talent with world-class technology companies (like Stripe, Vercel, Cred, and OpenAI). 
+
+Built with an intense focus on **premium user experience**, **enterprise-grade architecture**, and an **immersive "glassmorphism" aesthetic**, Opushire provides an incredibly fast and fluid interface for both job seekers finding their dream internships and recruiters managing top-tier pipelines.
+
+---
+
+## ✨ Core Highlights
+
+### 🎨 Stunning Premium UI/UX
+- **Glassmorphism Aesthetic**: Deep, dark oceanic themes paired with frosted glass cards (`backdrop-blur`) built exclusively with the brand new **[Tailwind CSS v4](https://tailwindcss.com/)**.
+- **Immersive Micro-interactions**: Smooth page transitions, animated dropdown panels, and hover events powered by **[Framer Motion](https://www.framer.com/motion/)**.
+- **Custom Scrolling Marquees**: An infinite CSS-masked marquee displaying transparently faded trusted company logos.
+- **Scroll Reveal Animations**: Elements gracefully slide and fade into view as you traverse the landing page using custom `ScrollReveal` wrappers.
+
+### 🔐 Multi-Tier Role-Based Access (RBAC)
+- Secure JSON Web Token (JWT) authentication handled via strict, HTTP-only cookies.
+- **Student Portal**:
+  - Live dashboards tracking the status of applied jobs (Interview, Shortlisted, Hired).
+  - Saved opportunity tracking.
+  - Interactive notification bells and dynamic preference settings panels.
+- **Recruiter / Admin Portal**:
+  - Securely manage organization profiles.
+  - CRUD operations to post, edit, or remove live job listings.
+  - Review candidate applications and adjust their progression pipeline statuses.
+
+### 💼 Dynamic Indian Market Job Board
+- Job listings dynamically render localized data designed for the Indian startup ecosystem (e.g., Salaries formatted as `₹35 LPA - ₹50 LPA`, and locations spanning `Bangalore, Pune, Gurgaon`).
+- **Live Search & Filtering**: Client-side filtering across specific Categories (Engineering, Product), Job Types (Full-time, Internship), and Work Modes (Remote, Hybrid).
+- Automatically fetches and renders high-quality company brand logos dynamically utilizing **Clearbit** APIs.
+
+---
+
+## 🏗 System Architecture & CI/CD
+
+Opushire utilizes a globally distributed, decoupled client-server architecture. It is fully deployed on **Microsoft Azure** utilizing continuous integration via **GitHub Actions**.
 
 ```mermaid
 graph TD
-    Client[Next.js Frontend Client]
+    Client[Next.js Client Application]
     AzureFront[Azure App Service - Frontend]
     AzureBack[Azure App Service - Backend]
-    API[Express.js REST API]
-    Mongo[(MongoDB Atlas)]
+    API[Express.js REST API Node.js]
+    Mongo[(MongoDB Atlas Cloud)]
 
     Client -->|HTTP / React Server Components| AzureFront
     AzureFront -->|REST API Calls fetch| AzureBack
     AzureBack --> API
     API -->|Mongoose ODM| Mongo
     
-    subgraph Frontend [Frontend opushire]
+    subgraph Client-Side [Frontend Repo: /opushire]
     AzureFront
     end
     
-    subgraph Backend [Backend opushire-backend]
+    subgraph Server-Side [Backend Repo: /opushire-backend]
     AzureBack
     API
     end
 ```
 
+### 🚀 Live Deployments
+
+- **Frontend Application URL:** [https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
+- **Backend API Endpoint:** [https://opushire-backend.azurewebsites.net/api](https://opushire-backend.azurewebsites.net/api)
+- **Database System:** MongoDB Atlas
+
+*Zero-downtime `.zip` builds and rapid container restarts are completely automated on GitHub pushes via `.github/workflows`.*
+
 ---
 
-## 💻 Technology Stack
+## 💻 Tech Stack Summary
 
-**Frontend (`/opushire`):**
-- **Framework**: [Next.js 14+](https://nextjs.org/) (App Router, SSR/SSG combinations)
+**Frontend Application:**
+- **Framework**: Next.js 14+ (App Router)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS & Framer Motion
+- **Styling Engine**: Tailwind CSS v4 & custom CSS variable architecture
+- **Animations**: Framer Motion & GSAP
 - **Icons**: Lucide React
-- **State/Data**: React Context API, Native Fetch
+- **State Management**: React Context APIs (`AuthContext`)
 
-**Backend (`/opushire-backend`):**
-- **Runtime**: [Node.js](https://nodejs.org/) (v18+)
-- **Framework**: [Express](https://expressjs.com/)
-- **Database**: [MongoDB Atlas](https://www.mongodb.com/) using Mongoose ODM
-- **Security**: Helmet, CORS, bcrypt, jsonwebtoken
-
----
-
-## 🚀 Live Deployment
-
-The application is fully deployed and hosted on **Microsoft Azure App Services** with continuous integration via **GitHub Actions**.
-
-- **Live Frontend URL:** [https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
-- **Live Backend API:** [https://opushire-backend.azurewebsites.net/api](https://opushire-backend.azurewebsites.net/api)
-- **Database:** MongoDB Atlas (Cloud)
-
-### CI/CD Pipeline
-- **Frontend Workflow:** Changes pushed to the repository automatically trigger a GitHub Action sequence that injects `NEXT_PUBLIC` API URL environments, builds the Next.js standalone application, and zips it before deploying to the designated Azure App Service slot.
-- **Backend Workflow:** Changes trigger an automated deployment to the Azure Node.js App Service container, restarting the PM2 equivalent process to instantly serve the latest routes.
+**Backend Application:**
+- **Runtime Environment**: Node.js (v18+)
+- **Server Framework**: Express.js
+- **Database Architecture**: MongoDB utilizing Mongoose ODM
+- **Security Protocols**: Helmet, CORS configurations, Bcrypt hashing, secure jsonwebtokens.
 
 ---
 
-## 🛠 Local Development Setup
+## 🛠 Local Development Guide
 
-### Prerequisites
-- Node.js (v18+)
-- MongoDB Atlas Connection String (or local MongoDB instance)
+Want to run Opushire locally? Ensure you have **Node.js 18+** and a **MongoDB cluster connection string** ready.
 
-### 1. Backend Setup
-1. Navigate to the backend directory:
+### 1. Booting the Backend
+1. Open a terminal and navigate to the API directory:
    ```bash
    cd opushire-backend
    ```
-2. Install dependencies:
+2. Install the necessary packages:
    ```bash
    npm install
    ```
-3. Initialize the environment variables:
+3. Establish your localized `.env` variables:
    ```env
-   # .env
    NODE_ENV=development
    PORT=5000
-   MONGODB_URI=your_mongodb_connection_string
-   JWT_SECRET=your_jwt_secret
+   MONGODB_URI=your_mongodb_atlas_connection_string
+   JWT_SECRET=your_super_secret_jwt_key
    JWT_EXPIRES_IN=7d
    FRONTEND_URL=http://localhost:3000
    ```
-4. Seeding the Database (Optional but Recommended):
-   Run the secure seeding script to automatically populate your cluster with an Admin user, and top-tier startup roles (Vercel, Stripe, Cred, OpenAI) with localized Indian locations/salaries.
+4. **Seed the Database!** (Highly Recommended to populate sample top-tier jobs and an Admin user):
    ```bash
    npx tsx seed-jobs.ts
    ```
-5. Start the development server:
+5. Ignite the REST API server:
    ```bash
    npm run dev
    ```
 
-### 2. Frontend Setup
-1. Open a new terminal and navigate to the frontend directory:
+### 2. Booting the Frontend
+1. Open a *second* terminal and navigate to the client directory:
    ```bash
    cd opushire
    ```
-2. Install dependencies:
+2. Install the client packages:
    ```bash
    npm install
    ```
-3. Initialize the `.env.local` file:
+3. Point the client to your local backend API by creating a `.env.local` file:
    ```env
-   # opushire/.env.local
    NEXT_PUBLIC_API_URL=http://localhost:5000/api
    ```
-4. Start the Next.js development server:
+4. Start the Next.js development environment:
    ```bash
    npm run dev
    ```
-5. Open [http://localhost:3000](http://localhost:3000) your browser.
+5. View the platform locally at [http://localhost:3000](http://localhost:3000). *(Note: If Tailwind CSS styles fail to load initially, simply delete the `.next` directory and restart the dev server—this clears Next.js's style cache for Tailwind v4!).*
+
+---
+
+> Built with 🩵 for high-growth students everywhere.
