@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Opushire Frontend (Next.js Application)
 
-## Getting Started
+This is the front-end application for the **Opushire** premium student job portal. It is built using modern React server components and a custom glassmorphism design system.
 
-First, run the development server:
+## 🚀 Tech Stack
+
+- **Framework:** [Next.js 14](https://nextjs.org/) (App Router, Server/Client components)
+- **Language:** TypeScript
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/) & GSAP
+- **Icons:** Lucide React
+- **State Management:** React Context API (e.g. `AuthContext`)
+
+---
+
+## 🎨 Premium UI/UX Design
+
+The Opushire frontend is designed with an immersive "Glassmorphism" aesthetic intended to target elite students and tier-1 tech startups. 
+
+Key design elements include:
+- Frosted glass cards using Tailwind's `backdrop-blur`.
+- Infinite animated company marquees with CSS gradient masks.
+- Dynamic `ScrollReveal` fading down/up interactions across the landing and inner pages.
+- Elegant multi-step gradient text (`.text-gradient`).
+
+---
+
+## 🛠 Local Setup & Development
+
+To run this frontend module independently, ensure you have the `opushire-backend` running simultaneously on `localhost:5000` to handle authentication and data fetching.
+
+### 1. Installation
+
+```bash
+cd opushire
+npm install
+```
+
+### 2. Environment Variables
+
+Create a file named `.env.local` in the root of the `opushire` directory:
+
+```env
+# Point this to your local backend server during development
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
+
+### 3. Running the Server
+
+Start the Next.js development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+*(Troubleshooting Tailwind v4: If visual styles are failing to compile locally after running the server for long periods, delete the hidden `.next/` directory inside this folder and restart the `npm run dev` script to clear the cache).*
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## ☁️ Continuous Integration & Deployment
 
-To learn more about Next.js, take a look at the following resources:
+This application is configured for fully automated CI/CD deployments to **Microsoft Azure App Services** using **GitHub Actions**.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Whenever code is pushed to the target branch (e.g. `soumik`), the GitHub Workflow located in `.github/workflows/` automatically:
+1. Installs dependencies.
+2. Injects production environment variables.
+3. Compiles the Next.js standalone application build.
+4. Zips the `.next/standalone` payload.
+5. Deploys the `.zip` artifact to the specified Azure App Service container.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+You can view the live output at: [https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
