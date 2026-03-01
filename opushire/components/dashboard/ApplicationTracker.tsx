@@ -54,8 +54,12 @@ export const ApplicationTracker = () => {
                         return (
                             <div key={app._id} className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-white/20 transition-all">
                                 <div className="flex gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center font-bold text-lg">
-                                        {job?.companyLogo ?? (typeof app.job === 'object' ? app.job?.company?.charAt(0) : '?')}
+                                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
+                                        {job?.companyLogo?.startsWith('http') ? (
+                                            <img src={job.companyLogo} alt={`${job.company} logo`} className="w-full h-full object-contain p-1" />
+                                        ) : (
+                                            job?.companyLogo ?? (typeof app.job === 'object' ? app.job?.company?.charAt(0) : '?')
+                                        )}
                                     </div>
                                     <div>
                                         <h3 className="font-bold">{job?.title ?? 'Job'}</h3>
