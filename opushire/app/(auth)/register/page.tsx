@@ -32,7 +32,7 @@ export default function RegisterPage() {
     const formatLogoUrl = (url: string) => {
         if (!url) return '';
         if (!url.startsWith('http')) {
-            return `https://logo.clearbit.com/${url}`;
+            return `https://unavatar.io/${url}`;
         }
         return url;
     };

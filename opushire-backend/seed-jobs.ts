@@ -33,7 +33,7 @@ const seedJobs = async () => {
             {
                 title: "Senior Frontend Engineer",
                 company: "Vercel",
-                companyLogo: "https://logo.clearbit.com/vercel.com",
+                companyLogo: "https://unavatar.io/vercel.com",
                 location: "Bangalore, India",
                 city: "Bangalore",
                 type: "Full-time",
@@ -53,7 +53,7 @@ const seedJobs = async () => {
             {
                 title: "Backend SWE (Go)",
                 company: "Stripe",
-                companyLogo: "https://logo.clearbit.com/stripe.com",
+                companyLogo: "https://unavatar.io/stripe.com",
                 location: "Gurgaon, India",
                 city: "Gurgaon",
                 type: "Full-time",
@@ -73,7 +73,7 @@ const seedJobs = async () => {
             {
                 title: "Product Designer UI/UX",
                 company: "Airbnb",
-                companyLogo: "https://logo.clearbit.com/airbnb.com",
+                companyLogo: "https://unavatar.io/airbnb.com",
                 location: "Mumbai, India",
                 city: "Mumbai",
                 type: "Contract",
@@ -93,7 +93,7 @@ const seedJobs = async () => {
             {
                 title: "Machine Learning Intern",
                 company: "OpenAI",
-                companyLogo: "https://logo.clearbit.com/openai.com",
+                companyLogo: "https://unavatar.io/openai.com",
                 location: "Pune, India",
                 city: "Pune",
                 type: "Internship",
@@ -113,7 +113,7 @@ const seedJobs = async () => {
             {
                 title: "Full Stack Developer",
                 company: "Cred",
-                companyLogo: "https://logo.clearbit.com/cred.club",
+                companyLogo: "https://unavatar.io/cred.club",
                 location: "Bangalore, India",
                 city: "Bangalore",
                 type: "Full-time",
