@@ -155,4 +155,4 @@ Want to run Opushire locally? Ensure you have **Node.js 18+** and a **MongoDB cl
 
 ---
 
-> Built with 🩵 for high-growth students everywhere.
+> Built with 🩵 for high-growth students everywhere by Soumik and Sagnik.
