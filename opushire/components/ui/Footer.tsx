@@ -30,9 +30,6 @@ export const Footer = () => {
                                 <Link href="/jobs">Find Jobs</Link>
                             </li>
                             <li className="hover:text-brand-text transition-colors cursor-pointer">
-                                <Link href="/register">Post a Job</Link>
-                            </li>
-                            <li className="hover:text-brand-text transition-colors cursor-pointer">
                                 <Link href="/companies">Company Search</Link>
                             </li>
                             <li className="hover:text-brand-text transition-colors cursor-pointer">
