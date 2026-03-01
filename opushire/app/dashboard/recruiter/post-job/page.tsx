@@ -29,7 +29,7 @@ export default function PostJobPage() {
         if (!authLoading) {
             if (!user) router.push('/login');
             else if (user.role !== 'recruiter' && user.role !== 'admin') {
-                router.push(user.role === 'admin' ? '/dashboard/admin' : '/dashboard/student');
+                router.push('/dashboard/student');
             }
         }
     }, [user, authLoading, router]);

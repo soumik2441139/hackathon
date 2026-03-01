@@ -31,9 +31,9 @@ export const Navbar = () => {
                     <Link href="/jobs" className="text-brand-text/70 hover:text-brand-text transition-colors">Jobs</Link>
                     <Link href="/companies" className="text-brand-text/70 hover:text-brand-text transition-colors">Companies</Link>
                     <Link href="/salaries" className="text-brand-text/70 hover:text-brand-text transition-colors">Salaries</Link>
-                    {(!user || user.role === 'recruiter') && (
+                    {(user?.role === 'recruiter' || user?.role === 'admin') && (
                         <Link
-                            href={user?.role === 'recruiter' ? "/dashboard/recruiter/post-job" : "/register"}
+                            href="/dashboard/recruiter/post-job"
                             className="text-brand-cyan font-bold hover:text-brand-cyan/80 transition-colors flex items-center gap-1"
                         >
                             <Briefcase size={16} /> Post a Job
@@ -78,7 +78,7 @@ export const Navbar = () => {
                     <Link href="/jobs" className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>Jobs</Link>
                     {user ? (
                         <>
-                            {user?.role === 'recruiter' && (
+                            {(user.role === 'recruiter' || user.role === 'admin') && (
                                 <Link href="/dashboard/recruiter/post-job" className="text-lg py-2 border-b border-white/5 font-bold text-brand-cyan" onClick={() => setIsOpen(false)}>Post a Job</Link>
                             )}
                             <Link href={dashboardHref} className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>Dashboard</Link>
@@ -86,7 +86,6 @@ export const Navbar = () => {
                         </>
                     ) : (
                         <>
-                            <Link href="/register" className="text-lg py-2 border-b border-white/5 font-bold text-brand-cyan" onClick={() => setIsOpen(false)}>Post a Job</Link>
                             <Link href="/login" className="text-lg py-2" onClick={() => setIsOpen(false)}>Login</Link>
                             <Link href="/register" onClick={() => setIsOpen(false)}>
                                 <Button className="w-full">Get Started</Button>
