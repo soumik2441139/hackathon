@@ -135,9 +135,11 @@ const seedJobs = async () => {
         console.log('⏳ Converting company logos to Base64...');
         const jobsData = [];
         for (const job of rawJobsData) {
+            console.log(`⏳ Processing logo for ${job.company}: ${job.companyLogo}`);
             const base64Logo = await imageToBase64(job.companyLogo);
+            console.log(`   Logo processed. Starts with: ${base64Logo.substring(0, 50)}`);
             jobsData.push({ ...job, companyLogo: base64Logo });
-            console.log(`✅ Processed logo for ${job.company}`);
+            console.log(`✅ Finalized ${job.company}`);
         }
 
         // Clear existing jobs

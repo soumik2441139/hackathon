@@ -1,0 +1,22 @@
+[dotenv@17.3.1] injecting env (6) from .env -- tip: ΓÜÖ∩╕Å  suppress all logs with { quiet: true }
+Γ£à Connected to MongoDB
+ΓÅ│ Converting company logos to Base64...
+ΓÅ│ Processing logo for Vercel: https://unavatar.io/vercel.com
+(node:11048) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"email":1} for model "User". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+   Logo processed. Starts with: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAA
+Γ£à Finalized Vercel
+ΓÅ│ Processing logo for Stripe: https://unavatar.io/stripe.com
+   Logo processed. Starts with: data:image/x-icon;base64,AAABAAMAMDAAAAEAIACoJQAAN
+Γ£à Finalized Stripe
+ΓÅ│ Processing logo for Airbnb: https://unavatar.io/airbnb.com
+   Logo processed. Starts with: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD
+Γ£à Finalized Airbnb
+ΓÅ│ Processing logo for OpenAI: https://unavatar.io/openai.com
+   Logo processed. Starts with: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAA
+Γ£à Finalized OpenAI
+ΓÅ│ Processing logo for Cred: https://unavatar.io/cred.club
+   Logo processed. Starts with: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAA
+Γ£à Finalized Cred
+≡ƒùæ∩╕Å Cleared existing jobs
+Γ£à Successfully seeded new jobs with Base64 logos!

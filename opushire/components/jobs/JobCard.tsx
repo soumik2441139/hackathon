@@ -11,7 +11,7 @@ interface JobCardProps {
 
 export const JobCard = ({ job }: JobCardProps) => {
     return (
-        <div className="glass-card p-8 flex flex-col h-full hover:border-white/20 hover:bg-white/[0.05] transition-all group min-h-[420px] justify-between">
+        <div className="glass-card p-8 flex flex-col h-full hover:border-white/20 hover:bg-white/[0.05] transition-all group justify-between">
             <div className="space-y-6">
                 <div className="flex justify-between items-start">
                     <div className="flex gap-4">
