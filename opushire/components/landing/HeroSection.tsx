@@ -1,14 +1,15 @@
 import { Button } from '@/components/ui/Button';
 import { HeroScene } from '@/components/animations/HeroScene';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
+import { TrustedByMarquee } from './TrustedByMarquee';
 import Link from 'next/link';
 
 export const HeroSection = () => {
     return (
-        <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 pb-32 px-6">
+        <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 pb-0 px-6 overflow-hidden">
             <HeroScene />
 
-            <div className="max-w-4xl text-center z-10">
+            <div className="max-w-4xl text-center z-10 w-full">
                 <ScrollReveal direction="down" duration={0.8}>
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-violet/10 border border-brand-violet/20 text-brand-violet text-sm font-medium mb-8">
                         <span className="relative flex h-2 w-2">
@@ -43,15 +44,7 @@ export const HeroSection = () => {
                 </ScrollReveal>
 
                 <ScrollReveal delay={0.8} duration={1} direction="up">
-                    <div className="mt-20 pt-12 border-t border-white/5">
-                        <p className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold mb-8">Trusted by talent makers</p>
-                        <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
-                            <div className="text-2xl font-black italic">VERCEL</div>
-                            <div className="text-2xl font-black tracking-widest leading-none">STRIPE</div>
-                            <div className="text-2xl font-bold font-mono">razorpay</div>
-                            <div className="text-2xl font-bold lowercase tracking-tighter">airbnb</div>
-                        </div>
-                    </div>
+                    <TrustedByMarquee />
                 </ScrollReveal>
             </div>
         </section>
