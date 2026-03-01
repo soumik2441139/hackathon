@@ -21,6 +21,22 @@ export default function RegisterPage() {
     const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
         setForm(prev => ({ ...prev, [field]: e.target.value }));
 
+    const formatUrl = (url: string) => {
+        if (!url) return '';
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            return `https://${url}`;
+        }
+        return url;
+    };
+
+    const formatLogoUrl = (url: string) => {
+        if (!url) return '';
+        if (!url.startsWith('http')) {
+            return `https://logo.clearbit.com/${url}`;
+        }
+        return url;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -40,8 +56,8 @@ export default function RegisterPage() {
                     degree: form.degree,
                 } : {
                     companyName: form.companyName,
-                    companyWebsite: form.companyWebsite,
-                    companyLogo: form.companyLogo,
+                    companyWebsite: formatUrl(form.companyWebsite),
+                    companyLogo: formatLogoUrl(form.companyLogo),
                 })
             });
         } catch (err: unknown) {
@@ -148,14 +164,14 @@ export default function RegisterPage() {
                                         <label className="text-sm font-bold text-brand-text/70 ml-1">Company Website</label>
                                         <div className="relative">
                                             <GlobeIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/30 w-5 h-5" />
-                                            <input type="url" placeholder="https://vercel.com" value={form.companyWebsite} onChange={set('companyWebsite')} className={inputClass} />
+                                            <input type="text" placeholder="vercel.com" value={form.companyWebsite} onChange={set('companyWebsite')} className={inputClass} />
                                         </div>
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
-                                        <label className="text-sm font-bold text-brand-text/70 ml-1">Company Logo URL</label>
+                                        <label className="text-sm font-bold text-brand-text/70 ml-1">Company Logo</label>
                                         <div className="relative">
                                             <GlobeIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/30 w-5 h-5" />
-                                            <input type="url" placeholder="https://logo.clearbit.com/vercel.com" value={form.companyLogo} onChange={set('companyLogo')} className={inputClass} />
+                                            <input type="text" placeholder="vercel.com" value={form.companyLogo} onChange={set('companyLogo')} className={inputClass} />
                                         </div>
                                     </div>
                                 </motion.div>
