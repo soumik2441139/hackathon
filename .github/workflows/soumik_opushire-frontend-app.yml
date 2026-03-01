@@ -24,6 +24,8 @@ jobs:
           node-version: '20.x'
 
       - name: npm install, build, and zip standalone
+        env:
+          NEXT_PUBLIC_API_URL: https://opushire-backend.azurewebsites.net/api
         run: |
           cd opushire
           npm install
