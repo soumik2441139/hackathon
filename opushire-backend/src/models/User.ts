@@ -5,12 +5,14 @@ export interface IUser extends Document {
     name: string;
     email: string;
     passwordHash: string;
-    role: 'student' | 'admin';
+    role: 'student' | 'admin' | 'recruiter';
     college?: string;
     degree?: string;
     year?: string;
     skills: string[];
     bio?: string;
+    companyName?: string;
+    companyWebsite?: string;
     avatar: string;
     createdAt: Date;
     updatedAt: Date;
@@ -28,12 +30,14 @@ const UserSchema = new Schema<IUser>(
             trim: true,
         },
         passwordHash: { type: String, required: true, select: false },
-        role: { type: String, enum: ['student', 'admin'], default: 'student' },
+        role: { type: String, enum: ['student', 'admin', 'recruiter'], default: 'student' },
         college: { type: String, trim: true },
         degree: { type: String, trim: true },
         year: { type: String, trim: true },
         skills: [{ type: String, trim: true }],
         bio: { type: String, trim: true },
+        companyName: { type: String, trim: true },
+        companyWebsite: { type: String, trim: true },
         avatar: { type: String },
     },
     { timestamps: true }

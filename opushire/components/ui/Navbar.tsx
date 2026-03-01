@@ -28,6 +28,11 @@ export const Navbar = () => {
                     <Link href="/jobs" className="text-brand-text/70 hover:text-brand-text transition-colors">Jobs</Link>
                     <Link href="/companies" className="text-brand-text/70 hover:text-brand-text transition-colors">Companies</Link>
                     <Link href="/salaries" className="text-brand-text/70 hover:text-brand-text transition-colors">Salaries</Link>
+                    {user?.role === 'recruiter' && (
+                        <Link href="/dashboard/recruiter/post-job" className="text-brand-cyan font-bold hover:text-brand-cyan/80 transition-colors flex items-center gap-1">
+                            <Briefcase size={16} /> Post a Job
+                        </Link>
+                    )}
                 </div>
 
                 <div className="hidden md:flex items-center gap-4">

@@ -9,9 +9,9 @@ const router = Router();
 router.get('/', JobController.getJobs);
 router.get('/:id', JobController.getJobById);
 
-// Admin only
-router.post('/', authenticate, requireRole('admin'), JobController.createJob);
-router.put('/:id', authenticate, requireRole('admin'), JobController.updateJob);
-router.delete('/:id', authenticate, requireRole('admin'), JobController.deleteJob);
+// Admin and Recruiter
+router.post('/', authenticate, requireRole('admin', 'recruiter'), JobController.createJob);
+router.put('/:id', authenticate, requireRole('admin', 'recruiter'), JobController.updateJob);
+router.delete('/:id', authenticate, requireRole('admin', 'recruiter'), JobController.deleteJob);
 
 export default router;
