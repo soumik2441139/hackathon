@@ -1,4 +1,4 @@
-export type UserRole = 'student' | 'admin';
+export type UserRole = 'student' | 'admin' | 'recruiter';
 
 export interface User {
     _id: string;
@@ -10,6 +10,8 @@ export interface User {
     year?: string;
     skills: string[];
     bio?: string;
+    companyName?: string;
+    companyWebsite?: string;
     avatar: string;
     createdAt: string;
     updatedAt: string;

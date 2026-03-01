@@ -11,7 +11,9 @@ interface AuthContextValue {
     login: (email: string, password: string) => Promise<void>;
     register: (data: {
         name: string; email: string; password: string;
+        role?: 'student' | 'recruiter';
         college?: string; degree?: string; year?: string;
+        companyName?: string; companyWebsite?: string;
     }) => Promise<void>;
     logout: () => void;
 }
@@ -45,16 +47,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const login = useCallback(async (email: string, password: string) => {
         const res = await auth.login({ email, password });
         persist(res.data.user, res.data.token);
-        router.push(res.data.user.role === 'admin' ? '/dashboard/admin' : '/dashboard/student');
+        const { role } = res.data.user;
+        if (role === 'admin') router.push('/dashboard/admin');
+        else if (role === 'recruiter') router.push('/dashboard/recruiter');
+        else router.push('/dashboard/student');
     }, [router]);
 
     const register = useCallback(async (data: {
         name: string; email: string; password: string;
+        role?: 'student' | 'recruiter';
         college?: string; degree?: string; year?: string;
+        companyName?: string; companyWebsite?: string;
     }) => {
-        const res = await auth.register({ ...data, role: 'student' });
+        const res = await auth.register({ ...data });
         persist(res.data.user, res.data.token);
-        router.push('/dashboard/student');
+        if (res.data.user.role === 'recruiter') {
+            router.push('/dashboard/recruiter');
+        } else {
+            router.push('/dashboard/student');
+        }
     }, [router]);
 
     const logout = useCallback(() => {

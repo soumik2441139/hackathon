@@ -9,12 +9,14 @@ export const registerSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
-    role: z.enum(['student', 'admin']).default('student'),
+    role: z.enum(['student', 'admin', 'recruiter']).default('student'),
     college: z.string().optional(),
     degree: z.string().optional(),
     year: z.string().optional(),
     skills: z.array(z.string()).optional().default([]),
     bio: z.string().optional(),
+    companyName: z.string().optional(),
+    companyWebsite: z.string().optional(),
 });
 
 export const loginSchema = z.object({
@@ -66,6 +68,8 @@ const updateProfileSchema = z.object({
     year: z.string().optional(),
     skills: z.array(z.string()).optional(),
     bio: z.string().optional(),
+    companyName: z.string().optional(),
+    companyWebsite: z.string().optional(),
 });
 
 export const updateProfile = async (userId: string, rawData: unknown) => {

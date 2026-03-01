@@ -67,11 +67,11 @@ export const getJobById = async (id: string) => {
     return job;
 };
 
-export const createJob = async (data: z.infer<typeof createJobSchema>, adminId: string) => {
+export const createJob = async (data: z.infer<typeof createJobSchema>, userId: string) => {
     const job = await Job.create({
         ...data,
         posted: 'Just now',
-        postedBy: adminId,
+        postedBy: userId,
         deadline: data.deadline ? new Date(data.deadline) : undefined,
     });
     return job;
