@@ -1,21 +1,36 @@
 # Opushire
 
-Opushire is a modern, full-stack job board and application tracking platform designed for students and professionals. The platform features an elegantly designed UI for job seekers to find and apply for jobs, and a robust admin/recruiter dashboard to manage job postings and track candidate applications.
+Opushire is a modern, full-stack recruitment platform designed to seamlessly connect elite talent with top-tier technology companies. Built with a focus on **premium user experience** and **enterprise-grade architecture**, Opushire offers an intuitive glassmorphic interface for job seekers and a powerful candidate management system for recruiters.
 
-## 🚀 Features
+---
 
-- **User Authentication**: Secure JWT-based registration and login for job seekers and recruiters.
-- **Job Listings & Search**: Browse featured jobs and search by keywords, location, and job type.
-- **Application Tracking**: Users can easily apply and track their job application statuses.
-- **Admin Dashboard**: Dedicated portal for recruiters to post jobs, manage applications, and review candidate profiles.
-- **Responsive Design**: Beautiful, responsive, and accessible UI built with Next.js and Tailwind CSS.
-- **Secure Backend**: robust RESTful API built with Express and MongoDB.
+## ✨ Key Features
+
+**🎨 Premium UI / UX Design**
+- Fully responsive "Glassmorphism" aesthetic built with Tailwind CSS.
+- Smooth page transitions and micro-animations powered by Framer Motion.
+- Clean, distraction-free dashboards for both students and admins.
+
+**🔐 Role-Based Access Control (RBAC)**
+- Secure JWT authentication with strict `httpOnly` cookies.
+- Differentiated user experiences: 
+  - **Students**: Browse featured roles, apply to open positions, and track application statuses (Interview, Shortlisted, Hired) in real-time.
+  - **Admins/Recruiters**: Manage company profiles, manually post/delete jobs, and review candidate applications through a dedicated operational portal.
+
+**💼 Dynamic Job Board & Search Engine**
+- Integrated with Clearbit for automatic, high-quality company logo loading via URL.
+- Localized Indian recruitment options displaying INR salaries (e.g., ₹35 LPA - ₹50 LPA) and major tech hubs (Bangalore, Gurgaon, Pune).
+- Live filtering capabilities by Category (Engineering, Product, Design), Job Type (Full-time, Internship, Contract), and Work Mode (Remote, Hybrid, Onsite).
+
+**🚀 Fully Automated Cloud Infrastructure**
+- Fully deployed on **Microsoft Azure App Services**.
+- Backend infrastructure utilizes automated CI/CD pipelines via **GitHub Actions** for instant zero-downtime updates upon merging to the master branch.
 
 ---
 
 ## 🏗 System Architecture
 
-The project is built using a decoupled architecture, separating the client application from the REST API backend.
+The project is built using a decoupled architecture, separating the Next.js client application from the high-throughput Express.js REST API backend.
 
 ```mermaid
 graph TD
@@ -40,53 +55,44 @@ graph TD
     end
 ```
 
-### Component Interaction Flow
-
-```mermaid
-sequenceDiagram
-    actor User
-    participant NextJS as Frontend (Next.js)
-    participant API as Backend API (Express)
-    participant DB as MongoDB Atlas
-
-    User->>NextJS: Visits Jobs Page
-    NextJS->>API: GET /api/jobs
-    API->>DB: Query Database
-    DB-->>API: Returns Job Documents
-    API-->>NextJS: Returns JSON Array
-    NextJS-->>User: Renders Job Cards
-
-    User->>NextJS: Clicks "Apply"
-    NextJS->>API: POST /api/applications (with JWT)
-    API->>DB: Create Application Record
-    DB-->>API: Success Response
-    API-->>NextJS: Application Created
-    NextJS-->>User: Success Notification
-```
-
 ---
 
 ## 💻 Technology Stack
 
 **Frontend (`/opushire`):**
-- Framework: [Next.js](https://nextjs.org/) (App Router)
-- Language: TypeScript
-- Styling: Tailwind CSS & Framer Motion
-- State/Data: React Context, Fetch API
+- **Framework**: [Next.js 14+](https://nextjs.org/) (App Router, SSR/SSG combinations)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS & Framer Motion
+- **Icons**: Lucide React
+- **State/Data**: React Context API, Native Fetch
 
 **Backend (`/opushire-backend`):**
-- Runtime: [Node.js](https://nodejs.org/)
-- Framework: [Express](https://expressjs.com/)
-- Database: [MongoDB Atlas](https://www.mongodb.com/) with Mongoose
-- Security: Helmet, CORS, JWT Auth
+- **Runtime**: [Node.js](https://nodejs.org/) (v18+)
+- **Framework**: [Express](https://expressjs.com/)
+- **Database**: [MongoDB Atlas](https://www.mongodb.com/) using Mongoose ODM
+- **Security**: Helmet, CORS, bcrypt, jsonwebtoken
 
 ---
 
-## 🛠 Local Setup
+## 🚀 Live Deployment
+
+The application is fully deployed and hosted on **Microsoft Azure App Services** with continuous integration via **GitHub Actions**.
+
+- **Live Frontend URL:** [https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
+- **Live Backend API:** [https://opushire-backend.azurewebsites.net/api](https://opushire-backend.azurewebsites.net/api)
+- **Database:** MongoDB Atlas (Cloud)
+
+### CI/CD Pipeline
+- **Frontend Workflow:** Changes pushed to the repository automatically trigger a GitHub Action sequence that injects `NEXT_PUBLIC` API URL environments, builds the Next.js standalone application, and zips it before deploying to the designated Azure App Service slot.
+- **Backend Workflow:** Changes trigger an automated deployment to the Azure Node.js App Service container, restarting the PM2 equivalent process to instantly serve the latest routes.
+
+---
+
+## 🛠 Local Development Setup
 
 ### Prerequisites
 - Node.js (v18+)
-- MongoDB connection string (local or MongoDB Atlas)
+- MongoDB Atlas Connection String (or local MongoDB instance)
 
 ### 1. Backend Setup
 1. Navigate to the backend directory:
@@ -97,8 +103,9 @@ sequenceDiagram
    ```bash
    npm install
    ```
-3. Create a `.env` file based on `.env.example` (or set the following variables):
+3. Initialize the environment variables:
    ```env
+   # .env
    NODE_ENV=development
    PORT=5000
    MONGODB_URI=your_mongodb_connection_string
@@ -106,7 +113,12 @@ sequenceDiagram
    JWT_EXPIRES_IN=7d
    FRONTEND_URL=http://localhost:3000
    ```
-4. Start the development server:
+4. Seeding the Database (Optional but Recommended):
+   Run the secure seeding script to automatically populate your cluster with an Admin user, and top-tier startup roles (Vercel, Stripe, Cred, OpenAI) with localized Indian locations/salaries.
+   ```bash
+   npx tsx seed-jobs.ts
+   ```
+5. Start the development server:
    ```bash
    npm run dev
    ```
@@ -120,8 +132,9 @@ sequenceDiagram
    ```bash
    npm install
    ```
-3. Create a `.env.local` file:
+3. Initialize the `.env.local` file:
    ```env
+   # opushire/.env.local
    NEXT_PUBLIC_API_URL=http://localhost:5000/api
    ```
 4. Start the Next.js development server:
@@ -129,17 +142,3 @@ sequenceDiagram
    npm run dev
    ```
 5. Open [http://localhost:3000](http://localhost:3000) your browser.
-
----
-
-## 🚀 Live Deployment
-
-The application is fully deployed and hosted on **Microsoft Azure App Services** with continuous integration via **GitHub Actions**.
-
-- **Live Frontend URL:** [https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
-- **Live Backend API:** [https://opushire-backend.azurewebsites.net/api](https://opushire-backend.azurewebsites.net/api)
-- **Database:** MongoDB Atlas (Cloud)
-
-### CI/CD Pipeline
-- **Frontend Workflow:** Changes pushed to the repository automatically trigger a GitHub Action sequence that builds the Next.js standalone application and zips it before deploying to the designated Azure App Service slot.
-- **Backend Workflow:** Changes trigger an automated deployment to the Azure Node.js App Service container.
