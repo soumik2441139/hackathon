@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from 'react';
 import { jobs as jobsApi } from '@/lib/api';
 import { Job } from '@/lib/types';
