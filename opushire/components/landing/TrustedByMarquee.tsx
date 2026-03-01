@@ -1,27 +1,55 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { jobs } from '@/lib/api';
+
+const TYPOGRAPHY_STYLES = [
+    "font-black italic",
+    "font-black tracking-widest leading-none uppercase",
+    "font-bold font-mono",
+    "font-bold lowercase tracking-tighter",
+    "font-black uppercase",
+    "font-bold font-serif italic",
+    "font-bold tracking-tight"
+];
 
 export const TrustedByMarquee = () => {
-    // We duplicate the list to create a seamless infinite loop
-    const companies = [
-        <div key="c0" className="text-2xl font-black italic px-8">VERCEL</div>,
-        <div key="c1" className="text-2xl font-black tracking-widest leading-none px-8">STRIPE</div>,
-        <div key="c2" className="text-2xl font-bold font-mono px-8">razorpay</div>,
-        <div key="c3" className="text-2xl font-bold lowercase tracking-tighter px-8">airbnb</div>,
-        <div key="c4" className="text-2xl font-black uppercase px-8">CRED</div>,
-        <div key="c5" className="text-2xl font-bold font-serif italic px-8">Notion</div>,
-        <div key="c6" className="text-2xl font-bold px-8">OpenAI</div>,
+    const [companies, setCompanies] = useState<React.ReactNode[]>([]);
 
-        // Duplicates for seamless loop
-        <div key="c0_dup" className="text-2xl font-black italic px-8">VERCEL</div>,
-        <div key="c1_dup" className="text-2xl font-black tracking-widest leading-none px-8">STRIPE</div>,
-        <div key="c2_dup" className="text-2xl font-bold font-mono px-8">razorpay</div>,
-        <div key="c3_dup" className="text-2xl font-bold lowercase tracking-tighter px-8">airbnb</div>,
-        <div key="c4_dup" className="text-2xl font-black uppercase px-8">CRED</div>,
-        <div key="c5_dup" className="text-2xl font-bold font-serif italic px-8">Notion</div>,
-        <div key="c6_dup" className="text-2xl font-bold px-8">OpenAI</div>,
-    ];
+    useEffect(() => {
+        const fetchCompanies = async () => {
+            try {
+                // Fetch a large sample of jobs to grab company names
+                const res = await jobs.getAll({ limit: 50 });
+                const uniqueCompanyNames = Array.from(new Set(res.data.jobs.map(job => job.company)));
+
+                if (uniqueCompanyNames.length === 0) return;
+
+                // Create the original set of elements
+                const companyElements = uniqueCompanyNames.map((companyName, index) => (
+                    <div key={`c${index}`} className={`text-2xl px-8 ${TYPOGRAPHY_STYLES[index % TYPOGRAPHY_STYLES.length]}`}>
+                        {companyName}
+                    </div>
+                ));
+
+                // Duplicate the set for seamless looping
+                const duplicateElements = uniqueCompanyNames.map((companyName, index) => (
+                    <div key={`c${index}_dup`} className={`text-2xl px-8 ${TYPOGRAPHY_STYLES[index % TYPOGRAPHY_STYLES.length]}`}>
+                        {companyName}
+                    </div>
+                ));
+
+                setCompanies([...companyElements, ...duplicateElements]);
+            } catch (error) {
+                console.error("Failed to load companies for marquee:", error);
+            }
+        };
+
+        fetchCompanies();
+    }, []);
+
+    // Prevent rendering the crawler if no data is loaded yet to avoid stuttering
+    if (companies.length === 0) return null;
 
     return (
         <div className="w-full mt-20 pt-12 border-t border-white/5 relative">
