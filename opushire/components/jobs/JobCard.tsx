@@ -16,7 +16,7 @@ export const JobCard = ({ job }: JobCardProps) => {
                 <div className="flex justify-between items-start">
                     <div className="flex gap-4">
                         <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-3xl border border-white/5 transition-transform group-hover:scale-110 overflow-hidden shrink-0">
-                            {job.companyLogo?.startsWith('http') ? (
+                            {job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? (
                                 <img src={job.companyLogo} alt={`${job.company} logo`} className="w-full h-full object-contain p-1" />
                             ) : (
                                 job.companyLogo || '🏢'

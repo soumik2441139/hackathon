@@ -10,6 +10,8 @@ if (!url) {
     console.error('❌ MONGODB_URI is not defined in the environment variables');
     process.exit(1);
 }
+import { imageToBase64 } from './src/services/image.service';
+
 const seedJobs = async () => {
     try {
         await mongoose.connect(url);
@@ -27,7 +29,7 @@ const seedJobs = async () => {
             console.log('✅ Created Admin user');
         }
 
-        const jobsData = [
+        const rawJobsData = [
             {
                 title: "Senior Frontend Engineer",
                 company: "Vercel",
@@ -130,13 +132,21 @@ const seedJobs = async () => {
             }
         ];
 
+        console.log('⏳ Converting company logos to Base64...');
+        const jobsData = [];
+        for (const job of rawJobsData) {
+            const base64Logo = await imageToBase64(job.companyLogo);
+            jobsData.push({ ...job, companyLogo: base64Logo });
+            console.log(`✅ Processed logo for ${job.company}`);
+        }
+
         // Clear existing jobs
         await Job.deleteMany({});
         console.log('🗑️ Cleared existing jobs');
 
         // Insert new jobs
         await Job.insertMany(jobsData);
-        console.log('✅ Successfully seeded new jobs with logos!');
+        console.log('✅ Successfully seeded new jobs with Base64 logos!');
 
         process.exit(0);
     } catch (error) {

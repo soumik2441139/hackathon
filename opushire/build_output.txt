@@ -1,0 +1,53 @@
+
+> opushire@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 2 errors:
+./components/landing/FeaturedJobs.tsx:1:17
+Ecmascript file had an error
+> 1 | import React, { useEffect, useState } from 'react';
+    |                 ^^^^^^^^^
+  2 | import { jobs as jobsApi } from '@/lib/api';
+  3 | import { Job } from '@/lib/types';
+  4 | import { JobCard } from '@/components/jobs/JobCard';
+
+You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+
+
+Import trace:
+  Server Component:
+    ./components/landing/FeaturedJobs.tsx
+    ./app/page.tsx
+
+
+./components/landing/FeaturedJobs.tsx:1:28
+Ecmascript file had an error
+> 1 | import React, { useEffect, useState } from 'react';
+    |                            ^^^^^^^^
+  2 | import { jobs as jobsApi } from '@/lib/api';
+  3 | import { Job } from '@/lib/types';
+  4 | import { JobCard } from '@/components/jobs/JobCard';
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+
+
+Import trace:
+  Server Component:
+    ./components/landing/FeaturedJobs.tsx
+    ./app/page.tsx
+
+
+    at <unknown> (./components/landing/FeaturedJobs.tsx:1:17)
+    at <unknown> (./components/landing/FeaturedJobs.tsx:1:28)
