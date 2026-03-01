@@ -24,18 +24,20 @@ export const TrustedByMarquee = () => {
     ];
 
     return (
-        <div className="w-full overflow-hidden mt-20 pt-12 border-t border-white/5 relative">
+        <div className="w-full mt-20 pt-12 border-t border-white/5 relative">
             <p className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold mb-8 text-center">
                 Trusted by world-class teams
             </p>
 
-            {/* Fade effect on the very edges so logos "vanish" */}
-            <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#031d27] to-transparent z-10 pointer-events-none translate-y-20"></div>
-            <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#031d27] to-transparent z-10 pointer-events-none translate-y-20"></div>
-
-            <div className="flex whitespace-nowrap opacity-40 grayscale hover:grayscale-0 transition-all duration-700 w-max">
+            <div
+                className="flex whitespace-nowrap opacity-40 grayscale hover:grayscale-0 transition-all duration-700 w-full overflow-hidden"
+                style={{
+                    maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
+                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)'
+                }}
+            >
                 <motion.div
-                    className="flex flex-row items-center justify-start space-x-12"
+                    className="flex flex-row items-center justify-start space-x-12 w-max"
                     animate={{ x: "-50%" }}
                     transition={{
                         repeat: Infinity,
