@@ -18,6 +18,22 @@
 
 Opushire is a modern, full-stack recruitment platform and application tracking system (ATS) crafted to seamlessly connect elite student talent with world-class technology companies (like Stripe, Vercel, Cred, and OpenAI). 
 
+### 🗺️ User Journey
+
+```mermaid
+graph LR
+    User((User)) -->|Auth| Dashboard{Role?}
+    Dashboard -->|Student| S_Profile[Build Profile]
+    S_Profile --> S_Search[Search Jobs]
+    S_Search --> S_Apply[Apply for Role]
+    S_Apply --> S_Track[Track Application]
+    
+    Dashboard -->|Recruiter| R_Org[Manage Org]
+    R_Org --> R_Post[Post Jobs]
+    R_Post --> R_Review[Review Applicants]
+    R_Review --> R_Status[Update Status]
+```
+
 Built with an intense focus on **premium user experience**, **enterprise-grade architecture**, and an **immersive "glassmorphism" aesthetic**, Opushire provides an incredibly fast and fluid interface for both job seekers finding their dream internships and recruiters managing top-tier pipelines.
 
 ---
@@ -32,6 +48,23 @@ Built with an intense focus on **premium user experience**, **enterprise-grade a
 
 ### 🔐 Multi-Tier Role-Based Access (RBAC)
 - Secure JSON Web Token (JWT) authentication handled via strict, HTTP-only cookies.
+
+```mermaid
+sequenceDiagram
+    participant C as Client (Next.js)
+    participant B as Backend (Express)
+    participant D as Database (MongoDB)
+    
+    C->>B: Login Credentials
+    B->>D: Verify User
+    D-->>B: User Data
+    B->>B: Generate JWT
+    B-->>C: Set HTTP-Only Cookie
+    C->>B: Authenticated Request
+    B->>B: Verify JWT
+    B-->>C: Authorized Data
+```
+
 - **Student Portal**:
   - Live dashboards tracking the status of applied jobs (Interview, Shortlisted, Hired).
   - Saved opportunity tracking.
@@ -86,6 +119,33 @@ graph TD
 ---
 
 ## 💻 Tech Stack Summary
+
+### 📊 Data Architecture
+
+```mermaid
+erDiagram
+    USER ||--o{ JOB : posts
+    USER ||--o{ APPLICATION : applies
+    JOB ||--o{ APPLICATION : receives
+    
+    USER {
+        string name
+        string email
+        string role
+        string college
+    }
+    JOB {
+        string title
+        string company
+        number salary
+        string type
+    }
+    APPLICATION {
+        string status
+        date appliedAt
+        string coverLetter
+    }
+```
 
 **Frontend Application:**
 - **Framework**: Next.js 14+ (App Router)
@@ -155,4 +215,4 @@ Want to run Opushire locally? Ensure you have **Node.js 18+** and a **MongoDB cl
 
 ---
 
-> Built with 🩵 for high-growth students everywhere by Soumik and Sagnik.
+> Built with 🩵 for high-growth students everywhere by Soumik and [Sagnik](https://github.com/SagnikSarkar31).
