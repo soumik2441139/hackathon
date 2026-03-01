@@ -69,7 +69,7 @@ export default function PostJobPage() {
                 requirements: form.requirements.split('\n').filter(Boolean),
                 tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
                 company: user?.companyName || 'Unknown Company',
-                companyLogo: '🏢', // Default logo for now
+                companyLogo: user?.companyLogo || '🏢',
             };
             await jobs.create(payload);
             setDone(true);
@@ -283,8 +283,12 @@ export default function PostJobPage() {
                             >
                                 <div className="p-8 rounded-3xl bg-white/5 border border-white/5 space-y-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-violet/20 to-brand-cyan/20 flex items-center justify-center text-3xl">
-                                            🏢
+                                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-violet/20 to-brand-cyan/20 flex items-center justify-center text-3xl overflow-hidden">
+                                            {user?.companyLogo && user.companyLogo.startsWith('http') ? (
+                                                <img src={user.companyLogo} alt={user.companyName} className="w-full h-full object-cover" />
+                                            ) : (
+                                                user?.companyLogo || '🏢'
+                                            )}
                                         </div>
                                         <div>
                                             <h2 className="text-2xl font-black">{form.title || 'Untitled Role'}</h2>

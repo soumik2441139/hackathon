@@ -14,6 +14,7 @@ interface AuthContextValue {
         role?: 'student' | 'recruiter';
         college?: string; degree?: string; year?: string;
         companyName?: string; companyWebsite?: string;
+        companyLogo?: string;
     }) => Promise<void>;
     logout: () => void;
 }
@@ -58,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role?: 'student' | 'recruiter';
         college?: string; degree?: string; year?: string;
         companyName?: string; companyWebsite?: string;
+        companyLogo?: string;
     }) => {
         const res = await auth.register({ ...data });
         persist(res.data.user, res.data.token);

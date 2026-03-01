@@ -17,6 +17,7 @@ export const registerSchema = z.object({
     bio: z.string().optional(),
     companyName: z.string().optional(),
     companyWebsite: z.string().optional(),
+    companyLogo: z.string().optional(),
 });
 
 export const loginSchema = z.object({
@@ -70,6 +71,7 @@ const updateProfileSchema = z.object({
     bio: z.string().optional(),
     companyName: z.string().optional(),
     companyWebsite: z.string().optional(),
+    companyLogo: z.string().optional(),
 });
 
 export const updateProfile = async (userId: string, rawData: unknown) => {

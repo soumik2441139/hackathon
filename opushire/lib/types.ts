@@ -12,6 +12,7 @@ export interface User {
     bio?: string;
     companyName?: string;
     companyWebsite?: string;
+    companyLogo?: string;
     avatar: string;
     createdAt: string;
     updatedAt: string;

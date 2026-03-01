@@ -13,6 +13,7 @@ export interface IUser extends Document {
     bio?: string;
     companyName?: string;
     companyWebsite?: string;
+    companyLogo?: string;
     avatar: string;
     createdAt: Date;
     updatedAt: Date;
@@ -38,6 +39,7 @@ const UserSchema = new Schema<IUser>(
         bio: { type: String, trim: true },
         companyName: { type: String, trim: true },
         companyWebsite: { type: String, trim: true },
+        companyLogo: { type: String, trim: true, default: '🏢' },
         avatar: { type: String },
     },
     { timestamps: true }

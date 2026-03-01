@@ -13,7 +13,7 @@ export default function RegisterPage() {
     const [form, setForm] = useState({
         name: '', email: '', password: '', confirmPassword: '',
         college: '', degree: '',
-        companyName: '', companyWebsite: '',
+        companyName: '', companyWebsite: '', companyLogo: '',
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -41,6 +41,7 @@ export default function RegisterPage() {
                 } : {
                     companyName: form.companyName,
                     companyWebsite: form.companyWebsite,
+                    companyLogo: form.companyLogo,
                 })
             });
         } catch (err: unknown) {
@@ -148,6 +149,13 @@ export default function RegisterPage() {
                                         <div className="relative">
                                             <GlobeIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/30 w-5 h-5" />
                                             <input type="url" placeholder="https://vercel.com" value={form.companyWebsite} onChange={set('companyWebsite')} className={inputClass} />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <label className="text-sm font-bold text-brand-text/70 ml-1">Company Logo URL</label>
+                                        <div className="relative">
+                                            <GlobeIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/30 w-5 h-5" />
+                                            <input type="url" placeholder="https://logo.clearbit.com/vercel.com" value={form.companyLogo} onChange={set('companyLogo')} className={inputClass} />
                                         </div>
                                     </div>
                                 </motion.div>
