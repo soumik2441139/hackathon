@@ -14,14 +14,21 @@ export default function RecruiterDashboard() {
             <div className="max-w-6xl mx-auto">
                 <ScrollReveal direction="up">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
-                        <div>
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-cyan/10 border border-brand-cyan/20 text-sm font-bold text-brand-cyan mb-4">
-                                <Sparkles size={14} /> Recruiter Hub
+                        <div className="flex items-center gap-6">
+                            {user?.companyLogo && user.companyLogo.startsWith('http') && (
+                                <div className="w-20 h-20 rounded-3xl bg-white/5 p-1 border border-white/10 overflow-hidden hidden md:flex items-center justify-center">
+                                    <img src={user.companyLogo} alt={user.companyName} className="w-full h-full object-contain" />
+                                </div>
+                            )}
+                            <div>
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-cyan/10 border border-brand-cyan/20 text-sm font-bold text-brand-cyan mb-4">
+                                    <Sparkles size={14} /> Recruiter Hub
+                                </div>
+                                <h1 className="text-4xl md:text-5xl font-black mb-4 uppercase tracking-tighter">
+                                    Welcome back, <span className="text-gradient">{user?.name?.split(' ')[0] || 'Recruiter'}</span>
+                                </h1>
+                                <p className="text-white/40 text-lg">Manage your company presence and find top talent.</p>
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-black mb-4 uppercase tracking-tighter">
-                                Welcome back, <span className="text-gradient">{user?.name?.split(' ')[0] || 'Recruiter'}</span>
-                            </h1>
-                            <p className="text-white/40 text-lg">Manage your company presence and find top talent.</p>
                         </div>
                         <Link href="/dashboard/recruiter/post-job">
                             <Button className="h-16 px-10 text-lg gap-3">

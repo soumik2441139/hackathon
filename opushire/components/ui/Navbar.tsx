@@ -45,9 +45,17 @@ export const Navbar = () => {
                     {user ? (
                         <>
                             <Link href={dashboardHref}>
-                                <Button variant="ghost" className="gap-2">
-                                    <LayoutDashboard size={16} />
-                                    {user.name.split(' ')[0]}
+                                <Button variant="ghost" className="gap-3 px-3">
+                                    {user.role === 'recruiter' && user.companyLogo && user.companyLogo.startsWith('http') ? (
+                                        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
+                                            <img src={user.companyLogo} alt={user.companyName} className="w-full h-full object-contain" />
+                                        </div>
+                                    ) : (
+                                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-violet to-brand-cyan flex items-center justify-center text-brand-dark font-bold text-xs uppercase">
+                                            {user.avatar || user.name.charAt(0)}
+                                        </div>
+                                    )}
+                                    <span className="max-w-[100px] truncate">{user.name.split(' ')[0]}</span>
                                 </Button>
                             </Link>
                             <Button variant="outline" size="sm" className="gap-2 border-white/10" onClick={logout}>
