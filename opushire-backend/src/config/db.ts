@@ -9,8 +9,31 @@ const connectWithRetry = async (): Promise<void> => {
             serverSelectionTimeoutMS: 15000,
             socketTimeoutMS: 45000,
         });
-        isConnected = true;
         console.log(`✅ MongoDB connected: ${conn.connection.host} / ${conn.connection.name}`);
+
+        // Auto-migration check: If students/recruiters are empty but users exist, split them
+        const db = conn.connection.db;
+        if (db) {
+            const studentCount = await db.collection('students').countDocuments();
+            const recruiterCount = await db.collection('recruiters').countDocuments();
+
+            if (studentCount === 0 && recruiterCount === 0) {
+                const usersCol = db.collection('users');
+                const users = await usersCol.find({}).toArray();
+
+                if (users.length > 0) {
+                    console.log(`🚀 [Auto-Migration] Detected ${users.length} users in old collection. Reorganizing...`);
+                    for (const user of users) {
+                        const target = user.role === 'recruiter' ? 'recruiters' :
+                            user.role === 'admin' ? 'admins' : 'students';
+                        await db.collection(target).updateOne({ _id: user._id }, { $set: user }, { upsert: true });
+                    }
+                    console.log('✅ [Auto-Migration] Data successfully split into new collections.');
+                }
+            }
+        }
+
+        isConnected = true;
     } catch (error: any) {
         console.error('❌ MongoDB connection failed:', error?.message || error);
         console.log('🔄 Retrying MongoDB connection in 5 seconds...');
