@@ -20,7 +20,9 @@ async function request<T>(
     const data = await res.json();
 
     if (!res.ok) {
-        throw new Error(data.message || 'Something went wrong');
+        const error: any = new Error(data.message || 'Something went wrong');
+        error.fields = data.errors; // Capture Zod field errors
+        throw error;
     }
     return data;
 }
@@ -61,6 +63,7 @@ export interface JobsResponse {
 export interface JobFilters {
     q?: string; type?: string; mode?: string;
     city?: string; featured?: string; page?: number; limit?: number;
+    postedBy?: string;
 }
 
 export const jobs = {
@@ -90,6 +93,9 @@ export const jobs = {
         request<{ success: boolean; data: { message: string } }>(`/jobs/${id}`, {
             method: 'DELETE',
         }),
+
+    getStats: () =>
+        request<{ success: boolean; data: { activeJobs: number; totalApplicants: number; profileViews: string } }>('/jobs/stats/me'),
 };
 
 // ─── Applications ─────────────────────────────────────────────────────────────
@@ -115,4 +121,26 @@ export const applications = {
         request<{ success: boolean; data: import('./types').Application }>(`/applications/${id}/status`, {
             method: 'PUT', body: JSON.stringify({ status }),
         }),
+};
+
+// ─── Admin ────────────────────────────────────────────────────────────────────
+export const admin = {
+    getUsers: (role?: string) =>
+        request<{ success: boolean; data: import('./types').User[] }>(`/admin/users${role ? `?role=${role}` : ''}`),
+
+    deleteUser: (id: string) =>
+        request<{ success: boolean; data: { message: string } }>(`/admin/users/${id}`, {
+            method: 'DELETE',
+        }),
+
+    getStats: () =>
+        request<{
+            success: boolean; data: {
+                totalJobs: number;
+                totalApplicants: number;
+                totalStudents: number;
+                totalRecruiters: number;
+                activeUsers: number;
+            }
+        }>('/admin/stats'),
 };

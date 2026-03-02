@@ -4,8 +4,8 @@ import { createError } from '../middleware/errorHandler';
 import { imageToBase64 } from './image.service';
 
 export const createJobSchema = z.object({
-    title: z.string().min(3),
-    company: z.string().min(2),
+    title: z.string().min(1),
+    company: z.string().min(1),
     companyLogo: z.string().optional().default('🏢'),
     location: z.string().optional().default(''),
     city: z.string().optional().default(''),
@@ -14,12 +14,12 @@ export const createJobSchema = z.object({
     salaryMin: z.number().optional().default(0),
     salaryMax: z.number().optional().default(0),
     salary: z.string().optional().default(''),
-    description: z.string().min(10),
+    description: z.string().min(1),
     responsibilities: z.array(z.string()).optional().default([]),
     requirements: z.array(z.string()).optional().default([]),
     tags: z.array(z.string()).optional().default([]),
     openings: z.number().optional().default(1),
-    deadline: z.string().datetime().optional(),
+    deadline: z.string().optional(),
     featured: z.boolean().optional().default(false),
     companyWebsite: z.string().optional(),
 });
@@ -33,6 +33,7 @@ export const jobFilterSchema = z.object({
     mode: z.string().optional(),
     city: z.string().optional(),
     featured: z.string().optional(),
+    postedBy: z.string().optional(),
     page: z.string().optional().default('1'),
     limit: z.string().optional().default('12'),
 });
@@ -51,6 +52,7 @@ export const getJobs = async (filters: z.infer<typeof jobFilterSchema>) => {
     if (filters.mode) query.mode = filters.mode;
     if (filters.city) query.city = new RegExp(filters.city, 'i');
     if (filters.featured === 'true') query.featured = true;
+    if (filters.postedBy) query.postedBy = filters.postedBy;
 
     const [jobs, total] = await Promise.all([
         Job.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).populate('postedBy', 'name email'),
@@ -101,4 +103,20 @@ export const deleteJob = async (id: string) => {
     const job = await Job.findByIdAndDelete(id);
     if (!job) throw createError('Job not found', 404);
     return { message: 'Job deleted' };
+};
+
+export const getRecruiterStats = async (recruiterId: string) => {
+    const [activeJobs, totalApplicants] = await Promise.all([
+        Job.countDocuments({ postedBy: recruiterId }),
+        // For applicants, we count applications for any job posted by this recruiter
+        require('../models/Application').Application.countDocuments({
+            job: { $in: await Job.find({ postedBy: recruiterId }).distinct('_id') }
+        })
+    ]);
+
+    return {
+        activeJobs,
+        totalApplicants,
+        profileViews: "2.4k" // Placeholder for now as we don't track views yet
+    };
 };
