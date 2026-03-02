@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Shield, Users, Briefcase, BarChart3, Trash2,
-    ExternalLink, Search, Filter, ShieldAlert, Sparkles,
-    ChevronRight, Activity, Zap
+    Shield, Users, Briefcase, Trash2,
+    ExternalLink, Search, ShieldAlert,
+    Activity, Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
     );
 
     return (
-        <main className="pt-32 pb-24 px-6 min-h-screen bg-[#050505] text-white overflow-hidden selection:bg-brand-cyan/30">
+        <main className="pt-32 pb-24 px-6 min-h-screen bg-black text-white overflow-hidden">
             {/* Ambient Background Glows */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-violet/10 blur-[120px] rounded-full" />
