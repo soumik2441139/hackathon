@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { Job } from '../models/Job';
 import { createError } from '../middleware/errorHandler';
+import { imageToBase64 } from './image.service';
 
 export const createJobSchema = z.object({
     title: z.string().min(3),
@@ -13,13 +14,14 @@ export const createJobSchema = z.object({
     salaryMin: z.number().optional().default(0),
     salaryMax: z.number().optional().default(0),
     salary: z.string().optional().default(''),
-    description: z.string().min(20),
+    description: z.string().min(10),
     responsibilities: z.array(z.string()).optional().default([]),
     requirements: z.array(z.string()).optional().default([]),
     tags: z.array(z.string()).optional().default([]),
     openings: z.number().optional().default(1),
     deadline: z.string().datetime().optional(),
     featured: z.boolean().optional().default(false),
+    companyWebsite: z.string().optional(),
 });
 
 // Allowlist for updates — prevents overwriting postedBy, _id, etc.
@@ -68,8 +70,14 @@ export const getJobById = async (id: string) => {
 };
 
 export const createJob = async (data: z.infer<typeof createJobSchema>, userId: string) => {
+    let logo = data.companyLogo;
+    if (logo && logo.startsWith('http')) {
+        logo = await imageToBase64(logo);
+    }
+
     const job = await Job.create({
         ...data,
+        companyLogo: logo,
         posted: 'Just now',
         postedBy: userId,
         deadline: data.deadline ? new Date(data.deadline) : undefined,
@@ -79,6 +87,11 @@ export const createJob = async (data: z.infer<typeof createJobSchema>, userId: s
 
 export const updateJob = async (id: string, rawData: unknown) => {
     const data = updateJobSchema.parse(rawData);
+
+    if (data.companyLogo && data.companyLogo.startsWith('http')) {
+        data.companyLogo = await imageToBase64(data.companyLogo);
+    }
+
     const job = await Job.findByIdAndUpdate(id, data, { new: true, runValidators: true });
     if (!job) throw createError('Job not found', 404);
     return job;

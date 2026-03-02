@@ -60,8 +60,8 @@ export const JobList = () => {
                 </div>
 
                 {loading ? (
-                    <div className="grid grid-cols-1 gap-6">
-                        {[...Array(4)].map((_, i) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {[...Array(6)].map((_, i) => (
                             <div key={i} className="glass-card p-6 h-48 animate-pulse bg-white/5" />
                         ))}
                     </div>
@@ -71,7 +71,7 @@ export const JobList = () => {
                     </div>
                 ) : jobList.length > 0 ? (
                     <>
-                        <div className="grid grid-cols-1 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {jobList.map((job, index) => (
                                 <ScrollReveal key={job._id} delay={index * 0.05} direction="up" width="100%">
                                     <JobCard job={job} />

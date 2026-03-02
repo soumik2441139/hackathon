@@ -1,0 +1,12 @@
+[dotenv@17.3.1] injecting env (6) from .env -- tip: ΓÜÖ∩╕Å  load multiple .env files with { path: ['.env.local', '.env'] }
+Connecting to URI (obfuscated): mongodb+srv://soumikmanna24411...
+Γ£à Connected to MongoDB
+Host: ac-nmj9lot-shard-00-01.qqmzp0o.mongodb.net
+Database Name: hackathon
+Total jobs in collection: 5
+--- Vercel Logo ---
+Logo: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAA
+Length: 1018
+--- Stripe Logo ---
+Logo: data:image/x-icon;base64,AAABAAMAMDAAAAEAIACoJQAAN
+Length: 20141

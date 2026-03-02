@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-violet: #82BAC4;
-  --color-brand-cyan: #E37C78;
+  --color-brand-violet: #22D3EE;
+  --color-brand-cyan: #22D3EE;
   --color-brand-dark: #006078;
-  --color-brand-rose: #FFD4D1;
-  --color-brand-glass: rgba(250, 239, 237, 0.05);
-  --color-brand-glass-border: rgba(250, 239, 237, 0.1);
+  --color-brand-rose: #E37C78;
+  --color-brand-glass: rgba(34, 211, 238, 0.05);
+  --color-brand-glass-border: rgba(34, 211, 238, 0.1);
 
   --font-display: "Outfit", sans-serif;
   --font-body: "Inter", sans-serif;

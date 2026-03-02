@@ -74,13 +74,13 @@ export default function JobDetailPage() {
                         <span>Back to Browse</span>
                     </button>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                         {/* Main Info */}
-                        <div className="lg:col-span-2 space-y-12">
+                        <div className="lg:col-span-2 space-y-10">
                             <ScrollReveal direction="right">
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
-                                    <div className="flex gap-6">
-                                        <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-5xl overflow-hidden shrink-0">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                                    <div className="flex gap-5">
+                                        <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-4xl overflow-hidden shrink-0">
                                             {job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? (
                                                 <img src={job.companyLogo} alt={`${job.company} logo`} className="w-full h-full object-contain p-2" />
                                             ) : (
@@ -88,13 +88,13 @@ export default function JobDetailPage() {
                                             )}
                                         </div>
                                         <div>
-                                            <h1 className="text-3xl md:text-5xl font-black mb-2 text-brand-text">{job.title}</h1>
+                                            <h1 className="text-3xl md:text-4xl font-black mb-1.5 text-brand-text">{job.title}</h1>
                                             <div className="flex items-center gap-2 text-brand-text/60">
-                                                <span className="text-xl font-bold text-brand-text/80">{job.company}</span>
+                                                <span className="text-lg font-bold text-brand-text/80">{job.company}</span>
                                                 {job.location && (
                                                     <>
                                                         <span className="w-1 h-1 rounded-full bg-white/20" />
-                                                        <span>{job.location}</span>
+                                                        <span className="text-sm">{job.location}</span>
                                                     </>
                                                 )}
                                             </div>
@@ -102,20 +102,20 @@ export default function JobDetailPage() {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap gap-4 p-8 glass-card border-brand-violet/20 bg-brand-violet/5">
-                                    <div className="flex flex-col gap-1 pr-12 border-r border-white/10">
-                                        <span className="text-xs uppercase tracking-widest text-brand-text/30 font-bold">Salary</span>
-                                        <span className="text-lg font-bold text-brand-cyan">
+                                <div className="flex flex-wrap gap-4 p-6 glass-card border-brand-violet/20 bg-brand-violet/5">
+                                    <div className="flex flex-col gap-0.5 pr-10 border-r border-white/10">
+                                        <span className="text-[10px] uppercase tracking-widest text-brand-text/30 font-bold">Salary</span>
+                                        <span className="text-base font-bold text-brand-cyan">
                                             {job.salary || formatSalary(job.salaryMin, job.salaryMax)}
                                         </span>
                                     </div>
-                                    <div className="flex flex-col gap-1 px-12 border-r border-white/10">
-                                        <span className="text-xs uppercase tracking-widest text-brand-text/30 font-bold">Type</span>
-                                        <span className="text-lg font-bold text-brand-text">{job.type}</span>
+                                    <div className="flex flex-col gap-0.5 px-10 border-r border-white/10">
+                                        <span className="text-[10px] uppercase tracking-widest text-brand-text/30 font-bold">Type</span>
+                                        <span className="text-base font-bold text-brand-text">{job.type}</span>
                                     </div>
-                                    <div className="flex flex-col gap-1 pl-12">
-                                        <span className="text-xs uppercase tracking-widest text-brand-text/30 font-bold">Mode</span>
-                                        <span className="text-lg font-bold text-brand-text">{job.mode}</span>
+                                    <div className="flex flex-col gap-0.5 pl-10">
+                                        <span className="text-[10px] uppercase tracking-widest text-brand-text/30 font-bold">Mode</span>
+                                        <span className="text-base font-bold text-brand-text">{job.mode}</span>
                                     </div>
                                 </div>
                             </ScrollReveal>

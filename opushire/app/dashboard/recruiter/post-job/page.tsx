@@ -46,7 +46,38 @@ export default function PostJobPage() {
         responsibilities: '',
         requirements: '',
         tags: '',
+        companyWebsite: user?.companyWebsite || '',
+        companyLogo: user?.companyLogo || '',
     });
+
+    const [logoPreview, setLogoPreview] = useState(user?.companyLogo || '');
+
+    // Auto-fetch logo from domain
+    React.useEffect(() => {
+        if (form.companyWebsite && form.companyWebsite.includes('.')) {
+            const domain = form.companyWebsite
+                .replace(/^(https?:\/\/)?(www\.)?/, '')
+                .split('/')[0]
+                .toLowerCase();
+            if (domain.length > 3) {
+                const logoUrl = `https://unavatar.io/${domain}`;
+                setLogoPreview(logoUrl);
+                update('companyLogo', logoUrl);
+            }
+        }
+    }, [form.companyWebsite]);
+
+    // Sync user profile data when loaded
+    React.useEffect(() => {
+        if (user && !authLoading) {
+            setForm(s => ({
+                ...s,
+                companyWebsite: s.companyWebsite || user.companyWebsite || '',
+                companyLogo: s.companyLogo || user.companyLogo || '',
+            }));
+            if (!logoPreview) setLogoPreview(user.companyLogo || '');
+        }
+    }, [user, authLoading]);
 
     if (authLoading || (!user || (user.role !== 'recruiter' && user.role !== 'admin'))) {
         return <div className="min-h-screen flex items-center justify-center font-bold text-white/20 uppercase tracking-widest animate-pulse">Initializing Suite...</div>;
@@ -69,14 +100,16 @@ export default function PostJobPage() {
                 requirements: form.requirements.split('\n').filter(Boolean),
                 tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
                 company: user?.companyName || 'Unknown Company',
-                companyLogo: user?.companyLogo || '🏢',
+                companyLogo: form.companyLogo || user?.companyLogo || '🏢',
+                companyWebsite: form.companyWebsite
             };
             await jobs.create(payload);
             setDone(true);
             setTimeout(() => router.push('/jobs'), 2000);
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            alert('Failed to post job. Please check all fields.');
+            const msg = err.message || 'Failed to post job. Please check all fields.';
+            alert(msg);
         } finally {
             setLoading(false);
         }
@@ -204,6 +237,28 @@ export default function PostJobPage() {
                                             className={inputClass}
                                         />
                                     </div>
+                                    <div className="md:col-span-2">
+                                        <label className={labelClass}>Company Website (for logo)</label>
+                                        <div className="flex gap-4 items-center">
+                                            <input
+                                                type="text"
+                                                placeholder="e.g. vercel.com"
+                                                value={form.companyWebsite}
+                                                onChange={(e) => update('companyWebsite', e.target.value)}
+                                                className={inputClass}
+                                            />
+                                            {logoPreview && (
+                                                <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
+                                                    <img
+                                                        src={logoPreview}
+                                                        alt="Logo Preview"
+                                                        className="w-full h-full object-contain"
+                                                        onError={() => setLogoPreview('')}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
@@ -284,7 +339,9 @@ export default function PostJobPage() {
                                 <div className="p-8 rounded-3xl bg-white/5 border border-white/5 space-y-6">
                                     <div className="flex items-center gap-4">
                                         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-violet/20 to-brand-cyan/20 flex items-center justify-center text-3xl overflow-hidden">
-                                            {user?.companyLogo && user.companyLogo.startsWith('http') ? (
+                                            {form.companyLogo ? (
+                                                <img src={form.companyLogo} alt={user?.companyName} className="w-full h-full object-cover" />
+                                            ) : user?.companyLogo && user.companyLogo.startsWith('http') ? (
                                                 <img src={user.companyLogo} alt={user.companyName} className="w-full h-full object-cover" />
                                             ) : (
                                                 user?.companyLogo || '🏢'
