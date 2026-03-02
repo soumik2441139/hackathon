@@ -102,43 +102,46 @@ export default function RecruiterDashboard() {
                                 )}
                             </AnimatePresence>
                             <div>
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.2em] text-white/50 mb-4">
-                                    <Sparkles size={12} className="text-brand-cyan" />
-                                    Master Dashboard
+                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-cyan/10 border border-brand-cyan/20 text-[10px] font-black uppercase tracking-[0.2em] text-brand-cyan mb-6">
+                                    <Sparkles size={12} />
+                                    Recruiter Hub
                                 </div>
-                                <h1 className="text-5xl md:text-6xl font-black mb-2 uppercase tracking-tighter leading-none">
-                                    Hello, <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#E0C3FC] via-[#A1FFCE] to-[#FF9A9E] animate-gradient-x">{user?.name?.split(' ')[0] || 'Recruiter'}</span>
+                                <h1 className="text-6xl md:text-7xl font-black mb-4 uppercase tracking-tighter leading-none flex flex-wrap gap-x-4">
+                                    <span className="text-white">WELCOME BACK,</span>
+                                    <span className="text-brand-cyan">{user?.name?.split(' ')[0] || 'RECRUITER'}</span>
                                 </h1>
-                                <p className="text-white/40 text-lg font-medium">Your activity hub for <span className="text-white/80">{user?.companyName}</span></p>
+                                <p className="text-white/40 text-lg font-medium">Manage your company presence and find top talent.</p>
                             </div>
                         </div>
                         <Link href="/dashboard/recruiter/post-job">
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <Button className="h-16 px-10 text-lg gap-3 bg-white text-black hover:bg-white/90 shadow-[0_20px_40px_rgba(255,255,255,0.1)] rounded-2xl">
-                                    <Plus size={20} /> Post Opportunity
+                                <Button className="h-20 px-12 text-xl gap-3 bg-brand-cyan text-brand-dark font-black uppercase rounded-3xl shadow-[0_20px_40px_rgba(0,172,193,0.3)] hover:bg-brand-cyan/90">
+                                    <Plus size={24} /> Post New Opportunity
                                 </Button>
                             </motion.div>
                         </Link>
                     </motion.div>
 
                     {/* Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {cards.map((card, idx) => (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {[
+                            { title: 'Active Jobs', value: stats.activeJobs, icon: <Briefcase size={28} />, color: 'from-brand-cyan/20 to-transparent', iconColor: 'text-brand-cyan' },
+                            { title: 'Total Applicants', value: stats.totalApplicants, icon: <Users size={28} />, color: 'from-brand-cyan/20 to-transparent', iconColor: 'text-brand-cyan' },
+                            { title: 'Profile Views', value: stats.profileViews, icon: <BarChart3 size={28} />, color: 'from-orange-400/20 to-transparent', iconColor: 'text-orange-400' },
+                        ].map((card, idx) => (
                             <motion.div
                                 key={idx}
                                 variants={itemVariants}
-                                whileHover={{ y: -5 }}
-                                className="glass-card p-8 relative overflow-hidden group border-white/5"
+                                whileHover={{ y: -10 }}
+                                className="glass-card p-10 relative overflow-hidden group border-white/5 min-h-[220px] flex flex-col justify-between"
                             >
-                                <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${card.color} opacity-5 blur-3xl group-hover:opacity-20 transition-opacity`} />
-                                <div className={`w-14 h-14 rounded-2xl ${card.bg} flex items-center justify-center ${card.textColor} mb-6 transition-transform duration-500 group-hover:rotate-6`}>
+                                <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-10 group-hover:opacity-20 transition-opacity`} />
+                                <div className={`w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center ${card.iconColor} mb-8`}>
                                     {card.icon}
                                 </div>
-                                <h3 className="text-5xl font-black mb-1 tracking-tighter">{loading ? '...' : card.value}</h3>
-                                <p className="text-white/30 font-bold uppercase tracking-widest text-[10px]">{card.title}</p>
-                                <div className="mt-6 flex items-center gap-2 text-emerald-400 text-xs font-bold">
-                                    <TrendingUp size={14} />
-                                    <span>+12% from last month</span>
+                                <div>
+                                    <h3 className="text-6xl font-black mb-2 tracking-tighter text-white">{loading ? '...' : card.value}</h3>
+                                    <p className="text-white/30 font-black uppercase tracking-widest text-[11px]">{card.title}</p>
                                 </div>
                             </motion.div>
                         ))}
