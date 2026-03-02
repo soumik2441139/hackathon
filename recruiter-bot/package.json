@@ -10,6 +10,7 @@
         "fetch": "npx ts-node src/cli.ts"
     },
     "dependencies": {
+        "@google/genai": "^1.43.0",
         "axios": "^1.13.6",
         "cheerio": "^1.2.0",
         "cors": "^2.8.6",

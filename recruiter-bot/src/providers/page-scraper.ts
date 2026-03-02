@@ -226,6 +226,8 @@ function scrapeGeneric($: cheerio.CheerioAPI): ScrapedJob {
 
 // ─── URL Fetcher ────────────────────────────────────────────────────────────
 
+import { aiScrapeJob } from './ai-scraper';
+
 export async function deepScrapeJob(url: string): Promise<ScrapedJob> {
     if (!url || url.includes('t.me')) return { ...EMPTY_RESULT };
 
@@ -249,14 +251,28 @@ export async function deepScrapeJob(url: string): Promise<ScrapedJob> {
 
         console.log(`🔍 [Scraper] Portal: ${portalType} | URL: ${url.slice(0, 60)}...`);
 
+        let scrapeResult: ScrapedJob;
         switch (portalType) {
             case 'greenhouse':
-                return scrapeGreenhouse($);
+                scrapeResult = scrapeGreenhouse($);
+                break;
             case 'lever':
-                return scrapeLever($);
+                scrapeResult = scrapeLever($);
+                break;
             default:
-                return scrapeGeneric($);
+                scrapeResult = scrapeGeneric($);
+                break;
         }
+
+        // --- AI FALLBACK ---
+        // If Cheerio failed to extract meaningful requirements or responsibilities,
+        // we pass the raw HTML text to the Gemini LLM to parse it intelligently.
+        if (scrapeResult.responsibilities.length === 0 || scrapeResult.requirements.length === 0) {
+            const rawText = $('body').text() || html;
+            scrapeResult = await aiScrapeJob(rawText, url, scrapeResult);
+        }
+
+        return scrapeResult;
     } catch (err: any) {
         console.warn(`⚠️ [Scraper] Failed: ${url.slice(0, 50)} — ${err.message}`);
         return { ...EMPTY_RESULT };
