@@ -68,3 +68,5 @@ jobs:
           app-name: 'opushire-frontend-app'
           slot-name: 'Production'
           package: frontend.zip
+          clean: true
+          restart: true
