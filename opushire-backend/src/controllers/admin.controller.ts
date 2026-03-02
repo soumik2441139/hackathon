@@ -28,3 +28,13 @@ export const getSystemStats = async (req: Request, res: Response, next: NextFunc
         next(err);
     }
 };
+
+export const debugDatabase = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const force = req.query.force === 'true';
+        const debugInfo = await AdminService.debugDatabase(force);
+        res.json({ success: true, data: debugInfo });
+    } catch (err) {
+        next(err);
+    }
+};

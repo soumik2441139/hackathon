@@ -11,5 +11,6 @@ router.use(authenticate, requireRole('admin'));
 router.get('/users', AdminController.getAllUsers);
 router.delete('/users/:id', AdminController.deleteUser);
 router.get('/stats', AdminController.getSystemStats);
+router.get('/debug-db', AdminController.debugDatabase);
 
 export default router;

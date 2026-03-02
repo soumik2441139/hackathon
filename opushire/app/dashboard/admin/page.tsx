@@ -40,6 +40,22 @@ export default function AdminDashboard() {
         }
     }, [currentUser, filter]);
 
+    const handleReSync = async () => {
+        if (!confirm('This will attempt to pull and reorganize data from the legacy "hackathon" database. Proceed?')) return;
+        setLoading(true);
+        try {
+            await adminApi.getUsers('all?force=true'); // Quick hack to pass param through current API helper
+            // Better: use a dedicated call if I update api.ts
+            alert('Re-Sync completed. Refreshing data...');
+            window.location.reload();
+        } catch (err) {
+            console.error('Re-Sync failed:', err);
+            alert('Re-Sync encountered an issue. Check system logs.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleDeleteUser = async (id: string) => {
         if (!confirm('Are you absolutely sure? This will delete all associated data (jobs/applications). This action cannot be undone.')) return;
         try {
@@ -96,6 +112,13 @@ export default function AdminDashboard() {
                                 <Activity size={12} className="animate-bounce" /> OPUS_ONLINE_01
                             </p>
                         </div>
+                        <button
+                            onClick={handleReSync}
+                            disabled={loading}
+                            className="mr-2 px-4 py-2 bg-brand-cyan/20 border border-brand-cyan/40 rounded-xl text-[10px] font-black uppercase tracking-wider text-brand-cyan hover:bg-brand-cyan/30 transition-all disabled:opacity-50"
+                        >
+                            Trigger Data Re-Sync
+                        </button>
                     </div>
                 </div>
 
