@@ -113,7 +113,7 @@ const seedJobs = async () => {
             {
                 title: "Full Stack Developer",
                 company: "Cred",
-                companyLogo: "https://unavatar.io/cred.club",
+                companyLogo: "https://unavatar.io/cred.club?fallback=https://logo.clearbit.com/cred.club",
                 location: "Bangalore, India",
                 city: "Bangalore",
                 type: "Full-time",

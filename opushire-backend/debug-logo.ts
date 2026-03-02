@@ -7,21 +7,24 @@ const url = process.env.MONGODB_URI || "";
 
 const checkLogo = async () => {
     try {
+        console.log('Connecting to URI (obfuscated):', url.substring(0, 30) + '...');
         await mongoose.connect(url);
-        console.log('✅ Connected to:', mongoose.connection.host, '/', mongoose.connection.name);
+        console.log('✅ Connected to MongoDB');
+        console.log('Host:', mongoose.connection.host);
+        console.log('Database Name:', mongoose.connection.name);
 
         const count = await Job.countDocuments();
-        console.log('Total jobs:', count);
+        console.log('Total jobs in collection:', count);
 
-        const jobs = await Job.find({ company: 'Vercel' });
-        console.log('Found', jobs.length, 'jobs for Vercel');
+        const vercel = await Job.findOne({ company: 'Vercel' });
+        console.log('--- Vercel Logo ---');
+        console.log('Logo:', vercel?.companyLogo?.substring(0, 50));
+        console.log('Length:', vercel?.companyLogo?.length);
 
-        for (const job of jobs) {
-            console.log('--- Job ID:', job._id);
-            console.log('Title:', job.title);
-            console.log('Logo (100 chars):', job.companyLogo ? job.companyLogo.substring(0, 100) : 'null');
-            console.log('Logo length:', job.companyLogo ? job.companyLogo.length : 0);
-        }
+        const stripe = await Job.findOne({ company: 'Stripe' });
+        console.log('--- Stripe Logo ---');
+        console.log('Logo:', stripe?.companyLogo?.substring(0, 50));
+        console.log('Length:', stripe?.companyLogo?.length);
 
         process.exit(0);
     } catch (error) {

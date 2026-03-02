@@ -31,3 +31,19 @@ export const imageToBase64 = async (url: string): Promise<string> => {
         return url; // Fallback to original URL if fetch fails
     }
 };
+/**
+ * Generates a logo URL based on a company domain.
+ * Uses unavatar.io as a reliable service used by many modern apps.
+ * @param domain The company domain (e.g., 'google.com')
+ * @returns A string URL for the logo.
+ */
+export const getLogoUrlByDomain = (domain: string): string => {
+    if (!domain) return '';
+    // Clean domain: remove http, https, www, and trailing slashes
+    const cleanDomain = domain
+        .replace(/^(https?:\/\/)?(www\.)?/, '')
+        .split('/')[0]
+        .toLowerCase();
+
+    return `https://unavatar.io/${cleanDomain}`;
+};
