@@ -15,6 +15,19 @@ const axios_1 = __importDefault(require("axios"));
  */
 // Popular public job channels — add more as needed
 const DEFAULT_CHANNELS = [
+    // User's channels
+    'getjobss',
+    'jobwithmayra',
+    'switzerlanddevjobs',
+    'germantechjobs',
+    'cryptojobslist',
+    'jobs_and_internships_updates',
+    'thinkcareers',
+    'jobhuntcamp',
+    'internfreak',
+    'offcampusjobsandinternships',
+    'gocareers',
+    // Additional defaults
     'internshala_jobs',
     'freshabordjobs',
     'jobs_and_internships',
