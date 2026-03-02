@@ -41,7 +41,7 @@ export default function AdminDashboard() {
     }, [currentUser, filter]);
 
     const handleReSync = async () => {
-        if (!confirm('This will attempt to pull and reorganize data from the legacy "hackathon" database. Proceed?')) return;
+        if (!confirm('This will attempt to reorganize your existing data into students and recruiters collections. Proceed?')) return;
         setLoading(true);
         try {
             await adminApi.reSync();
