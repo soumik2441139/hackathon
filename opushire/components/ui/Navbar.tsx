@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { Button } from './Button';
-import { Briefcase, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
+import { Briefcase, Menu, X, LogOut, Shield, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -46,7 +46,11 @@ export const Navbar = () => {
                         <>
                             <Link href={dashboardHref}>
                                 <Button variant="ghost" className="gap-3 px-3">
-                                    {user.role === 'recruiter' && user.companyLogo && user.companyLogo.startsWith('http') ? (
+                                    {user.role === 'admin' ? (
+                                        <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                                            <Shield size={16} />
+                                        </div>
+                                    ) : user.role === 'recruiter' && user.companyLogo && user.companyLogo.startsWith('http') ? (
                                         <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
                                             <img src={user.companyLogo} alt={user.companyName} className="w-full h-full object-contain" />
                                         </div>
@@ -55,7 +59,7 @@ export const Navbar = () => {
                                             {user.avatar || user.name.charAt(0)}
                                         </div>
                                     )}
-                                    <span className="max-w-[100px] truncate">{user.name.split(' ')[0]}</span>
+                                    <span className="max-w-[100px] truncate">{user.role === 'admin' ? 'Admin' : user.name.split(' ')[0]}</span>
                                 </Button>
                             </Link>
                             <Button variant="outline" size="sm" className="gap-2 border-white/10" onClick={logout}>
@@ -89,7 +93,9 @@ export const Navbar = () => {
                             {(user.role === 'recruiter' || user.role === 'admin') && (
                                 <Link href="/dashboard/recruiter/post-job" className="text-lg py-2 border-b border-white/5 font-bold text-brand-cyan" onClick={() => setIsOpen(false)}>Post a Job</Link>
                             )}
-                            <Link href={dashboardHref} className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>Dashboard</Link>
+                            <Link href={dashboardHref} className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>
+                                {user.role === 'admin' ? 'Admin Console' : 'Dashboard'}
+                            </Link>
                             <button className="text-lg py-2 text-left text-red-400" onClick={() => { logout(); setIsOpen(false); }}>Logout</button>
                         </>
                     ) : (
