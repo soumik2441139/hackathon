@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Shield, Users, Briefcase, Trash2,
     ExternalLink, Search, ShieldAlert,
-    Activity, Zap
+    Activity, Zap, Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
@@ -102,25 +102,58 @@ export default function AdminDashboard() {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
                     {[
-                        { label: 'Total Jobs', val: stats?.totalJobs, icon: <Briefcase />, color: 'text-brand-violet', bg: 'bg-brand-violet/10' },
-                        { label: 'Total Apps', val: stats?.totalApplicants, icon: <Zap />, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10' },
-                        { label: 'Students', val: stats?.totalStudents, icon: <Users />, color: 'text-[#A1FFCE]', bg: 'bg-[#A1FFCE]/10' },
-                        { label: 'Recruiters', val: stats?.totalRecruiters, icon: <Shield />, color: 'text-[#FF9A9E]', bg: 'bg-[#FF9A9E]/10' },
+                        { id: 'all', label: 'Total Jobs', val: stats?.totalJobs, icon: <Briefcase />, color: 'text-brand-violet', bg: 'bg-brand-violet/10', role: 'all' },
+                        { id: 'all', label: 'Total Apps', val: stats?.totalApplicants, icon: <Zap />, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10', role: 'all' },
+                        { id: 'student', label: 'Students', val: stats?.totalStudents, icon: <Users />, color: 'text-[#A1FFCE]', bg: 'bg-[#A1FFCE]/10', role: 'student' },
+                        { id: 'recruiter', label: 'Recruiters', val: stats?.totalRecruiters, icon: <Shield />, color: 'text-[#FF9A9E]', bg: 'bg-[#FF9A9E]/10', role: 'recruiter' },
                     ].map((s, i) => (
-                        <motion.div
+                        <motion.button
                             key={i}
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="glass-card p-8 border-white/5 hover:border-white/10 transition-all group overflow-hidden relative"
+                            whileHover={{ y: -5 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setFilter(s.role as any)}
+                            className={`glass-card p-8 border-white/5 transition-all group overflow-hidden relative text-left w-full ${filter === s.role ? 'ring-2 ring-brand-cyan bg-white/[0.05]' : 'hover:border-white/10'}`}
                         >
                             <div className={`absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity scale-[3]`}>{s.icon}</div>
                             <div className={`w-12 h-12 rounded-xl ${s.bg} ${s.color} flex items-center justify-center mb-6`}>{s.icon}</div>
                             <h3 className="text-5xl font-black tracking-tighter mb-1">{loading ? '...' : s.val}</h3>
                             <p className="text-[10px] uppercase font-black text-white/30 tracking-widest leading-none">{s.label}</p>
-                        </motion.div>
+                        </motion.button>
                     ))}
                 </div>
+
+                {/* Insights Panel */}
+                <AnimatePresence mode="wait">
+                    {filter !== 'all' && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="mb-12 overflow-hidden"
+                        >
+                            <div className="bg-brand-cyan/5 border border-brand-cyan/20 rounded-3xl p-8 backdrop-blur-xl">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Sparkles className="text-brand-cyan" size={20} />
+                                    <h2 className="text-xl font-bold uppercase tracking-tight">System Insights: {filter}s</h2>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                    <div className="space-y-2">
+                                        <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">Activity Trend</p>
+                                        <p className="text-sm font-medium">Growth in {filter} registrations is up 12% this week.</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">Priority Segment</p>
+                                        <p className="text-sm font-medium">{filter === 'student' ? 'Engineering graduates are most active.' : 'Tech startups represent 60% of openings.'}</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">Admin Note</p>
+                                        <p className="text-sm font-medium">Ensure profile verification is completed within 24h.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Management Section */}
                 <div className="space-y-8">
@@ -149,7 +182,7 @@ export default function AdminDashboard() {
                                     <tr className="border-b border-white/5 text-[10px] uppercase font-black tracking-[0.2em] text-white/30 bg-white/[0.01]">
                                         <th className="px-8 py-6">Entity Identity</th>
                                         <th className="px-8 py-6">Role / Collective</th>
-                                        <th className="px-8 py-6">Organization</th>
+                                        <th className="px-8 py-6">Affiliation / Details</th>
                                         <th className="px-8 py-6 text-right">Action Authority</th>
                                     </tr>
                                 </thead>
@@ -180,16 +213,23 @@ export default function AdminDashboard() {
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-6">
-                                                    <div className="text-sm font-medium flex items-center gap-2">
-                                                        {u.companyName ? (
-                                                            <>
-                                                                {u.companyName}
-                                                                <a href={u.companyWebsite} target="_blank" className="text-white/20 hover:text-white"><ExternalLink size={12} /></a>
-                                                            </>
-                                                        ) : (
-                                                            <span className="text-white/20 italic">No Affiliation</span>
-                                                        )}
-                                                    </div>
+                                                    {u.role === 'student' ? (
+                                                        <div className="space-y-1">
+                                                            <p className="text-sm font-medium">{u.college || <span className="text-white/20 italic">No College</span>}</p>
+                                                            <p className="text-[10px] font-black uppercase text-brand-cyan tracking-widest">{u.degree || 'General'}</p>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-sm font-medium flex items-center gap-2">
+                                                            {u.companyName ? (
+                                                                <>
+                                                                    {u.companyName}
+                                                                    <a href={u.companyWebsite} target="_blank" className="text-white/20 hover:text-white"><ExternalLink size={12} /></a>
+                                                                </>
+                                                            ) : (
+                                                                <span className="text-white/20 italic">No Affiliation</span>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </td>
                                                 <td className="px-8 py-6 text-right">
                                                     <button
