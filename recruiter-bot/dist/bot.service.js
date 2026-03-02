@@ -7,6 +7,7 @@ const Job_1 = require("./models/Job");
 const remotive_provider_1 = require("./providers/remotive.provider");
 const arbeitnow_provider_1 = require("./providers/arbeitnow.provider");
 const adzuna_provider_1 = require("./providers/adzuna.provider");
+const telegram_provider_1 = require("./providers/telegram.provider");
 let lastStatus = {
     lastRun: null,
     results: [],
@@ -66,10 +67,11 @@ async function fetchAllJobs() {
     console.log('🤖 RECRUITER BOT — Fetch cycle starting...');
     console.log('🤖 ═══════════════════════════════════════');
     const results = [];
-    const [remotiveJobs, arbeitnowJobs, adzunaJobs] = await Promise.all([
+    const [remotiveJobs, arbeitnowJobs, adzunaJobs, telegramJobs] = await Promise.all([
         (0, remotive_provider_1.fetchRemotiveJobs)(),
         (0, arbeitnow_provider_1.fetchArbeitnowJobs)(),
         (0, adzuna_provider_1.fetchAdzunaJobs)(),
+        (0, telegram_provider_1.fetchTelegramJobs)(),
     ]);
     if (remotiveJobs.length > 0) {
         results.push(await storeJobs(remotiveJobs, 'remotive'));
@@ -89,6 +91,12 @@ async function fetchAllJobs() {
     else {
         results.push({ source: 'adzuna', fetched: 0, newJobs: 0, duplicates: 0, errors: ['Skipped — no API keys'] });
     }
+    if (telegramJobs.length > 0) {
+        results.push(await storeJobs(telegramJobs, 'telegram'));
+    }
+    else {
+        results.push({ source: 'telegram', fetched: 0, newJobs: 0, duplicates: 0, errors: [] });
+    }
     const totalNew = results.reduce((sum, r) => sum + r.newJobs, 0);
     const totalDuplicates = results.reduce((sum, r) => sum + r.duplicates, 0);
     lastStatus = { lastRun: new Date(), results, totalNew, totalDuplicates };
@@ -101,12 +109,13 @@ function getBotStatus() {
     return lastStatus;
 }
 async function getBotJobStats() {
-    const [total, remotive, arbeitnow, adzuna] = await Promise.all([
+    const [total, remotive, arbeitnow, adzuna, telegram] = await Promise.all([
         Job_1.BotJob.countDocuments({ source: { $ne: 'manual' } }),
         Job_1.BotJob.countDocuments({ source: 'remotive' }),
         Job_1.BotJob.countDocuments({ source: 'arbeitnow' }),
         Job_1.BotJob.countDocuments({ source: 'adzuna' }),
+        Job_1.BotJob.countDocuments({ source: 'telegram' }),
     ]);
-    return { total, remotive, arbeitnow, adzuna };
+    return { total, remotive, arbeitnow, adzuna, telegram };
 }
 //# sourceMappingURL=bot.service.js.map

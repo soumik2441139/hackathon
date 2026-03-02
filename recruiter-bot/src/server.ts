@@ -211,6 +211,7 @@ function getDashboardHTML(): string {
         .source-remotive { background: rgba(167,139,250,0.2); color: #a78bfa; }
         .source-arbeitnow { background: rgba(34,211,238,0.2); color: #22d3ee; }
         .source-adzuna { background: rgba(251,191,36,0.2); color: #fbbf24; }
+        .source-telegram { background: rgba(52,211,153,0.2); color: #34d399; }
     </style>
 </head>
 <body>
@@ -226,6 +227,7 @@ function getDashboardHTML(): string {
             <div class="stat-card"><div class="value" id="stat-remotive">—</div><div class="label">Remotive</div></div>
             <div class="stat-card"><div class="value" id="stat-arbeitnow">—</div><div class="label">Arbeitnow</div></div>
             <div class="stat-card"><div class="value" id="stat-adzuna">—</div><div class="label">Adzuna</div></div>
+            <div class="stat-card"><div class="value" id="stat-telegram">—</div><div class="label">Telegram</div></div>
         </div>
 
         <div class="actions">
@@ -259,6 +261,7 @@ function getDashboardHTML(): string {
                 document.getElementById('stat-remotive').textContent = data.stats?.remotive ?? '—';
                 document.getElementById('stat-arbeitnow').textContent = data.stats?.arbeitnow ?? '—';
                 document.getElementById('stat-adzuna').textContent = data.stats?.adzuna ?? '—';
+                document.getElementById('stat-telegram').textContent = data.stats?.telegram ?? '—';
                 if (data.lastRun) addLog('Last run: ' + new Date(data.lastRun).toLocaleString(), 'info');
                 loadJobs();
             } catch (e) { addLog('Failed to load status: ' + e.message, 'error'); }

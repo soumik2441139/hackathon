@@ -2,6 +2,7 @@ import { BotJob } from './models/Job';
 import { fetchRemotiveJobs, NormalizedJob } from './providers/remotive.provider';
 import { fetchArbeitnowJobs } from './providers/arbeitnow.provider';
 import { fetchAdzunaJobs } from './providers/adzuna.provider';
+import { fetchTelegramJobs } from './providers/telegram.provider';
 
 export interface FetchResult {
     source: string;
@@ -83,10 +84,11 @@ export async function fetchAllJobs(): Promise<BotStatus> {
 
     const results: FetchResult[] = [];
 
-    const [remotiveJobs, arbeitnowJobs, adzunaJobs] = await Promise.all([
+    const [remotiveJobs, arbeitnowJobs, adzunaJobs, telegramJobs] = await Promise.all([
         fetchRemotiveJobs(),
         fetchArbeitnowJobs(),
         fetchAdzunaJobs(),
+        fetchTelegramJobs(),
     ]);
 
     if (remotiveJobs.length > 0) {
@@ -107,6 +109,12 @@ export async function fetchAllJobs(): Promise<BotStatus> {
         results.push({ source: 'adzuna', fetched: 0, newJobs: 0, duplicates: 0, errors: ['Skipped — no API keys'] });
     }
 
+    if (telegramJobs.length > 0) {
+        results.push(await storeJobs(telegramJobs, 'telegram'));
+    } else {
+        results.push({ source: 'telegram', fetched: 0, newJobs: 0, duplicates: 0, errors: [] });
+    }
+
     const totalNew = results.reduce((sum, r) => sum + r.newJobs, 0);
     const totalDuplicates = results.reduce((sum, r) => sum + r.duplicates, 0);
 
@@ -124,11 +132,12 @@ export function getBotStatus(): BotStatus {
 }
 
 export async function getBotJobStats() {
-    const [total, remotive, arbeitnow, adzuna] = await Promise.all([
+    const [total, remotive, arbeitnow, adzuna, telegram] = await Promise.all([
         BotJob.countDocuments({ source: { $ne: 'manual' } }),
         BotJob.countDocuments({ source: 'remotive' }),
         BotJob.countDocuments({ source: 'arbeitnow' }),
         BotJob.countDocuments({ source: 'adzuna' }),
+        BotJob.countDocuments({ source: 'telegram' }),
     ]);
-    return { total, remotive, arbeitnow, adzuna };
+    return { total, remotive, arbeitnow, adzuna, telegram };
 }
