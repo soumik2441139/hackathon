@@ -103,7 +103,7 @@ export default function CompaniesPage() {
                             <span className="text-gradient">dream company</span>
                         </h1>
                         <p className="text-white/50 text-xl max-w-2xl mx-auto">
-                            Discover the world's best startups and scale-ups hiring students right now.
+                            Discover the world&apos;s best startups and scale-ups hiring students right now.
                         </p>
                     </div>
                 </ScrollReveal>

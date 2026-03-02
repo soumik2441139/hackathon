@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.routes';
 import jobRoutes from './routes/job.routes';
 import applicationRoutes from './routes/application.routes';
 import adminRoutes from './routes/admin.routes';
+import freeapiRoutes from './freeapi/freeapi.routes';
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/freeapi', freeapiRoutes);
 
 // 404
 app.use((_req, res) => {

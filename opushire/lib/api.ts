@@ -11,16 +11,20 @@ async function request<T>(
 ): Promise<T> {
     const token = getToken();
     const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
         ...(options.headers as Record<string, string>),
     };
+
+    if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+    }
+
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
     const data = await res.json();
 
     if (!res.ok) {
-        const error: any = new Error(data.message || 'Something went wrong');
+        const error = new Error(data.message || 'Something went wrong') as Error & { fields?: unknown };
         error.fields = data.errors; // Capture Zod field errors
         throw error;
     }
@@ -49,6 +53,60 @@ export const auth = {
         request<{ success: boolean; data: import('./types').User }>('/auth/me', {
             method: 'PUT', body: JSON.stringify(body),
         }),
+};
+
+// ─── FreeAPI (File Uploads) ──────────────────────────────────────────────────
+export const freeapi = {
+    uploadAvatar: (file: File) => {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        return request<{ success: boolean; data: { avatarUrl: string } }>('/freeapi/users/avatar', {
+            method: 'PATCH',
+            body: formData,
+        });
+    },
+
+    uploadCoverImage: (file: File) => {
+        const formData = new FormData();
+        formData.append('coverImage', file);
+        return request<{ success: boolean; data: { coverUrl: string } }>('/freeapi/users/cover-image', {
+            method: 'PATCH',
+            body: formData,
+        });
+    },
+
+    social: {
+        saveJob: (jobId: string) =>
+            request<{ success: boolean; data: { isSaved: boolean } }>(`/freeapi/jobs/${jobId}/save`, { method: 'POST' }),
+
+        getComments: (jobId: string, page = 1, limit = 10) =>
+            request<{ success: boolean; data: { comments: Record<string, unknown>[] } }>(`/freeapi/jobs/${jobId}/comments?page=${page}&limit=${limit}`),
+
+        addComment: (jobId: string, text: string) =>
+            request<{ success: boolean; data: { comment: Record<string, unknown> } }>(`/freeapi/jobs/${jobId}/comments`, {
+                method: 'POST',
+                body: JSON.stringify({ text })
+            }),
+    },
+
+    chat: {
+        getAllChats: () =>
+            request<{ success: boolean; data: { chats: Record<string, unknown>[] } }>('/freeapi/chats'),
+
+        createOrGetChat: (receiverId: string) =>
+            request<{ success: boolean; data: { chat: Record<string, unknown> } }>(`/freeapi/chats/user/${receiverId}`, {
+                method: 'POST'
+            }),
+
+        getMessages: (chatId: string) =>
+            request<{ success: boolean; data: { messages: Record<string, unknown>[] } }>(`/freeapi/chats/${chatId}/messages`),
+
+        sendMessage: (chatId: string, content: string) =>
+            request<{ success: boolean; data: { message: Record<string, unknown> } }>(`/freeapi/chats/${chatId}/messages`, {
+                method: 'POST',
+                body: JSON.stringify({ content })
+            }),
+    }
 };
 
 // ─── Jobs ─────────────────────────────────────────────────────────────────────
@@ -145,5 +203,5 @@ export const admin = {
         }>('/admin/stats'),
 
     reSync: () =>
-        request<{ success: boolean; data: any }>('/admin/debug-db?force=true'),
+        request<{ success: boolean; data: unknown }>('/admin/debug-db?force=true'),
 };

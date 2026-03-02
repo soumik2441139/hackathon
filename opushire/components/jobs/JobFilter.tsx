@@ -20,8 +20,8 @@ export const JobFilter = ({ selectedType, onTypeChange }: JobFilterProps) => {
                             key={type}
                             onClick={() => onTypeChange(type)}
                             className={`w-full text-left px-4 py-3 rounded-xl transition-all font-medium ${selectedType === type
-                                    ? "bg-brand-violet/20 text-brand-violet border border-brand-violet/30"
-                                    : "text-white/50 hover:bg-white/5 hover:text-white"
+                                ? "bg-brand-violet/20 text-brand-violet border border-brand-violet/30"
+                                : "text-white/50 hover:bg-white/5 hover:text-white"
                                 }`}
                         >
                             {type}
@@ -48,7 +48,7 @@ export const JobFilter = ({ selectedType, onTypeChange }: JobFilterProps) => {
             <div className="pt-4 px-2">
                 <div className="glass-card p-6 bg-gradient-to-br from-brand-violet/20 to-brand-cyan/20 border-brand-violet/20">
                     <h4 className="font-bold mb-2">Get personalized alerts</h4>
-                    <p className="text-xs text-white/50 mb-4">We'll notify you when new jobs match your profile.</p>
+                    <p className="text-xs text-white/50 mb-4">We&apos;ll notify you when new jobs match your profile.</p>
                     <Button variant="outline" size="sm" className="w-full text-xs">Set Alert</Button>
                 </div>
             </div>

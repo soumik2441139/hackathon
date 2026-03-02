@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { ApplyModal } from '@/components/jobs/ApplyModal';
-import { ArrowLeft, ChevronRight, Share2, Bookmark, CheckCircle2 } from 'lucide-react';
+import { JobComments } from '@/components/jobs/JobComments';
+import { ArrowLeft, ChevronRight, Share2, Bookmark, CheckCircle2, BookmarkCheck, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { timeAgo, formatSalary } from '@/lib/utils';
 
@@ -21,6 +22,11 @@ export default function JobDetailPage() {
     const [error, setError] = useState('');
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [applied, setApplied] = useState(false);
+
+    // FreeAPI Social State
+    const [isSaved, setIsSaved] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [messaging, setMessaging] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -60,6 +66,45 @@ export default function JobDetailPage() {
         if (!user) { router.push('/login'); return; }
         if (user.role !== 'student') return;
         setShowApplyModal(true);
+    };
+
+    const handleMessageRecruiter = async () => {
+        if (!user) { router.push('/login'); return; }
+        if (!job.postedBy) return;
+
+        try {
+            setMessaging(true);
+            const { freeapi } = await import('@/lib/api');
+            const receiverId = (typeof job.postedBy === 'string' ? job.postedBy : job.postedBy._id) as string;
+            if (!receiverId) throw new Error("No receiver ID found");
+
+            const res = await freeapi.chat.createOrGetChat(receiverId);
+            if (res.success) {
+                router.push('/dashboard/messages');
+            }
+        } catch (err) {
+            console.error('Failed to start chat', err);
+        } finally {
+            setMessaging(false);
+        }
+    };
+
+    const handleSaveJob = async () => {
+        if (!user) { router.push('/login'); return; }
+        if (user.role !== 'student') return;
+
+        try {
+            setSaving(true);
+            const { freeapi } = await import('@/lib/api');
+            const res = await freeapi.social.saveJob(job._id);
+            if (res.success) {
+                setIsSaved(res.data.isSaved);
+            }
+        } catch (err) {
+            console.error('Failed to save job', err);
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -154,6 +199,8 @@ export default function JobDetailPage() {
                                             </ul>
                                         </section>
                                     )}
+
+                                    <JobComments jobId={job._id} />
                                 </div>
                             </ScrollReveal>
                         </div>
@@ -177,9 +224,35 @@ export default function JobDetailPage() {
                                     )}
 
                                     <div className="flex gap-4">
-                                        <Button variant="outline" className="flex-1 gap-2 border-white/10"><Bookmark size={18} /> Save</Button>
+                                        <Button
+                                            variant={isSaved ? "primary" : "outline"}
+                                            className={`flex-1 gap-2 ${isSaved ? 'bg-brand-violet hover:bg-brand-violet/90 text-white border-transparent' : 'border-white/10'}`}
+                                            onClick={handleSaveJob}
+                                            disabled={saving}
+                                        >
+                                            {saving ? (
+                                                <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                                            ) : isSaved ? (
+                                                <BookmarkCheck size={18} />
+                                            ) : (
+                                                <Bookmark size={18} />
+                                            )}
+                                            {isSaved ? 'Saved' : 'Save'}
+                                        </Button>
                                         <Button variant="outline" className="w-14 items-center justify-center p-0 border-white/10"><Share2 size={18} /></Button>
                                     </div>
+
+                                    {user?.role === 'student' && job.postedByModel === 'Recruiter' && (
+                                        <Button
+                                            variant="outline"
+                                            className="w-full gap-2 border-brand-cyan/30 text-brand-cyan hover:bg-brand-cyan/10"
+                                            onClick={handleMessageRecruiter}
+                                            disabled={messaging}
+                                        >
+                                            {messaging ? <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" /> : <MessageSquare size={18} />}
+                                            Message Recruiter
+                                        </Button>
+                                    )}
 
                                     <div className="pt-6 border-t border-white/10 space-y-4">
                                         <div className="flex justify-between text-sm">

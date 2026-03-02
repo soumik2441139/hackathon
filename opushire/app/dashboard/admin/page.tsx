@@ -14,7 +14,7 @@ import { User } from '@/lib/types';
 export default function AdminDashboard() {
     const { user: currentUser } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
-    const [stats, setStats] = useState<any>(null);
+    const [stats, setStats] = useState<Record<string, number> | null>(null);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'student' | 'recruiter' | 'all'>('all');
     const [searchTerm, setSearchTerm] = useState('');
@@ -47,9 +47,10 @@ export default function AdminDashboard() {
             await adminApi.reSync();
             alert('Re-Sync completed. Refreshing data...');
             window.location.reload();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Re-Sync failed:', err);
-            alert(`Re-Sync failed: ${err.message || 'Unknown error'}. Check system logs.`);
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            alert(`Re-Sync failed: ${message}. Check system logs.`);
         } finally {
             setLoading(false);
         }
@@ -133,7 +134,7 @@ export default function AdminDashboard() {
                             key={i}
                             whileHover={{ y: -5 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => setFilter(s.role as any)}
+                            onClick={() => setFilter(s.role as 'all' | 'recruiter' | 'student')}
                             className={`glass-card p-8 border-white/5 transition-all group overflow-hidden relative text-left w-full ${filter === s.role ? 'ring-2 ring-brand-cyan bg-white/[0.05]' : 'hover:border-white/10'}`}
                         >
                             <div className={`absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity scale-[3]`}>{s.icon}</div>

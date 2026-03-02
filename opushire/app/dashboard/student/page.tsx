@@ -1,16 +1,39 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { ApplicationTracker } from '@/components/dashboard/ApplicationTracker';
 import { SavedJobs } from '@/components/dashboard/SavedJobs';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
-import { Settings, Bell } from 'lucide-react';
+import { Settings, Bell, Camera, Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
+import { freeapi } from '@/lib/api';
 
 export default function StudentDashboard() {
     const { user } = useAuth();
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            setIsUploading(true);
+            const res = await freeapi.uploadAvatar(file);
+            if (res.success && res.data.avatarUrl) {
+                // To instantly reflect the change without full reload, we'd normally update context. 
+                // For now, doing a hard reload is easiest, or we can just window.location.reload();
+                window.location.reload();
+            }
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            alert('Failed to upload avatar: ' + message);
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     return (
         <ProtectedRoute requiredRole="student">
@@ -19,10 +42,29 @@ export default function StudentDashboard() {
                     <ScrollReveal direction="down">
                         <header className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
                             <div className="flex items-center gap-6">
-                                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-brand-violet to-brand-cyan p-[1px]">
-                                    <div className="w-full h-full rounded-[1.4rem] bg-brand-dark flex items-center justify-center text-3xl font-bold text-white">
-                                        {user?.avatar ?? user?.name?.charAt(0).toUpperCase() ?? '?'}
+                                <div
+                                    className="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-brand-violet to-brand-cyan p-[1px] cursor-pointer group"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    <div className="w-full h-full rounded-[1.4rem] bg-brand-dark flex items-center justify-center text-3xl font-bold text-white overflow-hidden relative">
+                                        {user?.avatar?.startsWith('http') ? (
+                                            <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                        ) : (
+                                            user?.avatar ?? user?.name?.charAt(0).toUpperCase() ?? '?'
+                                        )}
+
+                                        {/* Hover Overlay */}
+                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {isUploading ? <Loader2 className="animate-spin" size={20} /> : <Camera size={20} />}
+                                        </div>
                                     </div>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleAvatarUpload}
+                                        accept="image/*"
+                                        className="hidden"
+                                    />
                                 </div>
                                 <div>
                                     <h1 className="text-3xl md:text-5xl font-bold">Hi, {user?.name?.split(' ')[0]}!</h1>

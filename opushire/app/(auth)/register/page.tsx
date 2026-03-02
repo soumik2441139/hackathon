@@ -87,14 +87,14 @@ export default function RegisterPage() {
                             onClick={() => setRole('student')}
                             className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${role === 'student' ? 'bg-gradient-to-r from-brand-violet to-brand-cyan text-brand-dark shadow-lg' : 'text-white/40 hover:text-white'}`}
                         >
-                            I'm a Student
+                            I&apos;m a Student
                         </button>
                         <button
                             type="button"
                             onClick={() => setRole('recruiter')}
                             className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${role === 'recruiter' ? 'bg-gradient-to-r from-brand-violet to-brand-cyan text-brand-dark shadow-lg' : 'text-white/40 hover:text-white'}`}
                         >
-                            I'm a Recruiter
+                            I&apos;m a Recruiter
                         </button>
                     </div>
 

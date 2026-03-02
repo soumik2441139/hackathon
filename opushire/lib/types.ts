@@ -41,6 +41,7 @@ export interface Job {
     featured: boolean;
     posted: string;
     postedBy: string | Partial<User>;
+    postedByModel?: 'Recruiter' | 'Admin';
     createdAt: string;
     updatedAt: string;
 }

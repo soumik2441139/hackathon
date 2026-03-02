@@ -25,6 +25,7 @@ export interface IJob extends Document {
     source?: 'manual' | 'remotive' | 'arbeitnow' | 'adzuna' | 'telegram';
     externalId?: string;
     externalUrl?: string;
+    freeApiPostId?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -67,6 +68,7 @@ const JobSchema = new Schema<IJob>(
         },
         externalId: { type: String, sparse: true, unique: true },
         externalUrl: { type: String },
+        freeApiPostId: { type: String },
     },
     { timestamps: true }
 );

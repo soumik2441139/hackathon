@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef } from 'react';
-import { motion, useInView, useAnimation, Variant } from 'framer-motion';
+import { motion, useInView, useAnimation, Variants } from 'framer-motion';
 
 interface ScrollRevealProps {
     children: React.ReactNode;
@@ -27,7 +27,7 @@ export const ScrollReveal = ({
         }
     }, [isInView, controls]);
 
-    const variants = {
+    const variants: Variants = {
         hidden: {
             opacity: 0,
             y: direction === "up" ? 40 : direction === "down" ? -40 : 0,
@@ -46,9 +46,9 @@ export const ScrollReveal = ({
     };
 
     return (
-        <div ref={ref} style={{ position: "relative", width, overflow: "visible" } as any}>
+        <div ref={ref} style={{ position: "relative", width, overflow: "visible" } as React.CSSProperties}>
             <motion.div
-                variants={variants as any}
+                variants={variants}
                 initial="hidden"
                 animate={controls}
             >

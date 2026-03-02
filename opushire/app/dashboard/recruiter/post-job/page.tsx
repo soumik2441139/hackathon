@@ -83,7 +83,7 @@ export default function PostJobPage() {
         return <div className="min-h-screen flex items-center justify-center font-bold text-white/20 uppercase tracking-widest animate-pulse">Initializing Suite...</div>;
     }
 
-    const update = (field: string, value: any) => setForm(s => ({ ...s, [field]: value }));
+    const update = (field: string, value: string | number) => setForm(s => ({ ...s, [field]: value }));
 
     const next = () => setStep(s => Math.min(s + 1, 3));
     const prev = () => setStep(s => Math.max(s - 1, 1));
@@ -106,12 +106,13 @@ export default function PostJobPage() {
             await jobs.create(payload);
             setDone(true);
             setTimeout(() => router.push('/jobs'), 2000);
-        } catch (err: any) {
-            console.error(err);
-            let msg = err.message || 'Failed to post job. Please check all fields.';
-            if (err.fields) {
+        } catch (error) {
+            console.error(error);
+            const err = error as Record<string, unknown> & { message?: string, fields?: Record<string, string[]> };
+            let msg = err?.message || 'Failed to post job. Please check all fields.';
+            if (err?.fields) {
                 const details = Object.entries(err.fields)
-                    .map(([field, errors]: [string, any]) => `${field}: ${errors.join(', ')}`)
+                    .map(([field, errors]) => `${field}: ${errors.join(', ')}`)
                     .join('\n');
                 msg = `Validation Failed:\n${details}`;
             }
