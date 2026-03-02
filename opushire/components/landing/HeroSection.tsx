@@ -10,15 +10,6 @@ export const HeroSection = () => {
             <HeroScene />
 
             <div className="max-w-4xl text-center z-10 w-full">
-                <ScrollReveal direction="down" duration={0.8}>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-violet/10 border border-brand-violet/20 text-brand-violet text-sm font-medium mb-8">
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-cyan opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-cyan"></span>
-                        </span>
-                        Active student hiring for 500+ startups
-                    </div>
-                </ScrollReveal>
 
                 <ScrollReveal delay={0.2} duration={1}>
                     <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-8 leading-[1.1] tracking-tighter text-brand-text">
