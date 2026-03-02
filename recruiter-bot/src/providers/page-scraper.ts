@@ -1,14 +1,15 @@
 import axios from 'axios';
+import * as cheerio from 'cheerio';
 
 /**
  * Deep Job Portal Scraper — visits the actual career page and
- * extracts structured data: description, responsibilities, requirements, tags.
+ * extracts structured data using DOM parsing (cheerio).
  *
  * Supports:
  *   ✅ Greenhouse (greenhouse.io)
  *   ✅ Lever (lever.co, jobs.lever.co)
  *   ✅ LinkedIn (linkedin.com/jobs)
- *   ✅ Generic career pages (regex-based fallback)
+ *   ✅ Generic career pages
  */
 
 export interface ScrapedJob {
@@ -27,157 +28,184 @@ const EMPTY_RESULT: ScrapedJob = {
     tags: [], salary: '', location: '', title: '', company: '',
 };
 
-// ─── HTML → Clean Text ──────────────────────────────────────────────────────
+function extractBullets($: cheerio.CheerioAPI, element: cheerio.Cheerio<any>): string[] {
+    const bullets: string[] = [];
 
-function stripHtml(html: string): string {
-    return html
-        .replace(/<script[\s\S]*?<\/script>/gi, '')
-        .replace(/<style[\s\S]*?<\/style>/gi, '')
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/li>/gi, '\n')
-        .replace(/<li[^>]*>/gi, '• ')
-        .replace(/<\/?(p|div|h[1-6]|tr|td|section|article)[^>]*>/gi, '\n')
-        .replace(/<\/?[^>]+(>|$)/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&#39;/g, "'")
-        .replace(/&quot;/g, '"')
-        .replace(/\n{3,}/g, '\n\n')
-        .trim();
-}
+    // Sometimes it's a <ul> directly following the header
+    const nextElem = element.next();
+    if (nextElem.is('ul') || nextElem.is('ol')) {
+        nextElem.find('li').each((_, li) => {
+            const text = $(li).text().trim();
+            if (text.length > 5) bullets.push(text.replace(/^[\s•\-\*▪]+/, '').trim());
+        });
+    } else {
+        // sometimes they use <p> or <br> separated lists
+        let curr = element.next();
+        while (curr.length > 0 && !curr.is('h1, h2, h3, h4, h5, strong, b')) {
+            if (curr.is('ul') || curr.is('ol')) {
+                curr.find('li').each((_, li) => {
+                    const text = $(li).text().trim();
+                    if (text.length > 5) bullets.push(text.replace(/^[\s•\-\*▪]+/, '').trim());
+                });
+            } else {
+                const text = curr.text().trim();
+                if (text.length > 10 && text.includes('•')) {
+                    text.split('•').forEach(t => {
+                        const clean = t.trim();
+                        if (clean.length > 5) bullets.push(clean);
+                    });
+                } else if (text.length > 10) {
+                    bullets.push(text);
+                }
+            }
+            curr = curr.next();
+        }
+    }
 
-function extractBullets(text: string): string[] {
-    return text
-        .split(/\n/)
-        .map(l => l.replace(/^[\s•\-\*▪▸►●○◆→✓✔]+\s*/, '').trim())
-        .filter(l => l.length > 5 && l.length < 300);
+    return bullets.filter(b => b.length > 5 && b.length < 400).slice(0, 15);
 }
 
 // ─── Greenhouse Scraper ─────────────────────────────────────────────────────
 
-function scrapeGreenhouse(text: string): ScrapedJob {
+function scrapeGreenhouse($: cheerio.CheerioAPI): ScrapedJob {
     const result = { ...EMPTY_RESULT };
 
-    // Greenhouse uses ### headings in its content
-    const sections = text.split(/#{2,3}\s+/);
-
-    for (let i = 0; i < sections.length; i++) {
-        const section = sections[i];
-        const lower = section.slice(0, 80).toLowerCase();
-
-        // Description: "About the Role" or "About the Position"
-        if (lower.includes('about the role') || lower.includes('about the position') || lower.includes('about this')) {
-            const body = section.replace(/^[^\n]+\n/, '').trim();
-            result.description = body.slice(0, 2000);
-        }
-
-        // Responsibilities: "What You'll Do", "Responsibilities", "Key Responsibilities"
-        if (lower.includes("you'll do") || lower.includes("what you will do") || lower.includes('responsibilities') || lower.includes('your role')) {
-            result.responsibilities = extractBullets(section.replace(/^[^\n]+\n/, ''));
-        }
-
-        // Requirements: "What We're Looking For", "Requirements", "Qualifications", "Must Have"
-        if (lower.includes('looking for') || lower.includes('requirements') || lower.includes('qualifications') || lower.includes('must have') || lower.includes('what you need')) {
-            result.requirements = extractBullets(section.replace(/^[^\n]+\n/, ''));
-        }
-
-        // Tags/Skills: "Nice to Have", "Preferred", "Bonus", "Tech Stack"
-        if (lower.includes('nice to have') || lower.includes('preferred') || lower.includes('bonus') || lower.includes('tech stack') || lower.includes('will learn')) {
-            result.tags = extractBullets(section.replace(/^[^\n]+\n/, ''));
-        }
-
-        // Title from first section
-        if (i === 0) {
-            const titleMatch = section.match(/^(.+?)(?:\n|$)/);
-            if (titleMatch) result.title = titleMatch[1].trim().slice(0, 100);
-        }
-
-        // Company from "About {Company}" section
-        if (lower.startsWith('about ') && !lower.includes('role') && !lower.includes('position') && !lower.includes('this')) {
-            const companyMatch = section.match(/^About\s+(.+?)(?:\n|$)/i);
-            if (companyMatch) result.company = companyMatch[1].trim();
-        }
+    // Get Title
+    const appTitle = $('h1.app-title').first().text().trim();
+    if (appTitle) {
+        result.title = appTitle;
     }
 
-    // Salary extraction
-    const salaryMatch = text.match(/(?:salary|compensation|ctc|stipend)\s*[:\-–]?\s*(.{5,60}?)(?:\n|$)/i);
-    if (salaryMatch) result.salary = salaryMatch[1].trim();
+    // Get Company
+    const companyClass = $('.company-name').first().text().trim();
+    if (companyClass) {
+        result.company = companyClass.replace(/^at\s+/i, '').trim();
+    }
 
-    // Location from OG or content
-    const locMatch = text.match(/(?:📍|location)\s*[:\-]?\s*(.+?)(?:\n|$)/i);
-    if (locMatch) result.location = locMatch[1].trim();
+    // Parse Sections (Greenhouse uses h3 or strong for section headers)
+    const contentDiv = $('#content');
+    if (contentDiv.length === 0) return result;
+
+    contentDiv.find('h2, h3, h4, p > strong, div > b').each((_, el) => {
+        const headerText = $(el).text().toLowerCase().trim();
+        const parent = $(el).is('strong, b') ? $(el).parent() : $(el);
+
+        // Description
+        if (headerText.includes('about the role') || headerText.includes('about the position') || headerText.includes('the objective')) {
+            let descText = '';
+            let curr = parent.next();
+            while (curr.length > 0 && !curr.is('h2, h3, h4') && !curr.find('strong, b').length && !curr.is('ul')) {
+                descText += curr.text().trim() + '\n\n';
+                curr = curr.next();
+            }
+            if (descText) result.description = descText.trim().slice(0, 2000);
+        }
+
+        // Responsibilities
+        if (headerText.includes("you'll do") || headerText.includes("you will do") || headerText.includes('responsibilities') || headerText.includes('your role')) {
+            result.responsibilities = extractBullets($, parent);
+        }
+
+        // Requirements
+        if (headerText.includes('looking for') || headerText.includes('requirements') || headerText.includes('qualifications') || headerText.includes('must have') || headerText.includes('what you need')) {
+            result.requirements = extractBullets($, parent);
+        }
+
+        // Tags/Skills
+        if (headerText.includes('nice to have') || headerText.includes('preferred') || headerText.includes('bonus') || headerText.includes('tech stack') || headerText.includes('learn here')) {
+            result.tags = extractBullets($, parent);
+        }
+    });
+
+    // Location
+    const locText = $('.location').first().text().trim();
+    if (locText) result.location = locText;
 
     return result;
 }
 
 // ─── Lever Scraper ──────────────────────────────────────────────────────────
 
-function scrapeLever(text: string): ScrapedJob {
+function scrapeLever($: cheerio.CheerioAPI): ScrapedJob {
     const result = { ...EMPTY_RESULT };
 
-    // Lever uses similar heading patterns
-    const sections = text.split(/(?:^|\n)(?:#{1,3}\s+|\*\*)/m);
+    const titleH2 = $('h2').first().text().trim();
+    if (titleH2) result.title = titleH2;
 
-    for (const section of sections) {
-        const lower = section.slice(0, 80).toLowerCase();
+    const locDiv = $('.sort-by-time').first().text().trim();
+    if (locDiv) result.location = locDiv.split('/')[0].trim();
 
-        if (lower.includes("you'll do") || lower.includes('responsibilities') || lower.includes('in this role')) {
-            result.responsibilities = extractBullets(section);
+    $('.posting-requirements h3, .posting-requirements h4, h3, h4, b, strong').each((_, el) => {
+        const headerText = $(el).text().toLowerCase().trim();
+        const parent = $(el).is('strong, b') ? $(el).parent() : $(el);
+
+        if (headerText.includes("you'll do") || headerText.includes('responsibilities') || headerText.includes('in this role')) {
+            result.responsibilities = extractBullets($, parent);
         }
-        if (lower.includes('requirements') || lower.includes('qualifications') || lower.includes('looking for') || lower.includes('what you need')) {
-            result.requirements = extractBullets(section);
+        if (headerText.includes('requirements') || headerText.includes('qualifications') || headerText.includes('looking for') || headerText.includes('what you need')) {
+            result.requirements = extractBullets($, parent);
         }
-        if (lower.includes('nice to have') || lower.includes('preferred') || lower.includes('bonus')) {
-            result.tags = extractBullets(section);
+        if (headerText.includes('nice to have') || headerText.includes('preferred') || headerText.includes('bonus') || headerText.includes('skills')) {
+            result.tags = extractBullets($, parent);
         }
-        if (lower.includes('about the role') || lower.includes('about this') || lower.includes('overview')) {
-            result.description = section.replace(/^[^\n]+\n/, '').trim().slice(0, 2000);
+        if (headerText.includes('about the role') || headerText.includes('about this') || headerText.includes('overview') || headerText.includes('about the opportunity')) {
+            // Lever sometimes puts description directly under the header
+            let descText = '';
+            let curr = parent.next();
+            while (curr.length > 0 && !curr.is('h2, h3, h4, ul') && !curr.find('strong, b').length) {
+                descText += curr.text().trim() + '\n\n';
+                curr = curr.next();
+            }
+            if (descText) result.description = descText.trim().slice(0, 2000);
         }
+    });
+
+    // Lever often has plain text before any headers for the description
+    if (!result.description) {
+        let desc = '';
+        $('.posting-requirements').first().prevAll('div').each((_, div) => {
+            desc = $(div).text().trim() + '\n\n' + desc;
+        });
+        if (desc.length > 50) result.description = desc.trim().slice(0, 2000);
     }
-
-    // Title from first line
-    const titleLine = text.split('\n').find(l => l.trim().length > 0);
-    if (titleLine) result.title = titleLine.replace(/^#\s+/, '').trim().slice(0, 100);
 
     return result;
 }
 
-// ─── Generic Scraper (works for most career pages) ───────────────────────────
+// ─── Generic Scraper ─────────────────────────────────────────────────────────
 
-function scrapeGeneric(text: string): ScrapedJob {
+function scrapeGeneric($: cheerio.CheerioAPI): ScrapedJob {
     const result = { ...EMPTY_RESULT };
 
-    // Split by headings (various formats)
-    const sections = text.split(/(?:^|\n)(?:#{1,4}\s+|\*\*[A-Z])/m);
+    result.title = $('h1').first().text().trim() || $('title').text().replace(/Job Application for/i, '').split(' at ')[0].split('|')[0].trim();
 
-    for (const section of sections) {
-        const lower = section.slice(0, 100).toLowerCase();
+    const fullText = $('body').text();
 
-        // Description
-        if (lower.includes('about') && (lower.includes('role') || lower.includes('position') || lower.includes('job') || lower.includes('opportunity'))) {
-            result.description = section.replace(/^[^\n]+\n/, '').trim().slice(0, 2000);
+    $('h2, h3, h4, b, strong').each((_, el) => {
+        const headerText = $(el).text().toLowerCase().trim();
+        const parent = $(el).is('strong, b') ? $(el).parent() : $(el);
+
+        if (headerText.includes('responsibilit') || headerText.includes("you'll do") || headerText.includes('key duties')) {
+            result.responsibilities = extractBullets($, parent);
         }
-
-        // Responsibilities
-        if (lower.includes('responsibilit') || lower.includes("you'll do") || lower.includes('you will do') || lower.includes('key duties') || lower.includes('your role')) {
-            result.responsibilities = extractBullets(section);
+        if (headerText.includes('requirement') || headerText.includes('qualification') || headerText.includes('looking for') || headerText.includes('must have')) {
+            result.requirements = extractBullets($, parent);
         }
-
-        // Requirements
-        if (lower.includes('requirement') || lower.includes('qualification') || lower.includes('looking for') || lower.includes('must have') || lower.includes('what you need') || lower.includes('who you are') || lower.includes('ideal candidate')) {
-            result.requirements = extractBullets(section);
+        if (headerText.includes('nice to have') || headerText.includes('preferred') || headerText.includes('bonus') || headerText.includes('tech stack')) {
+            result.tags = extractBullets($, parent);
         }
-
-        // Tags / Nice-to-have
-        if (lower.includes('nice to have') || lower.includes('preferred') || lower.includes('bonus') || lower.includes('tech stack') || lower.includes('tools') || lower.includes('skills')) {
-            const bullets = extractBullets(section);
-            if (bullets.length > 0) result.tags = bullets;
+        if (headerText === 'about the role' || headerText === 'job description' || headerText === 'overview') {
+            let descText = '';
+            let curr = parent.next();
+            while (curr.length > 0 && !curr.is('h2, h3, h4') && !curr.is('ul')) {
+                descText += curr.text().trim() + '\n\n';
+                curr = curr.next();
+            }
+            if (descText) result.description = descText.trim().slice(0, 2000);
         }
-    }
+    });
 
-    // Try keyword-spotting for tech skills if tags are empty
+    // Fallback tech skill spotting
     if (result.tags.length === 0) {
         const knownSkills = [
             'JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'C#', 'Go', 'Rust', 'Ruby', 'PHP', 'Swift', 'Kotlin',
@@ -189,65 +217,45 @@ function scrapeGeneric(text: string): ScrapedJob {
             'Linux', 'Agile', 'Scrum', 'Microservices',
         ];
         result.tags = knownSkills.filter(skill =>
-            text.toLowerCase().includes(skill.toLowerCase())
+            fullText.toLowerCase().includes(skill.toLowerCase())
         ).slice(0, 10);
     }
-
-    // Title
-    const titleLine = text.split('\n').find(l => l.trim().length > 3);
-    if (titleLine) result.title = titleLine.replace(/^#\s+/, '').trim().slice(0, 100);
-
-    // Salary
-    const salaryMatch = text.match(/(?:salary|compensation|ctc|stipend|package)\s*[:\-–]?\s*(.{5,60}?)(?:\n|$)/i);
-    if (salaryMatch) result.salary = salaryMatch[1].trim();
-
-    // Location
-    const locMatch = text.match(/(?:location|📍)\s*[:\-]?\s*(.+?)(?:\n|$)/i);
-    if (locMatch) result.location = locMatch[1].trim();
 
     return result;
 }
 
 // ─── URL Fetcher ────────────────────────────────────────────────────────────
 
-async function fetchPageText(url: string): Promise<{ text: string; portalType: string }> {
-    const { data: html } = await axios.get(url, {
-        timeout: 10000,
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml',
-            'Accept-Language': 'en-US,en;q=0.9',
-        },
-        maxRedirects: 5,
-    });
-
-    const text = stripHtml(html);
-    let portalType = 'generic';
-
-    if (url.includes('greenhouse.io') || html.includes('greenhouse')) portalType = 'greenhouse';
-    else if (url.includes('lever.co') || html.includes('lever-jobs')) portalType = 'lever';
-    else if (url.includes('linkedin.com')) portalType = 'linkedin';
-
-    return { text, portalType };
-}
-
-// ─── Main Export ────────────────────────────────────────────────────────────
-
 export async function deepScrapeJob(url: string): Promise<ScrapedJob> {
     if (!url || url.includes('t.me')) return { ...EMPTY_RESULT };
 
     try {
-        const { text, portalType } = await fetchPageText(url);
+        const { data: html } = await axios.get(url, {
+            timeout: 10000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml',
+                'Accept-Language': 'en-US,en;q=0.9',
+            },
+            maxRedirects: 5,
+        });
+
+        const $ = cheerio.load(html);
+        let portalType = 'generic';
+
+        if (url.includes('greenhouse.io') || html.includes('greenhouse')) portalType = 'greenhouse';
+        else if (url.includes('lever.co') || html.includes('lever-jobs')) portalType = 'lever';
+        else if (url.includes('linkedin.com')) portalType = 'linkedin';
 
         console.log(`🔍 [Scraper] Portal: ${portalType} | URL: ${url.slice(0, 60)}...`);
 
         switch (portalType) {
             case 'greenhouse':
-                return scrapeGreenhouse(text);
+                return scrapeGreenhouse($);
             case 'lever':
-                return scrapeLever(text);
+                return scrapeLever($);
             default:
-                return scrapeGeneric(text);
+                return scrapeGeneric($);
         }
     } catch (err: any) {
         console.warn(`⚠️ [Scraper] Failed: ${url.slice(0, 50)} — ${err.message}`);

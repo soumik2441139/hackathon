@@ -289,11 +289,14 @@ export async function fetchTelegramJobs(): Promise<NormalizedJob[]> {
             if (applyLink && !applyLink.includes('t.me')) {
                 try {
                     const scraped = await deepScrapeJob(applyLink);
-                    if (scraped.description) enrichedDesc = scraped.description;
+                    if (scraped.description) {
+                        enrichedDesc = scraped.description;
+                        if (gradYear) enrichedDesc += `\n\nEligible graduation years: ${gradYear}`;
+                    }
                     if (scraped.responsibilities.length > 0) responsibilities = scraped.responsibilities;
                     if (scraped.requirements.length > 0) requirements = scraped.requirements;
                     if (scraped.tags.length > 0) tags = scraped.tags;
-                    if (scraped.title && scraped.title.length > 3) enrichedTitle = scraped.title;
+                    if (scraped.title && scraped.title.length > 3) enrichedTitle = scraped.title.replace(/Job Application for/i, '').replace(/at\s+.*$/, '').trim();
                     if (scraped.company && scraped.company.length > 1) enrichedCompany = scraped.company;
                     if (scraped.salary) enrichedSalary = scraped.salary;
                     if (scraped.location) enrichedLocation = scraped.location;
