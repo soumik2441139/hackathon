@@ -72,40 +72,20 @@ export const debugDatabase = async (forceMigrate: boolean = false) => {
     };
 
     if (forceMigrate) {
-        console.log('🚀 [Manual-Migration] Forced migration triggered via API.');
-        const client = conn.getClient();
+        console.log('🚀 [Manual-Migration] Forced reorganization triggered via API.');
 
-        // 1. Check for hackathon DB
-        const hackathonDb = client.db('hackathon');
-        const users = await hackathonDb.collection('users').find({}).toArray();
-
-        if (users.length > 0) {
-            console.log(`🚀 [Manual-Migration] Found ${users.length} users in hackathon. Migrating...`);
-            for (const user of users) {
+        // Check local users collection
+        const localUsers = await db.collection('users').find({}).toArray();
+        if (localUsers.length > 0) {
+            console.log(`🚀 [Manual-Migration] Found ${localUsers.length} users to split...`);
+            for (const user of localUsers) {
                 const target = user.role === 'recruiter' ? 'recruiters' :
                     user.role === 'admin' ? 'admins' : 'students';
                 await db.collection(target).updateOne({ _id: user._id }, { $set: user }, { upsert: true });
             }
-            for (const colName of ['jobs', 'applications']) {
-                const docs = await hackathonDb.collection(colName).find({}).toArray();
-                for (const doc of docs) {
-                    await db.collection(colName).updateOne({ _id: doc._id }, { $set: doc }, { upsert: true });
-                }
-            }
-            results.migrationStatus = `Successfully migrated ${users.length} users from hackathon.`;
+            results.reorgStatus = `Successfully reorganized ${localUsers.length} local users into split collections.`;
         } else {
-            // 2. Check local users collection
-            const localUsers = await db.collection('users').find({}).toArray();
-            if (localUsers.length > 0) {
-                for (const user of localUsers) {
-                    const target = user.role === 'recruiter' ? 'recruiters' :
-                        user.role === 'admin' ? 'admins' : 'students';
-                    await db.collection(target).updateOne({ _id: user._id }, { $set: user }, { upsert: true });
-                }
-                results.migrationStatus = `Successfully migrated ${localUsers.length} local users into split collections.`;
-            } else {
-                results.migrationStatus = 'No data found in hackathon/users or local/users.';
-            }
+            results.reorgStatus = 'No data found in local "users" collection for reorganization.';
         }
     }
 
@@ -113,23 +93,6 @@ export const debugDatabase = async (forceMigrate: boolean = false) => {
     for (const col of collections) {
         const count = await db.collection(col.name).countDocuments();
         results.collections.push({ name: col.name, count });
-    }
-
-    // Try to check for hackathon database on the same cluster
-    try {
-        const client = conn.getClient();
-        const otherDb = client.db('hackathon');
-        const otherCols = await otherDb.listCollections().toArray();
-        results.hackathonDb = {
-            name: 'hackathon',
-            collections: []
-        };
-        for (const col of otherCols) {
-            const count = await otherDb.collection(col.name).countDocuments();
-            results.hackathonDb.collections.push({ name: col.name, count });
-        }
-    } catch (err: any) {
-        results.hackathonError = err.message;
     }
 
     return results;
