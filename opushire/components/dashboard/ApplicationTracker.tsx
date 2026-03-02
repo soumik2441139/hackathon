@@ -28,7 +28,7 @@ export const ApplicationTracker = () => {
         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-black text-white">Your Applications</h2>
-                <span className="text-sm font-bold uppercase tracking-widest text-brand-cyan px-4 py-1.5 rounded-full bg-brand-cyan/10 border border-brand-cyan/20 shadow-[0_0_15px_rgba(0,240,255,0.1)]">
+                <span className="text-sm font-bold uppercase tracking-widest text-orange-400 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
                     {loading ? 'SYNCING...' : `${apps.length} ACTIVE`}
                 </span>
             </div>
@@ -49,7 +49,7 @@ export const ApplicationTracker = () => {
 
             {!loading && !error && apps.length === 0 && (
                 <div className="glass-card p-16 text-center border-dashed border-white/20 bg-white/[0.02]">
-                    <div className="w-20 h-20 rounded-full bg-brand-cyan/10 flex items-center justify-center mx-auto mb-6">
+                    <div className="w-20 h-20 rounded-full bg-orange-500/10 flex items-center justify-center mx-auto mb-6">
                         <span className="text-3xl">🚀</span>
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">No Applications Yet</h3>
@@ -63,20 +63,20 @@ export const ApplicationTracker = () => {
                         const job = typeof app.job === 'string' ? null : app.job;
                         // Dynamically pick gradient based on status
                         const getStatusClasses = (status: string) => {
-                            if (status === 'Interview') return 'bg-brand-violet/20 border-brand-violet/40 text-brand-violet shadow-[0_0_20px_rgba(138,43,226,0.2)]';
-                            if (status === 'Shortlisted') return 'bg-brand-cyan/20 border-brand-cyan/40 text-brand-cyan shadow-[0_0_20px_rgba(0,240,255,0.2)]';
+                            if (status === 'Interview') return 'bg-red-500/20 border-red-500/40 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)]';
+                            if (status === 'Shortlisted') return 'bg-orange-500/20 border-orange-500/40 text-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.2)]';
                             if (status === 'Rejected') return 'bg-red-500/10 border-red-500/30 text-red-400';
-                            if (status === 'Hired') return 'bg-[#BEF264]/20 border-[#BEF264]/40 text-[#BEF264] shadow-[0_0_20px_rgba(190,242,100,0.2)]';
+                            if (status === 'Hired') return 'bg-yellow-400/20 border-yellow-400/40 text-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.2)]';
                             return 'bg-white/10 border-white/20 text-white shadow-lg';
                         };
 
                         return (
                             <div
                                 key={app._id}
-                                className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-brand-cyan/30 hover:bg-white/[0.03] transition-all group rounded-2xl border-white/5 relative overflow-hidden"
+                                className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-orange-500/30 hover:bg-white/[0.03] transition-all group rounded-2xl border-white/5 relative overflow-hidden"
                             >
                                 {/* Hover background glow */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-brand-cyan/0 via-brand-cyan/5 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-transparent -translate-x-full group-hover:animate-shimmer" />
 
                                 <div className="flex gap-5 relative z-10">
                                     <div className="w-14 h-14 rounded-[1.2rem] bg-[#05050A] flex items-center justify-center font-bold text-xl overflow-hidden shrink-0 border border-white/10 shadow-xl group-hover:scale-110 transition-transform">
@@ -87,7 +87,7 @@ export const ApplicationTracker = () => {
                                         )}
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-lg text-white group-hover:text-brand-cyan transition-colors">{job?.title ?? 'Job Title'}</h3>
+                                        <h3 className="font-bold text-lg text-white group-hover:text-orange-400 transition-colors">{job?.title ?? 'Job Title'}</h3>
                                         <p className="text-sm font-medium text-white/50">{job?.company}</p>
                                     </div>
                                 </div>
