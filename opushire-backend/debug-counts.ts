@@ -11,6 +11,7 @@ async function checkData() {
     try {
         const conn = await mongoose.connect(uri);
         const db = conn.connection.db;
+        if (!db) throw new Error('Could not connect to database');
 
         const collections = await db.listCollections().toArray();
         console.log('\n--- Collections in CURRENT DB ---');
@@ -25,6 +26,8 @@ async function checkData() {
 
         const conn2 = await mongoose.createConnection(otherUri).asPromise();
         const db2 = conn2.db;
+        if (!db2) throw new Error('Could not connect to second database');
+
         const collections2 = await db2.listCollections().toArray();
 
         console.log('\n--- Collections in OTHER DB ---');
