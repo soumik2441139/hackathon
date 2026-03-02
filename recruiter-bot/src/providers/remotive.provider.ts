@@ -26,6 +26,8 @@ export interface NormalizedJob {
     salary: string;
     description: string;
     tags: string[];
+    responsibilities?: string[];
+    requirements?: string[];
     source: 'remotive' | 'arbeitnow' | 'adzuna' | 'telegram';
     externalId: string;
     externalUrl: string;

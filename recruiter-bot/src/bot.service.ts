@@ -61,8 +61,8 @@ async function storeJobs(jobs: NormalizedJob[], sourceName: string): Promise<Fet
                 posted: job.posted,
                 featured: false,
                 openings: 1,
-                responsibilities: [],
-                requirements: [],
+                responsibilities: job.responsibilities || [],
+                requirements: job.requirements || [],
             });
 
             result.newJobs++;

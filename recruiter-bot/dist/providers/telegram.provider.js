@@ -249,31 +249,53 @@ async function fetchTelegramJobs() {
             const applyLink = extractApplyLink(post);
             const salary = extractSalary(post);
             const description = buildDescription(post, company, gradYear, applyLink);
-            // Try to scrape the career page for skills
+            // Deep scrape the career page for full job details
+            let enrichedDesc = description;
+            let responsibilities = [];
+            let requirements = [];
             let tags = [];
+            let enrichedTitle = title;
+            let enrichedCompany = company;
+            let enrichedSalary = salary;
+            let enrichedLocation = location;
             if (applyLink && !applyLink.includes('t.me')) {
                 try {
-                    const pageData = await (0, page_scraper_1.scrapeCareerPage)(applyLink);
-                    if (pageData.skills.length > 0) {
-                        tags = pageData.skills;
-                    }
+                    const scraped = await (0, page_scraper_1.deepScrapeJob)(applyLink);
+                    if (scraped.description)
+                        enrichedDesc = scraped.description;
+                    if (scraped.responsibilities.length > 0)
+                        responsibilities = scraped.responsibilities;
+                    if (scraped.requirements.length > 0)
+                        requirements = scraped.requirements;
+                    if (scraped.tags.length > 0)
+                        tags = scraped.tags;
+                    if (scraped.title && scraped.title.length > 3)
+                        enrichedTitle = scraped.title;
+                    if (scraped.company && scraped.company.length > 1)
+                        enrichedCompany = scraped.company;
+                    if (scraped.salary)
+                        enrichedSalary = scraped.salary;
+                    if (scraped.location)
+                        enrichedLocation = scraped.location;
                 }
                 catch {
-                    // Silent fail
+                    // Silent fail — use Telegram-extracted data
                 }
             }
-            const companyClean = company.replace(/\s+/g, '').toLowerCase();
+            const companyClean = enrichedCompany.replace(/\s+/g, '').toLowerCase();
             allJobs.push({
-                title,
-                company,
+                title: enrichedTitle,
+                company: enrichedCompany,
                 companyLogo: `https://logo.clearbit.com/${companyClean}.com`,
-                location,
+                location: enrichedLocation,
                 city,
-                type: title.toLowerCase().includes('intern') ? 'Internship' : 'Full-time',
+                type: enrichedTitle.toLowerCase().includes('intern') ? 'Internship' : 'Full-time',
                 mode,
-                salary,
-                description,
+                salary: enrichedSalary,
+                description: enrichedDesc,
                 tags,
+                responsibilities,
+                requirements,
                 source: 'telegram',
                 externalId: hash,
                 externalUrl: applyLink || `https://t.me/s/${channel}`,

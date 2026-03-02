@@ -47,8 +47,8 @@ async function storeJobs(jobs, sourceName) {
                 posted: job.posted,
                 featured: false,
                 openings: 1,
-                responsibilities: [],
-                requirements: [],
+                responsibilities: job.responsibilities || [],
+                requirements: job.requirements || [],
             });
             result.newJobs++;
         }
