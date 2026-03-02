@@ -8,6 +8,7 @@ const remotive_provider_1 = require("./providers/remotive.provider");
 const arbeitnow_provider_1 = require("./providers/arbeitnow.provider");
 const adzuna_provider_1 = require("./providers/adzuna.provider");
 const telegram_provider_1 = require("./providers/telegram.provider");
+const translator_1 = require("./providers/translator");
 let lastStatus = {
     lastRun: null,
     results: [],
@@ -67,11 +68,19 @@ async function fetchAllJobs() {
     console.log('🤖 RECRUITER BOT — Fetch cycle starting...');
     console.log('🤖 ═══════════════════════════════════════');
     const results = [];
-    const [remotiveJobs, arbeitnowJobs, adzunaJobs, telegramJobs] = await Promise.all([
+    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw] = await Promise.all([
         (0, remotive_provider_1.fetchRemotiveJobs)(),
         (0, arbeitnow_provider_1.fetchArbeitnowJobs)(),
         (0, adzuna_provider_1.fetchAdzunaJobs)(),
         (0, telegram_provider_1.fetchTelegramJobs)(),
+    ]);
+    // Auto-translate non-English jobs to English
+    console.log('🌐 [Translator] Checking for non-English jobs...');
+    const [remotiveJobs, arbeitnowJobs, adzunaJobs, telegramJobs] = await Promise.all([
+        (0, translator_1.translateJobs)(remotiveRaw),
+        (0, translator_1.translateJobs)(arbeitnowRaw),
+        (0, translator_1.translateJobs)(adzunaRaw),
+        (0, translator_1.translateJobs)(telegramRaw),
     ]);
     if (remotiveJobs.length > 0) {
         results.push(await storeJobs(remotiveJobs, 'remotive'));

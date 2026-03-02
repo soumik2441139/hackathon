@@ -3,6 +3,7 @@ import { fetchRemotiveJobs, NormalizedJob } from './providers/remotive.provider'
 import { fetchArbeitnowJobs } from './providers/arbeitnow.provider';
 import { fetchAdzunaJobs } from './providers/adzuna.provider';
 import { fetchTelegramJobs } from './providers/telegram.provider';
+import { translateJobs } from './providers/translator';
 
 export interface FetchResult {
     source: string;
@@ -84,11 +85,20 @@ export async function fetchAllJobs(): Promise<BotStatus> {
 
     const results: FetchResult[] = [];
 
-    const [remotiveJobs, arbeitnowJobs, adzunaJobs, telegramJobs] = await Promise.all([
+    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw] = await Promise.all([
         fetchRemotiveJobs(),
         fetchArbeitnowJobs(),
         fetchAdzunaJobs(),
         fetchTelegramJobs(),
+    ]);
+
+    // Auto-translate non-English jobs to English
+    console.log('🌐 [Translator] Checking for non-English jobs...');
+    const [remotiveJobs, arbeitnowJobs, adzunaJobs, telegramJobs] = await Promise.all([
+        translateJobs(remotiveRaw),
+        translateJobs(arbeitnowRaw),
+        translateJobs(adzunaRaw),
+        translateJobs(telegramRaw),
     ]);
 
     if (remotiveJobs.length > 0) {
