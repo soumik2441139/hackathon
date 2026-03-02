@@ -105,20 +105,28 @@ export default function AdminDashboard() {
                         </h1>
                         <p className="text-white/40 text-lg max-w-2xl font-medium">Monitoring platform-wide activity and managing authority across student and recruiter collectives.</p>
                     </div>
-                    <div className="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-xl">
-                        <div className="text-right px-4">
-                            <p className="text-[10px] uppercase font-black text-white/30 tracking-widest">System Status</p>
-                            <p className="text-emerald-400 font-bold flex items-center gap-2 text-sm">
-                                <Activity size={12} className="animate-bounce" /> OPUS_ONLINE_01
-                            </p>
+                    <div className="flex flex-col items-end gap-3">
+                        <div className="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-xl">
+                            <div className="text-right px-4">
+                                <p className="text-[10px] uppercase font-black text-white/30 tracking-widest">System Status</p>
+                                <p className="text-emerald-400 font-bold flex items-center gap-2 text-sm">
+                                    <Activity size={12} className="animate-bounce" /> OPUS_ONLINE_01
+                                </p>
+                            </div>
+                            <button
+                                onClick={handleReSync}
+                                disabled={loading}
+                                className="mr-2 px-4 py-2 bg-brand-cyan/20 border border-brand-cyan/40 rounded-xl text-[10px] font-black uppercase tracking-wider text-brand-cyan hover:bg-brand-cyan/30 transition-all disabled:opacity-50"
+                            >
+                                Trigger Data Re-Sync
+                            </button>
                         </div>
-                        <button
-                            onClick={handleReSync}
-                            disabled={loading}
-                            className="mr-2 px-4 py-2 bg-brand-cyan/20 border border-brand-cyan/40 rounded-xl text-[10px] font-black uppercase tracking-wider text-brand-cyan hover:bg-brand-cyan/30 transition-all disabled:opacity-50"
+                        <Button
+                            className="bg-brand-violet hover:bg-brand-violet/80 text-white w-full border border-brand-violet/20 shadow-[0_0_20px_rgba(138,43,226,0.3)] gap-2 h-12 rounded-2xl"
+                            onClick={() => window.location.href = '/dashboard/admin/jobs'}
                         >
-                            Trigger Data Re-Sync
-                        </button>
+                            <Briefcase size={16} /> Manage Job Listings
+                        </Button>
                     </div>
                 </div>
 
