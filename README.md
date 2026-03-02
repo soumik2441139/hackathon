@@ -1,6 +1,6 @@
 <div align="center">
   <br />
-  <h1>Opushire 🚀</h1>
+  <h1>OpusHire 🚀</h1>
   <p><strong>Elevate your Career from Campus.</strong></p>
   <p>The premium job portal designed explicitly for high-growth students and top-tier tech startups.</p>
   <br />
@@ -9,6 +9,7 @@
   [![Frontend Tech](https://img.shields.io/badge/Next.js_14-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](#)
   [![Styling](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](#)
   [![Animation](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)](#)
+  [![Bot](https://img.shields.io/badge/Recruiter_Bot-4CAF50?style=for-the-badge&logo=probot&logoColor=white)](#-recruiter-bot)
 
 </div>
 
@@ -16,38 +17,92 @@
 
 ## 🌟 Overview
 
-Opushire is a modern, full-stack recruitment platform and application tracking system (ATS) crafted to seamlessly connect elite student talent with world-class technology companies (like Stripe, Vercel, Cred, and OpenAI). 
+OpusHire is a modern, full-stack recruitment platform and application tracking system (ATS) crafted to seamlessly connect elite student talent with world-class technology companies. It features an **AI-powered Recruiter Bot** that automatically fetches internship and junior roles from 4 external sources.
 
-### 🗺️ User Journey
+---
+
+## 📁 Monorepo Structure
+
+```
+hackathon/
+├── opushire/               ← Frontend (Next.js 14 + Tailwind v4)
+├── opushire-backend/       ← Backend API (Express.js + MongoDB)
+├── recruiter-bot/          ← Autonomous Job Fetcher Bot
+├── .github/workflows/      ← CI/CD pipelines (Azure deployment)
+├── .gitignore
+└── README.md
+```
+
+---
+
+## 🗺️ User Journey
 
 ```mermaid
 graph LR
     User((User)) -->|Auth| Dashboard{Role?}
-    Dashboard -->|Student| S_Profile[Build Profile]
-    S_Profile --> S_Search[Search Jobs]
-    S_Search --> S_Apply[Apply for Role]
-    S_Apply --> S_Track[Track Application]
+    Dashboard -->|Student| S_Profile["Build Profile"]
+    S_Profile --> S_Search["Search Jobs"]
+    S_Search --> S_Apply["Apply for Role"]
+    S_Apply --> S_Track["Track Application"]
     
-    Dashboard -->|Recruiter| R_Org[Manage Org]
-    R_Org --> R_Post[Post Jobs]
-    R_Post --> R_Review[Review Applicants]
-    R_Review --> R_Status[Update Status]
+    Dashboard -->|Recruiter| R_Org["Manage Org"]
+    R_Org --> R_Post["Post Jobs"]
+    R_Post --> R_Review["Review Applicants"]
+    R_Review --> R_Status["Update Status"]
+    
+    Dashboard -->|Admin| A_Panel["Admin Panel"]
+    A_Panel --> A_Users["Manage Users"]
+    A_Panel --> A_Bot["Trigger Bot Fetch"]
+    A_Panel --> A_Stats["View System Stats"]
 ```
-
-Built with an intense focus on **premium user experience**, **enterprise-grade architecture**, and an **immersive "glassmorphism" aesthetic**, Opushire provides an incredibly fast and fluid interface for both job seekers finding their dream internships and recruiters managing top-tier pipelines.
 
 ---
 
-## ✨ Core Highlights
+## 🏗 System Architecture
 
-### 🎨 Stunning Premium UI/UX
-- **Glassmorphism Aesthetic**: Deep, dark oceanic themes paired with frosted glass cards (`backdrop-blur`) built exclusively with the brand new **[Tailwind CSS v4](https://tailwindcss.com/)**.
-- **Immersive Micro-interactions**: Smooth page transitions, animated dropdown panels, and hover events powered by **[Framer Motion](https://www.framer.com/motion/)**.
-- **Custom Scrolling Marquees**: An infinite CSS-masked marquee displaying transparently faded trusted company logos.
-- **Scroll Reveal Animations**: Elements gracefully slide and fade into view as you traverse the landing page using custom `ScrollReveal` wrappers.
+```mermaid
+graph TD
+    subgraph Frontend["Frontend — /opushire"]
+        NextJS["Next.js 14 App Router"]
+        TW["Tailwind CSS v4"]
+        FM["Framer Motion"]
+    end
 
-### 🔐 Multi-Tier Role-Based Access (RBAC)
-- Secure JSON Web Token (JWT) authentication handled via strict, HTTP-only cookies.
+    subgraph Backend["Backend — /opushire-backend"]
+        Express["Express.js REST API"]
+        Auth["JWT Auth + RBAC"]
+        Models["Mongoose Models"]
+    end
+
+    subgraph Bot["Recruiter Bot — /recruiter-bot"]
+        Remotive["Remotive API"]
+        Arbeitnow["Arbeitnow API"]
+        Adzuna["Adzuna API"]
+        Telegram["Telegram Scraper"]
+        BotService["Bot Orchestrator"]
+    end
+
+    subgraph Cloud["Cloud Infrastructure"]
+        AzureFE["Azure App Service — Frontend"]
+        AzureBE["Azure App Service — Backend"]
+        MongoDB[("MongoDB Atlas")]
+    end
+
+    NextJS --> AzureFE
+    Express --> AzureBE
+    AzureFE -->|"REST API"| AzureBE
+    AzureBE -->|"Mongoose ODM"| MongoDB
+
+    Remotive --> BotService
+    Arbeitnow --> BotService
+    Adzuna --> BotService
+    Telegram --> BotService
+    BotService -->|"Store Jobs"| MongoDB
+```
+
+---
+
+## 🔐 Authentication Flow
 
 ```mermaid
 sequenceDiagram
@@ -55,163 +110,214 @@ sequenceDiagram
     participant B as Backend (Express)
     participant D as Database (MongoDB)
     
-    C->>B: Login Credentials
-    B->>D: Verify User
-    D-->>B: User Data
-    B->>B: Generate JWT
-    B-->>C: Set HTTP-Only Cookie
-    C->>B: Authenticated Request
-    B->>B: Verify JWT
-    B-->>C: Authorized Data
+    C->>B: POST /api/auth/login
+    B->>D: Find User by Email
+    D-->>B: User Document
+    B->>B: Verify Password (bcrypt)
+    B->>B: Generate JWT Token
+    B-->>C: Token + User Data
+    C->>C: Store in localStorage
+    C->>B: GET /api/jobs (Authorization header)
+    B->>B: Verify JWT Middleware
+    B->>B: Check Role (RBAC)
+    B-->>C: Authorized Response
 ```
-
-- **Student Portal**:
-  - Live dashboards tracking the status of applied jobs (Interview, Shortlisted, Hired).
-  - Saved opportunity tracking.
-  - Interactive notification bells and dynamic preference settings panels.
-- **Recruiter / Admin Portal**:
-  - Securely manage organization profiles.
-  - CRUD operations to post, edit, or remove live job listings.
-  - Review candidate applications and adjust their progression pipeline statuses.
-
-### 💼 Dynamic Indian Market Job Board
-- Job listings dynamically render localized data designed for the Indian startup ecosystem (e.g., Salaries formatted as `₹35 LPA - ₹50 LPA`, and locations spanning `Bangalore, Pune, Gurgaon`).
-- **Live Search & Filtering**: Client-side filtering across specific Categories (Engineering, Product), Job Types (Full-time, Internship), and Work Modes (Remote, Hybrid).
-- Automatically fetches and renders high-quality company brand logos dynamically utilizing **Clearbit** APIs.
 
 ---
 
-## 🏗 System Architecture & CI/CD
-
-Opushire utilizes a globally distributed, decoupled client-server architecture. It is fully deployed on **Microsoft Azure** utilizing continuous integration via **GitHub Actions**.
-
-```mermaid
-graph TD
-    Client[Next.js Client Application]
-    AzureFront[Azure App Service - Frontend]
-    AzureBack[Azure App Service - Backend]
-    API[Express.js REST API Node.js]
-    Mongo[(MongoDB Atlas Cloud)]
-
-    Client -->|HTTP / React Server Components| AzureFront
-    AzureFront -->|REST API Calls fetch| AzureBack
-    AzureBack --> API
-    API -->|Mongoose ODM| Mongo
-    
-    subgraph Client-Side [Frontend Repo: /opushire]
-    AzureFront
-    end
-    
-    subgraph Server-Side [Backend Repo: /opushire-backend]
-    AzureBack
-    API
-    end
-```
-
-### 🚀 Live Deployments
-
-- **Frontend Application URL:** [https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
-- **Backend API Endpoint:** [https://opushire-backend.azurewebsites.net/api](https://opushire-backend.azurewebsites.net/api)
-- **Database System:** MongoDB Atlas
-
-*Zero-downtime `.zip` builds and rapid container restarts are completely automated on GitHub pushes via `.github/workflows`.*
-
----
-
-## 💻 Tech Stack Summary
-
-### 📊 Data Architecture
+## 📊 Data Architecture
 
 ```mermaid
 erDiagram
-    USER ||--o{ JOB : posts
-    USER ||--o{ APPLICATION : applies
+    STUDENT ||--o{ APPLICATION : applies
+    RECRUITER ||--o{ JOB : posts
+    ADMIN ||--o{ JOB : manages
     JOB ||--o{ APPLICATION : receives
+    BOT ||--o{ JOB : fetches
     
-    USER {
+    STUDENT {
         string name
         string email
-        string role
         string college
+        string skills
+        string resume
+    }
+    RECRUITER {
+        string name
+        string email
+        string company
+        string companyWebsite
     }
     JOB {
         string title
         string company
-        number salary
         string type
+        string mode
+        string source
+        string externalId
+        string externalUrl
     }
     APPLICATION {
         string status
         date appliedAt
         string coverLetter
     }
+    BOT {
+        string source
+        date lastRun
+        number jobsFetched
+    }
 ```
-
-**Frontend Application:**
-- **Framework**: Next.js 14+ (App Router)
-- **Language**: TypeScript
-- **Styling Engine**: Tailwind CSS v4 & custom CSS variable architecture
-- **Animations**: Framer Motion & GSAP
-- **Icons**: Lucide React
-- **State Management**: React Context APIs (`AuthContext`)
-
-**Backend Application:**
-- **Runtime Environment**: Node.js (v18+)
-- **Server Framework**: Express.js
-- **Database Architecture**: MongoDB utilizing Mongoose ODM
-- **Security Protocols**: Helmet, CORS configurations, Bcrypt hashing, secure jsonwebtokens.
 
 ---
 
-## 🛠 Local Development Guide
+## ✨ Core Features
 
-Want to run Opushire locally? Ensure you have **Node.js 18+** and a **MongoDB cluster connection string** ready.
+### 🎨 Premium UI/UX
+- **Glassmorphism Aesthetic**: Deep dark oceanic themes with frosted glass cards (`backdrop-blur`)
+- **Immersive Micro-interactions**: Smooth transitions powered by Framer Motion
+- **Custom Scrolling Marquees**: Infinite CSS-masked marquee with company logos
+- **Scroll Reveal Animations**: Elements gracefully animate on scroll
 
-### 1. Booting the Backend
-1. Open a terminal and navigate to the API directory:
-   ```bash
-   cd opushire-backend
-   ```
-2. Install the necessary packages:
-   ```bash
-   npm install
-   ```
-3. Establish your localized `.env` variables:
-   ```env
-   NODE_ENV=development
-   PORT=5000
-   MONGODB_URI=your_mongodb_atlas_connection_string
-   JWT_SECRET=your_super_secret_jwt_key
-   JWT_EXPIRES_IN=7d
-   FRONTEND_URL=http://localhost:3000
-   ```
-4. **Seed the Database!** (Highly Recommended to populate sample top-tier jobs and an Admin user):
-   ```bash
-   npx tsx seed-jobs.ts
-   ```
-5. Ignite the REST API server:
-   ```bash
-   npm run dev
-   ```
+### 🔐 Multi-Tier RBAC
+| Role | Capabilities |
+|------|-------------|
+| **Student** | Browse jobs, apply, track applications, manage profile |
+| **Recruiter** | Post jobs, review applicants, update pipeline status |
+| **Admin** | Manage all users, view system stats, trigger bot fetch, data re-sync |
 
-### 2. Booting the Frontend
-1. Open a *second* terminal and navigate to the client directory:
-   ```bash
-   cd opushire
-   ```
-2. Install the client packages:
-   ```bash
-   npm install
-   ```
-3. Point the client to your local backend API by creating a `.env.local` file:
-   ```env
-   NEXT_PUBLIC_API_URL=http://localhost:5000/api
-   ```
-4. Start the Next.js development environment:
-   ```bash
-   npm run dev
-   ```
-5. View the platform locally at [http://localhost:3000](http://localhost:3000). *(Note: If Tailwind CSS styles fail to load initially, simply delete the `.next` directory and restart the dev server—this clears Next.js's style cache for Tailwind v4!).*
+### 🤖 Recruiter Bot
+An autonomous job fetcher that pulls internship & junior roles from 4 external sources:
+
+| Source | Type | API Key? |
+|--------|------|----------|
+| Remotive | REST API — remote tech jobs | No |
+| Arbeitnow | REST API — tech jobs worldwide | No |
+| Adzuna | REST API — 16+ countries | Yes |
+| Telegram | Public channel scraper | No |
+
+> See [`recruiter-bot/README.md`](recruiter-bot/README.md) for full architecture details.
+
+---
+
+## 💻 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Next.js 14, TypeScript, Tailwind CSS v4, Framer Motion, Lucide Icons |
+| **Backend** | Node.js, Express.js, TypeScript, Mongoose ODM |
+| **Database** | MongoDB Atlas |
+| **Auth** | JWT, bcryptjs, Role-Based Middleware |
+| **Bot** | Axios, Cheerio-style HTML parsing, Clearbit Logos |
+| **CI/CD** | GitHub Actions → Azure App Service |
+| **Hosting** | Microsoft Azure (Central India region) |
+
+---
+
+## 🚀 Live Deployments
+
+| Service | URL |
+|---------|-----|
+| **Frontend** | [opushire-frontend-app.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net) |
+| **Backend API** | [opushire-backend.azurewebsites.net/api](https://opushire-backend.azurewebsites.net/api) |
+| **Health Check** | [opushire-backend.azurewebsites.net/health](https://opushire-backend.azurewebsites.net/health) |
+
+---
+
+## 🛠 Local Development
+
+### Prerequisites
+- Node.js 18+
+- MongoDB Atlas connection string (or local MongoDB)
+
+### 1. Backend
+```bash
+cd opushire-backend
+npm install
+# Create .env with: MONGODB_URI, JWT_SECRET, FRONTEND_URL, PORT=5000
+npm run dev
+```
+
+### 2. Frontend
+```bash
+cd opushire
+npm install
+# Create .env.local with: NEXT_PUBLIC_API_URL=http://localhost:5000/api
+npm run dev
+# Open http://localhost:3000
+```
+
+### 3. Recruiter Bot
+```bash
+cd recruiter-bot
+npm install
+cp .env.example .env
+# Edit .env → set MONGODB_URI
+npm run dev
+# Dashboard at http://localhost:5001
+```
+
+### 4. Seed Sample Data
+```bash
+cd opushire-backend
+npx tsx seed-jobs.ts
+```
+
+---
+
+## 📂 Project Organization
+
+```
+opushire/                        ← Next.js Frontend
+├── app/
+│   ├── page.tsx                 ← Landing page
+│   ├── jobs/page.tsx            ← Job board
+│   ├── dashboard/
+│   │   ├── student/page.tsx     ← Student dashboard
+│   │   ├── recruiter/page.tsx   ← Recruiter dashboard
+│   │   └── admin/page.tsx       ← Admin panel
+│   └── auth/                    ← Login / Register
+├── components/ui/               ← Reusable UI components
+├── context/AuthContext.tsx       ← Auth state management
+└── lib/api.ts                   ← API client helpers
+
+opushire-backend/                ← Express Backend
+├── src/
+│   ├── server.ts                ← App entry point
+│   ├── config/                  ← DB, CORS, env config
+│   ├── models/                  ← Mongoose schemas
+│   ├── routes/                  ← Express route definitions
+│   ├── controllers/             ← Request handlers
+│   ├── services/                ← Business logic
+│   └── middleware/              ← Auth, RBAC, error handling
+├── logs/                        ← Historical log files
+├── seed-jobs.ts                 ← Database seeder
+└── migrate-data.js              ← Data migration utility
+
+recruiter-bot/                   ← Autonomous Job Fetcher
+├── src/
+│   ├── providers/               ← External API integrations
+│   ├── models/Job.ts            ← Shared Job schema
+│   ├── bot.service.ts           ← Orchestrator
+│   ├── server.ts                ← API + Dashboard
+│   └── cli.ts                   ← CLI runner
+└── .env.example                 ← Configuration template
+```
+
+---
+
+## 🔄 CI/CD Pipeline
+
+```mermaid
+graph LR
+    Push["Git Push to 'soumik' branch"] --> GHA["GitHub Actions"]
+    GHA --> BuildFE["Build Frontend (next build)"]
+    GHA --> BuildBE["Build Backend (tsc)"]
+    BuildFE --> DeployFE["Deploy to Azure Frontend App"]
+    BuildBE --> DeployBE["Deploy to Azure Backend App"]
+    DeployFE --> Live["🟢 Live on Azure"]
+    DeployBE --> Live
+```
 
 ---
 

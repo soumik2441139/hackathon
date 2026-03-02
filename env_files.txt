@@ -1,2 +1,0 @@
-C:\Users\KIIT0001\WebstormProjects\hackathon\opushire\.env.local
-C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\.env.example
