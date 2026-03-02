@@ -78,7 +78,7 @@ export default function RecruiterDashboard() {
     ];
 
     return (
-        <main className="pt-32 pb-24 px-6 overflow-hidden min-h-screen bg-brand-dark">
+        <main className="pt-32 pb-24 px-6 overflow-hidden min-h-screen bg-[var(--background)] transition-colors duration-500">
             <div className="max-w-6xl mx-auto">
                 <motion.div
                     variants={containerVariants}
@@ -86,62 +86,75 @@ export default function RecruiterDashboard() {
                     animate="visible"
                     className="space-y-12"
                 >
-                    {/* Header Area */}
-                    <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                        <div className="flex items-center gap-6">
-                            <AnimatePresence>
-                                {user?.companyLogo && (
-                                    <motion.div
-                                        initial={{ scale: 0.5, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        className="w-24 h-24 rounded-3xl bg-white/5 p-1 border border-white/10 overflow-hidden hidden md:flex items-center justify-center relative group"
-                                    >
-                                        <div className="absolute inset-0 bg-gradient-to-tr from-brand-violet/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <img src={user.companyLogo} alt={user.companyName} className="w-full h-full object-contain relative z-10" />
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                            <div>
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-cyan/10 border border-brand-cyan/20 text-[10px] font-black uppercase tracking-[0.2em] text-brand-cyan mb-6">
-                                    <Sparkles size={12} />
-                                    Recruiter Hub
+                    {/* Header Area - Starry Night Hero */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="relative p-12 rounded-[3rem] overflow-hidden bg-gradient-to-br from-[#0B1E3B] to-[#020817] border border-white/5 shadow-2xl"
+                    >
+                        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#BEF264]/10 to-transparent pointer-events-none" />
+                        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[#BEF264]/5 blur-[120px] rounded-full" />
+
+                        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-12">
+                            <div className="flex items-center gap-8">
+                                <AnimatePresence>
+                                    {user?.companyLogo && (
+                                        <motion.div
+                                            initial={{ scale: 0.8, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            className="w-32 h-32 rounded-[2.5rem] bg-[#0F172A] p-2 border border-white/10 shadow-xl flex items-center justify-center relative group"
+                                        >
+                                            <img src={user.companyLogo} alt={user.companyName} className="w-20 h-20 object-contain" />
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                                <div>
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.2em] text-[#BEF264] mb-6">
+                                        <Sparkles size={12} />
+                                        Master Dashboard
+                                    </div>
+                                    <h1 className="text-6xl md:text-8xl font-black mb-4 uppercase tracking-tighter leading-none">
+                                        <span className="text-white block">HELLO,</span>
+                                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#BEF264] to-[#84CC16]">
+                                            {user?.companyName || user?.name?.split(' ')[0] || 'RECRUITER'}
+                                        </span>
+                                    </h1>
+                                    <p className="text-white/40 text-xl font-medium max-w-md">Your activity hub for {user?.companyName || 'your business'}.</p>
                                 </div>
-                                <h1 className="text-6xl md:text-7xl font-black mb-4 uppercase tracking-tighter leading-none flex flex-wrap gap-x-4">
-                                    <span className="text-white">WELCOME BACK,</span>
-                                    <span className="text-brand-cyan">{user?.name?.split(' ')[0] || 'RECRUITER'}</span>
-                                </h1>
-                                <p className="text-white/40 text-lg font-medium">Manage your company presence and find top talent.</p>
                             </div>
+
+                            <Link href="/dashboard/recruiter/post-job">
+                                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                    <Button className="h-24 px-12 text-2xl gap-4 bg-white text-[#020817] font-black uppercase rounded-[2rem] shadow-2xl hover:bg-white/90 transition-all">
+                                        <Plus size={32} strokeWidth={3} /> Post Opportunity
+                                    </Button>
+                                </motion.div>
+                            </Link>
                         </div>
-                        <Link href="/dashboard/recruiter/post-job">
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <Button className="h-20 px-12 text-xl gap-3 bg-brand-cyan text-brand-dark font-black uppercase rounded-3xl shadow-[0_20px_40px_rgba(0,172,193,0.3)] hover:bg-brand-cyan/90">
-                                    <Plus size={24} /> Post New Opportunity
-                                </Button>
-                            </motion.div>
-                        </Link>
                     </motion.div>
 
-                    {/* Stats Grid */}
+                    {/* Stats Grid - Starry Night Style */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
-                            { title: 'Active Jobs', value: stats.activeJobs, icon: <Briefcase size={28} />, color: 'from-brand-cyan/20 to-transparent', iconColor: 'text-brand-cyan' },
-                            { title: 'Total Applicants', value: stats.totalApplicants, icon: <Users size={28} />, color: 'from-brand-cyan/20 to-transparent', iconColor: 'text-brand-cyan' },
-                            { title: 'Profile Views', value: stats.profileViews, icon: <BarChart3 size={28} />, color: 'from-orange-400/20 to-transparent', iconColor: 'text-orange-400' },
+                            { title: 'Active Jobs', value: stats.activeJobs, icon: <Briefcase size={28} />, color: 'from-[#BEF264]/5 to-transparent', iconColor: 'text-[#BEF264]' },
+                            { title: 'Total Applicants', value: stats.totalApplicants, icon: <Users size={28} />, color: 'from-blue-400/5 to-transparent', iconColor: 'text-blue-400' },
+                            { title: 'Profile Views', value: stats.profileViews, icon: <BarChart3 size={28} />, color: 'from-pink-400/5 to-transparent', iconColor: 'text-pink-400' },
                         ].map((card, idx) => (
                             <motion.div
                                 key={idx}
                                 variants={itemVariants}
-                                whileHover={{ y: -10 }}
-                                className="glass-card p-10 relative overflow-hidden group border-white/5 min-h-[220px] flex flex-col justify-between"
+                                whileHover={{ y: -8, backgroundColor: "rgba(255,255,255,0.02)" }}
+                                className="p-10 rounded-[2.5rem] bg-[#0B1E3B]/40 border border-white/5 relative overflow-hidden group min-h-[220px] flex flex-col justify-between"
                             >
-                                <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-10 group-hover:opacity-20 transition-opacity`} />
-                                <div className={`w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center ${card.iconColor} mb-8`}>
+                                <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                                <div className={`w-16 h-16 rounded-2xl bg-[#0F172A] border border-white/10 flex items-center justify-center ${card.iconColor} mb-8 shadow-inner`}>
                                     {card.icon}
                                 </div>
-                                <div>
+                                <div className="relative z-10">
                                     <h3 className="text-6xl font-black mb-2 tracking-tighter text-white">{loading ? '...' : card.value}</h3>
                                     <p className="text-white/30 font-black uppercase tracking-widest text-[11px]">{card.title}</p>
+                                    <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-[#BEF264]/60 uppercase tracking-tight">
+                                        <TrendingUp size={12} /> +12% from last month
+                                    </div>
                                 </div>
                             </motion.div>
                         ))}
@@ -204,15 +217,15 @@ export default function RecruiterDashboard() {
 
                         <motion.div variants={itemVariants} className="space-y-6">
                             <h2 className="text-2xl font-black uppercase tracking-tight">Insights</h2>
-                            <div className="bg-gradient-to-br from-[#E0C3FC]/10 to-[#8EC5FC]/10 border border-white/5 p-8 rounded-[2rem] space-y-6 relative overflow-hidden">
-                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-violet/20 blur-3xl rounded-full" />
+                            <div className="bg-[#0B1E3B]/60 border border-white/5 p-8 rounded-[2.5rem] space-y-6 relative overflow-hidden group">
+                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#BEF264]/10 blur-3xl rounded-full" />
                                 <div className="space-y-4 relative z-10">
-                                    <div className="w-12 h-12 rounded-2xl bg-[#E0C3FC] text-black flex items-center justify-center">
-                                        <Sparkles size={24} />
+                                    <div className="w-14 h-14 rounded-2xl bg-[#BEF264] text-[#020817] flex items-center justify-center shadow-[0_0_30px_rgba(190,242,100,0.3)]">
+                                        <Sparkles size={28} />
                                     </div>
-                                    <h3 className="text-xl font-bold leading-tight">Boost your reach with Premium</h3>
-                                    <p className="text-sm text-white/50 leading-relaxed">Featured jobs get 4x more visibility. Reach the top 1% today.</p>
-                                    <Button className="w-full bg-[#E0C3FC] text-black hover:bg-[#D4B3F8] font-black uppercase tracking-widest text-[10px] h-12 rounded-xl">Upgrade Now</Button>
+                                    <h3 className="text-2xl font-black uppercase tracking-tight text-white leading-none">Upgrade to <br /><span className="text-[#BEF264]">PRO Access</span></h3>
+                                    <p className="text-sm text-white/50 leading-relaxed font-medium">Featured jobs get 4x more visibility. Reach the top 1% today.</p>
+                                    <Button className="w-full bg-[#BEF264] text-[#020817] hover:bg-[#A3E635] font-black uppercase tracking-widest text-xs h-14 rounded-2xl transition-all shadow-xl">Activate Now</Button>
                                 </div>
                             </div>
 

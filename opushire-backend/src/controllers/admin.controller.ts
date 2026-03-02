@@ -13,7 +13,7 @@ export const getAllUsers = async (req: Request, res: Response, next: NextFunctio
 
 export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = await AdminService.deleteUser(req.params.id);
+        const result = await AdminService.deleteUser(req.params.id as string);
         res.json({ success: true, data: result });
     } catch (err) {
         next(err);

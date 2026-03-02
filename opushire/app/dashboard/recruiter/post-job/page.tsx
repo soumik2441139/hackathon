@@ -126,16 +126,16 @@ export default function PostJobPage() {
 
     if (done) {
         return (
-            <div className="min-h-screen flex items-center justify-center px-6 bg-brand-dark">
+            <div className="min-h-screen flex items-center justify-center px-6 bg-[var(--background)]">
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     className="text-center"
                 >
-                    <div className="w-24 h-24 rounded-3xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-8 border border-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
+                    <div className="w-24 h-24 rounded-3xl bg-[#BEF264]/10 text-[#BEF264] flex items-center justify-center mx-auto mb-8 border border-[#BEF264]/20 shadow-[0_0_30px_rgba(190,242,100,0.2)]">
                         <CheckCircle2 size={48} />
                     </div>
-                    <h1 className="text-5xl font-black mb-4 uppercase tracking-tighter">Job Published!</h1>
+                    <h1 className="text-5xl font-black mb-4 uppercase tracking-tighter text-white">Job Published!</h1>
                     <p className="text-white/40 text-lg font-medium">Your opportunity is now live for thousands of students.</p>
                 </motion.div>
             </div>
@@ -143,21 +143,21 @@ export default function PostJobPage() {
     }
 
     return (
-        <main className="pt-32 pb-24 px-6 overflow-hidden min-h-screen bg-brand-dark relative">
+        <main className="pt-32 pb-24 px-6 overflow-hidden min-h-screen bg-[var(--background)] relative transition-colors duration-500">
             {/* Background Glows */}
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#E0C3FC]/5 blur-[120px] rounded-full -z-10" />
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#8EC5FC]/5 blur-[120px] rounded-full -z-10" />
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#BEF264]/5 blur-[120px] rounded-full -z-10" />
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/5 blur-[120px] rounded-full -z-10" />
 
             <div className="max-w-4xl mx-auto relative z-10">
                 {/* Header */}
                 <div className="text-center mb-16">
                     <ScrollReveal direction="up">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.2em] text-white/50 mb-6">
-                            <Sparkles size={12} className="text-[#A1FFCE]" />
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.2em] text-[#BEF264] mb-6">
+                            <Sparkles size={12} />
                             Opportunity Creator
                         </div>
                         <h1 className="text-6xl font-black mb-4 uppercase tracking-tighter leading-none">
-                            Post a <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#E0C3FC] to-[#8EC5FC]">new role</span>
+                            Post a <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#BEF264] to-[#84CC16]">new role</span>
                         </h1>
                         <p className="text-white/40 text-lg font-medium">Find your next top-tier talent with precision.</p>
                     </ScrollReveal>
@@ -167,7 +167,7 @@ export default function PostJobPage() {
                 <div className="flex items-center justify-between mb-12 relative px-4 max-w-2xl mx-auto">
                     <div className="absolute top-1/2 left-0 w-full h-[2px] bg-white/5 -translate-y-1/2 -z-10 rounded-full" />
                     <motion.div
-                        className="absolute top-1/2 left-0 h-[2px] bg-gradient-to-r from-[#E0C3FC] to-[#8EC5FC] -translate-y-1/2 -z-10 rounded-full"
+                        className="absolute top-1/2 left-0 h-[2px] bg-gradient-to-r from-[#BEF264] to-[#84CC16] -translate-y-1/2 -z-10 rounded-full"
                         animate={{ width: `${(step - 1) * 50}%` }}
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                     />
@@ -176,9 +176,9 @@ export default function PostJobPage() {
                             <motion.div
                                 animate={{
                                     scale: step === s.id ? 1.1 : 1,
-                                    borderColor: step >= s.id ? 'rgba(142, 197, 252, 0.5)' : 'rgba(255, 255, 255, 0.05)'
+                                    borderColor: step >= s.id ? '#BEF264' : 'rgba(255, 255, 255, 0.05)'
                                 }}
-                                className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 bg-brand-dark ${step >= s.id ? 'text-[#8EC5FC] shadow-[0_0_20px_rgba(142,197,252,0.2)]' : 'text-white/20'}`}
+                                className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 bg-[#0B1E3B] ${step >= s.id ? 'text-[#BEF264] shadow-[0_0_20px_rgba(190,242,100,0.2)]' : 'text-white/20'}`}
                             >
                                 {s.icon}
                             </motion.div>
@@ -430,7 +430,7 @@ export default function PostJobPage() {
                             {step < 3 ? (
                                 <Button
                                     onClick={next}
-                                    className="gap-3 px-10 h-14 rounded-2xl bg-white text-black hover:bg-white/90 font-black uppercase tracking-widest text-[10px] shadow-[0_10px_20px_rgba(255,255,255,0.1)]"
+                                    className="gap-3 px-10 h-14 rounded-2xl bg-white text-black hover:bg-white/90 font-black uppercase tracking-widest text-[10px] shadow-2xl"
                                     disabled={step === 1 && !form.title}
                                 >
                                     Next Phase <ArrowRight size={18} />
@@ -439,7 +439,7 @@ export default function PostJobPage() {
                                 <Button
                                     onClick={handleSubmit}
                                     loading={loading}
-                                    className="gap-3 px-10 h-14 rounded-2xl bg-[#E0C3FC] text-black hover:bg-[#D4B3F8] font-black uppercase tracking-widest text-[10px] shadow-[0_15px_30px_rgba(224,195,252,0.2)]"
+                                    className="gap-3 px-10 h-14 rounded-2xl bg-[#BEF264] text-[#020817] hover:bg-[#A3E635] font-black uppercase tracking-widest text-[10px] shadow-[0_15px_30px_rgba(190,242,100,0.2)]"
                                 >
                                     <Send size={18} /> Deploy Opportunity
                                 </Button>

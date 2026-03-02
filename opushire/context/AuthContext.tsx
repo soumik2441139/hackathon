@@ -27,15 +27,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Restore session from localStorage on mount
+    // Restore session from localStorage on mount & verify with server
     useEffect(() => {
-        const storedToken = localStorage.getItem('opushire_token');
-        const storedUser = localStorage.getItem('opushire_user');
-        if (storedToken && storedUser) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
+        const initAuth = async () => {
+            const storedToken = localStorage.getItem('opushire_token');
+            const storedUser = localStorage.getItem('opushire_user');
+
+            if (storedToken && storedUser) {
+                try {
+                    // Verify session with server to ensure role integrity
+                    const res = await auth.getMe();
+                    if (res.success && res.data) {
+                        // Refresh state with latest data from DB
+                        setToken(storedToken);
+                        setUser(res.data);
+                        localStorage.setItem('opushire_user', JSON.stringify(res.data));
+                    } else {
+                        throw new Error('Invalid session');
+                    }
+                } catch (err) {
+                    console.error('Session verification failed:', err);
+                    localStorage.removeItem('opushire_token');
+                    localStorage.removeItem('opushire_user');
+                    setToken(null);
+                    setUser(null);
+                }
+            }
+            setLoading(false);
+        };
+
+        initAuth();
     }, []);
 
     const persist = (u: User, t: string) => {
@@ -70,9 +91,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [router]);
 
+    // Apply theme based on role
+    useEffect(() => {
+        const root = document.documentElement;
+        root.classList.remove('theme-recruiter', 'theme-admin');
+        if (user?.role === 'recruiter') root.classList.add('theme-recruiter');
+        else if (user?.role === 'admin') root.classList.add('theme-admin');
+    }, [user?.role]);
+
     const logout = useCallback(() => {
         localStorage.removeItem('opushire_token');
         localStorage.removeItem('opushire_user');
+        document.documentElement.classList.remove('theme-recruiter', 'theme-admin');
         setToken(null);
         setUser(null);
         router.push('/');

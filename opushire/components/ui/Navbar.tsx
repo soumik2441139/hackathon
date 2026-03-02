@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 
 export const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const { user, logout } = useAuth();
+    const { user, logout, loading } = useAuth();
 
     const dashboardHref =
         user?.role === 'admin' ? '/dashboard/admin' :
@@ -18,10 +18,10 @@ export const Navbar = () => {
         <nav className="fixed top-0 left-0 w-full z-50 px-6 py-4">
             <div className="max-w-7xl mx-auto glass-card h-16 px-6 flex items-center justify-between border-white/5">
                 <Link href="/" className="flex items-center gap-2 group">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-violet to-brand-cyan flex items-center justify-center text-brand-dark font-bold text-xl transition-transform group-hover:rotate-12">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-violet to-brand-cyan flex items-center justify-center text-[#020817] font-bold text-xl transition-transform group-hover:rotate-12 shadow-lg shadow-brand-violet/20">
                         O
                     </div>
-                    <span className="font-display text-2xl font-bold tracking-tight text-brand-text">
+                    <span className="font-display text-2xl font-bold tracking-tight text-white">
                         Opushire<span className="text-brand-cyan">.</span>
                     </span>
                 </Link>
@@ -42,7 +42,9 @@ export const Navbar = () => {
                 </div>
 
                 <div className="hidden md:flex items-center gap-4">
-                    {user ? (
+                    {loading ? (
+                        <div className="w-8 h-8 rounded-full border-2 border-brand-violet/30 border-t-brand-violet animate-spin" />
+                    ) : user ? (
                         <>
                             <Link href={dashboardHref}>
                                 <Button variant="ghost" className="gap-3 px-3">
@@ -59,7 +61,7 @@ export const Navbar = () => {
                                             {user.avatar || user.name.charAt(0)}
                                         </div>
                                     )}
-                                    <span className="max-w-[100px] truncate">{user.role === 'admin' ? 'Admin' : user.name.split(' ')[0]}</span>
+                                    <span className="max-w-[100px] truncate text-white">{user.role === 'admin' ? 'Admin' : user.name.split(' ')[0]}</span>
                                 </Button>
                             </Link>
                             <Button variant="outline" size="sm" className="gap-2 border-white/10" onClick={logout}>
