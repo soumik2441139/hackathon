@@ -1,0 +1,26 @@
+{
+    "name": "recruiter-bot",
+    "version": "1.0.0",
+    "description": "OpusHire Recruiter Bot — fetches internship & junior jobs from external APIs",
+    "main": "dist/server.js",
+    "scripts": {
+        "dev": "npx ts-node-dev --respawn --transpile-only src/server.ts",
+        "build": "npx tsc",
+        "start": "node dist/server.js",
+        "fetch": "npx ts-node src/cli.ts"
+    },
+    "dependencies": {
+        "axios": "^1.13.6",
+        "cors": "^2.8.6",
+        "dotenv": "^17.3.1",
+        "express": "^5.2.1",
+        "mongoose": "^9.2.3"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.6",
+        "@types/node": "^25.3.3",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.9.3"
+    }
+}
