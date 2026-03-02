@@ -216,19 +216,6 @@ export default function RecruiterDashboard() {
                         </motion.div>
 
                         <motion.div variants={itemVariants} className="space-y-6">
-                            <h2 className="text-2xl font-black uppercase tracking-tight">Insights</h2>
-                            <div className="bg-[#0B1E3B]/60 border border-white/5 p-8 rounded-[2.5rem] space-y-6 relative overflow-hidden group">
-                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#BEF264]/10 blur-3xl rounded-full" />
-                                <div className="space-y-4 relative z-10">
-                                    <div className="w-14 h-14 rounded-2xl bg-[#BEF264] text-[#020817] flex items-center justify-center shadow-[0_0_30px_rgba(190,242,100,0.3)]">
-                                        <Sparkles size={28} />
-                                    </div>
-                                    <h3 className="text-2xl font-black uppercase tracking-tight text-white leading-none">Upgrade to <br /><span className="text-[#BEF264]">PRO Access</span></h3>
-                                    <p className="text-sm text-white/50 leading-relaxed font-medium">Featured jobs get 4x more visibility. Reach the top 1% today.</p>
-                                    <Button className="w-full bg-[#BEF264] text-[#020817] hover:bg-[#A3E635] font-black uppercase tracking-widest text-xs h-14 rounded-2xl transition-all shadow-xl">Activate Now</Button>
-                                </div>
-                            </div>
-
                             <div className="glass-card p-6 border-white/5 flex items-center justify-between group cursor-pointer hover:bg-white/[0.05]">
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 group-hover:text-brand-cyan"><ExternalLink size={18} /></div>
