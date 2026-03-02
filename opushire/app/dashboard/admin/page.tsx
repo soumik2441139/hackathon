@@ -47,9 +47,9 @@ export default function AdminDashboard() {
             await adminApi.reSync();
             alert('Re-Sync completed. Refreshing data...');
             window.location.reload();
-        } catch (err) {
+        } catch (err: any) {
             console.error('Re-Sync failed:', err);
-            alert('Re-Sync encountered an issue. Check system logs.');
+            alert(`Re-Sync failed: ${err.message || 'Unknown error'}. Check system logs.`);
         } finally {
             setLoading(false);
         }

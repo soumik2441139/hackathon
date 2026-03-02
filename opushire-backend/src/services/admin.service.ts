@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Student } from '../models/Student';
 import { Recruiter } from '../models/Recruiter';
 import { Admin } from '../models/Admin';
@@ -60,40 +61,44 @@ export const getSystemStats = async () => {
 };
 
 export const debugDatabase = async (forceMigrate: boolean = false) => {
-    const mongoose = require('mongoose');
-    const conn = mongoose.connection;
-    const db = conn.db;
+    try {
+        const conn = mongoose.connection;
+        const db = conn.db;
 
-    if (!db) return { error: 'No database connection' };
+        if (!db) return { error: 'No database connection' };
 
-    const results: any = {
-        currentDb: db.databaseName,
-        collections: []
-    };
+        const results: any = {
+            currentDb: db.databaseName,
+            collections: []
+        };
 
-    if (forceMigrate) {
-        console.log('🚀 [Manual-Migration] Forced reorganization triggered via API.');
+        if (forceMigrate) {
+            console.log('🚀 [Manual-Migration] Forced reorganization triggered via API.');
 
-        // Check local users collection
-        const localUsers = await db.collection('users').find({}).toArray();
-        if (localUsers.length > 0) {
-            console.log(`🚀 [Manual-Migration] Found ${localUsers.length} users to split...`);
-            for (const user of localUsers) {
-                const target = user.role === 'recruiter' ? 'recruiters' :
-                    user.role === 'admin' ? 'admins' : 'students';
-                await db.collection(target).updateOne({ _id: user._id }, { $set: user }, { upsert: true });
+            // Check local users collection
+            const localUsers = await db.collection('users').find({}).toArray();
+            if (localUsers.length > 0) {
+                console.log(`🚀 [Manual-Migration] Found ${localUsers.length} users to split...`);
+                for (const user of localUsers) {
+                    const target = user.role === 'recruiter' ? 'recruiters' :
+                        user.role === 'admin' ? 'admins' : 'students';
+                    await db.collection(target).updateOne({ _id: user._id }, { $set: user }, { upsert: true });
+                }
+                results.reorgStatus = `Successfully reorganized ${localUsers.length} local users into split collections.`;
+            } else {
+                results.reorgStatus = 'No data found in local "users" collection for reorganization.';
             }
-            results.reorgStatus = `Successfully reorganized ${localUsers.length} local users into split collections.`;
-        } else {
-            results.reorgStatus = 'No data found in local "users" collection for reorganization.';
         }
-    }
 
-    const collections = await db.listCollections().toArray();
-    for (const col of collections) {
-        const count = await db.collection(col.name).countDocuments();
-        results.collections.push({ name: col.name, count });
-    }
+        const collections = await db.listCollections().toArray();
+        for (const col of collections) {
+            const count = await db.collection(col.name).countDocuments();
+            results.collections.push({ name: col.name, count });
+        }
 
-    return results;
+        return results;
+    } catch (err: any) {
+        console.error('❌ [Debug-DB] Error:', err);
+        throw err; // Re-throw so controller catch it and returns 500
+    }
 };
