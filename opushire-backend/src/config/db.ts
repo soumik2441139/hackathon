@@ -10,7 +10,7 @@ const connectWithRetry = async (): Promise<void> => {
             socketTimeoutMS: 45000,
         });
         isConnected = true;
-        console.log(`✅ MongoDB connected: ${conn.connection.host}`);
+        console.log(`✅ MongoDB connected: ${conn.connection.host} / ${conn.connection.name}`);
     } catch (error: any) {
         console.error('❌ MongoDB connection failed:', error?.message || error);
         console.log('🔄 Retrying MongoDB connection in 5 seconds...');

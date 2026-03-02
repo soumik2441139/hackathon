@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
-import { User } from '../models/User';
+import { Student } from '../models/Student';
+import { Recruiter } from '../models/Recruiter';
+import { Admin } from '../models/Admin';
 
 export interface AuthRequest extends Request {
     user?: {
@@ -26,7 +28,11 @@ export const authenticate = async (
 
     try {
         const decoded = jwt.verify(token, env.JWT_SECRET) as { id: string; role: string };
-        const user = await User.findById(decoded.id).select('_id role');
+
+        // Find user by ID in any of the collections
+        let user = await Student.findById(decoded.id).select('_id role');
+        if (!user) user = await Recruiter.findById(decoded.id).select('_id role');
+        if (!user) user = await Admin.findById(decoded.id).select('_id role');
 
         if (!user) {
             res.status(401).json({ success: false, message: 'User not found' });

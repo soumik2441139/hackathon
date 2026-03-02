@@ -1,15 +1,32 @@
-import { User } from '../models/User';
+import { Student } from '../models/Student';
+import { Recruiter } from '../models/Recruiter';
+import { Admin } from '../models/Admin';
 import { Job } from '../models/Job';
 import { Application } from '../models/Application';
 import { createError } from '../middleware/errorHandler';
 
 export const getAllUsers = async (role?: string) => {
-    const query = role ? { role } : {};
-    return User.find(query).sort({ createdAt: -1 });
+    if (role === 'student') return Student.find().sort({ createdAt: -1 });
+    if (role === 'recruiter') return Recruiter.find().sort({ createdAt: -1 });
+    if (role === 'admin') return Admin.find().sort({ createdAt: -1 });
+
+    // If no role, aggregate all (simple approach)
+    const [students, recruiters, admins] = await Promise.all([
+        Student.find(),
+        Recruiter.find(),
+        Admin.find()
+    ]);
+    return [...students, ...recruiters, ...admins].sort((a: any, b: any) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 };
 
 export const deleteUser = async (userId: string) => {
-    const user = await User.findByIdAndDelete(userId);
+    // Attempt deletion from all collections
+    let user = await Student.findByIdAndDelete(userId);
+    if (!user) user = await Recruiter.findByIdAndDelete(userId);
+    if (!user) user = await Admin.findByIdAndDelete(userId);
+
     if (!user) throw createError('User not found', 404);
 
     // Cleanup: Delete jobs posted by recruiter
@@ -29,8 +46,8 @@ export const getSystemStats = async () => {
     const [totalJobs, totalApplicants, totalStudents, totalRecruiters] = await Promise.all([
         Job.countDocuments(),
         Application.countDocuments(),
-        User.countDocuments({ role: 'student' }),
-        User.countDocuments({ role: 'recruiter' })
+        Student.countDocuments(),
+        Recruiter.countDocuments()
     ]);
 
     return {

@@ -5,6 +5,7 @@ export type ApplicationStatus = 'Applied' | 'Shortlisted' | 'Interview' | 'Rejec
 export interface IApplication extends Document {
     job: Types.ObjectId;
     applicant: Types.ObjectId;
+    applicantModel: 'Student';
     status: ApplicationStatus;
     coverLetter?: string;
     phone?: string;
@@ -16,7 +17,8 @@ export interface IApplication extends Document {
 const ApplicationSchema = new Schema<IApplication>(
     {
         job: { type: Schema.Types.ObjectId, ref: 'Job', required: true },
-        applicant: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        applicant: { type: Schema.Types.ObjectId, required: true, refPath: 'applicantModel' },
+        applicantModel: { type: String, required: true, enum: ['Student'], default: 'Student' },
         status: {
             type: String,
             enum: ['Applied', 'Shortlisted', 'Interview', 'Rejected', 'Hired'],

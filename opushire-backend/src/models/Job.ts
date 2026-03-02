@@ -20,6 +20,7 @@ export interface IJob extends Document {
     featured: boolean;
     posted: string;
     postedBy: Types.ObjectId;
+    postedByModel: 'Recruiter' | 'Admin';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -52,7 +53,8 @@ const JobSchema = new Schema<IJob>(
         deadline: { type: Date },
         featured: { type: Boolean, default: false },
         posted: { type: String },
-        postedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        postedBy: { type: Schema.Types.ObjectId, required: true, refPath: 'postedByModel' },
+        postedByModel: { type: String, required: true, enum: ['Recruiter', 'Admin'] },
     },
     { timestamps: true }
 );

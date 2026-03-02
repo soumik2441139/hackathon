@@ -24,6 +24,7 @@ export const applyToJob = async (data: z.infer<typeof applySchema>, applicantId:
     const application = await Application.create({
         job: data.jobId,
         applicant: applicantId,
+        applicantModel: 'Student',
         coverLetter: data.coverLetter,
         phone: data.phone,
         linkedin: data.linkedin,

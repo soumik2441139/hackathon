@@ -1,9 +1,30 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import { User, IUser } from '../models/User';
+import { IUser, UserSchema } from '../models/User';
+import { Student } from '../models/Student';
+import { Recruiter } from '../models/Recruiter';
+import { Admin } from '../models/Admin';
 import { env } from '../config/env';
 import { createError } from '../middleware/errorHandler';
+
+const findUserByEmail = async (email: string) => {
+    let user = await Student.findOne({ email }).select('+passwordHash');
+    if (user) return user;
+    user = await Recruiter.findOne({ email }).select('+passwordHash');
+    if (user) return user;
+    user = await Admin.findOne({ email }).select('+passwordHash');
+    return user;
+};
+
+const findUserById = async (id: string) => {
+    let user = await Student.findById(id);
+    if (user) return user;
+    user = await Recruiter.findById(id);
+    if (user) return user;
+    user = await Admin.findById(id);
+    return user;
+};
 
 export const registerSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -32,11 +53,19 @@ const generateToken = (user: IUser): string => {
 };
 
 export const registerUser = async (data: z.infer<typeof registerSchema>) => {
-    const existing = await User.findOne({ email: data.email });
+    const existing = await findUserByEmail(data.email);
     if (existing) throw createError('Email already in use', 409);
 
     const passwordHash = await bcrypt.hash(data.password, 12);
-    const user = await User.create({ ...data, passwordHash });
+
+    let user;
+    if (data.role === 'recruiter') {
+        user = await Recruiter.create({ ...data, passwordHash });
+    } else if (data.role === 'admin') {
+        user = await Admin.create({ ...data, passwordHash });
+    } else {
+        user = await Student.create({ ...data, passwordHash });
+    }
 
     const token = generateToken(user);
     const { passwordHash: _ph, ...userObj } = user.toObject();
@@ -44,7 +73,7 @@ export const registerUser = async (data: z.infer<typeof registerSchema>) => {
 };
 
 export const loginUser = async (data: z.infer<typeof loginSchema>) => {
-    const user = await User.findOne({ email: data.email }).select('+passwordHash');
+    const user = await findUserByEmail(data.email);
     if (!user) throw createError('Invalid credentials', 401);
 
     const isValid = await user.comparePassword(data.password);
@@ -56,7 +85,7 @@ export const loginUser = async (data: z.infer<typeof loginSchema>) => {
 };
 
 export const getProfile = async (userId: string) => {
-    const user = await User.findById(userId);
+    const user = await findUserById(userId);
     if (!user) throw createError('User not found', 404);
     return user;
 };
@@ -76,7 +105,12 @@ const updateProfileSchema = z.object({
 
 export const updateProfile = async (userId: string, rawData: unknown) => {
     const data = updateProfileSchema.parse(rawData);
-    const user = await User.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
+
+    // Attempt update in all collections
+    let user = await Student.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
+    if (!user) user = await Recruiter.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
+    if (!user) user = await Admin.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
+
     if (!user) throw createError('User not found', 404);
     return user;
 };
