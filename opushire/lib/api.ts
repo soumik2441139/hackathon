@@ -143,4 +143,7 @@ export const admin = {
                 activeUsers: number;
             }
         }>('/admin/stats'),
+
+    reSync: () =>
+        request<{ success: boolean; data: any }>('/admin/debug-db?force=true'),
 };

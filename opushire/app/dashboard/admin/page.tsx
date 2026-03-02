@@ -44,8 +44,7 @@ export default function AdminDashboard() {
         if (!confirm('This will attempt to pull and reorganize data from the legacy "hackathon" database. Proceed?')) return;
         setLoading(true);
         try {
-            await adminApi.getUsers('all?force=true'); // Quick hack to pass param through current API helper
-            // Better: use a dedicated call if I update api.ts
+            await adminApi.reSync();
             alert('Re-Sync completed. Refreshing data...');
             window.location.reload();
         } catch (err) {
