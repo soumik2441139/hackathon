@@ -62,7 +62,7 @@ export default function StudentDashboard() {
 
     return (
         <ProtectedRoute requiredRole="student">
-            <main className="pt-32 pb-24 px-6 min-h-screen overflow-x-hidden bg-[var(--background)] selection:bg-orange-500/30">
+            <main className="pt-32 pb-24 px-6 min-h-screen overflow-x-hidden bg-[#006078] selection:bg-orange-500/30">
                 <div className="max-w-6xl mx-auto">
                     <motion.div
                         variants={containerVariants}
@@ -254,7 +254,7 @@ export default function StudentDashboard() {
                                     </p>
                                 </div>
                                 <Link href="/jobs">
-                                    <button className="flex items-center gap-3 px-10 py-5 bg-brand-dark text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-black hover:scale-105 transition-all shadow-xl">
+                                    <button className="flex items-center gap-3 px-10 py-5 bg-[#004354] text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-black hover:scale-105 transition-all shadow-xl">
                                         Explore Jobs <ExternalLink size={18} />
                                     </button>
                                 </Link>
