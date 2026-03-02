@@ -124,59 +124,7 @@ export const toggleSaveJob = async (req: Request, res: Response): Promise<void> 
     }
 };
 
-export const addJobComment = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const { jobId } = req.params;
-        const { text } = req.body;
-        const userId = (req as any).user?.id;
 
-        if (!text) {
-            res.status(400).json({ success: false, message: 'Comment text is required' });
-            return;
-        }
-
-        const user = await findUserAnywhere(userId);
-        if (!user) {
-            res.status(404).json({ success: false, message: 'User not found' });
-            return;
-        }
-
-        const token = await FreeApiAuthService.getOrGenerateToken(user.email, user.name);
-        const comment = await FreeApiSocialService.addComment(token, String(jobId), text);
-
-        res.json({ success: true, data: { comment } });
-    } catch (error: any) {
-        console.error('❌ [FreeAPI] Error adding comment:', error.message);
-        res.status(500).json({ success: false, message: 'Failed to add comment' });
-    }
-};
-
-export const getJobComments = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const { jobId } = req.params;
-        const { page, limit } = req.query;
-        const userId = (req as any).user?.id;
-
-        const user = await findUserAnywhere(userId);
-        if (!user) {
-            res.status(404).json({ success: false, message: 'User not found' });
-            return;
-        }
-
-        const token = await FreeApiAuthService.getOrGenerateToken(user.email, user.name);
-        const comments = await FreeApiSocialService.getComments(
-            token,
-            String(jobId),
-            page ? parseInt(page as string) : 1,
-            limit ? parseInt(limit as string) : 10
-        );
-
-        res.json({ success: true, data: { comments } });
-    } catch (error: any) {
-        console.error('❌ [FreeAPI] Error getting comments:', error.message);
-        res.status(500).json({ success: false, message: 'Failed to fetch comments' });
-    }
-};
 
 import { FreeApiChatService } from './chat.service';
 

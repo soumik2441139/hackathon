@@ -5,8 +5,6 @@ import {
     uploadAvatar,
     uploadCoverImage,
     toggleSaveJob,
-    addJobComment,
-    getJobComments,
     getAllChats,
     createOrGetChat,
     getChatMessages,
@@ -29,8 +27,6 @@ router.patch('/users/cover-image', authenticate, upload.single('coverImage'), up
 
 // Social routes
 router.post('/jobs/:jobId/save', authenticate, toggleSaveJob);
-router.post('/jobs/:jobId/comments', authenticate, addJobComment);
-router.get('/jobs/:jobId/comments', authenticate, getJobComments);
 
 // Chat routes
 router.get('/chats', authenticate, getAllChats);

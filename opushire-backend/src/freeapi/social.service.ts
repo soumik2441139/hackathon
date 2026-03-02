@@ -62,36 +62,4 @@ export class FreeApiSocialService {
 
         return { isLiked: res.data.data.isLiked };
     }
-
-    /**
-     * Adds a comment (question/discussion) to a Job.
-     */
-    public static async addComment(userToken: string, jobId: string, text: string): Promise<any> {
-        const postId = await this.getOrGeneratePostForJob(jobId);
-
-        const res = await freeApiClient.post(`/social-media/comments/post/${postId}`, {
-            content: text,
-        }, {
-            headers: {
-                Authorization: `Bearer ${userToken}`,
-            },
-        });
-
-        return res.data.data;
-    }
-
-    /**
-     * Gets all comments for a Job.
-     */
-    public static async getComments(userToken: string, jobId: string, page = 1, limit = 10): Promise<any[]> {
-        const postId = await this.getOrGeneratePostForJob(jobId);
-
-        const res = await freeApiClient.get(`/social-media/comments/post/${postId}?page=${page}&limit=${limit}`, {
-            headers: {
-                Authorization: `Bearer ${userToken}`,
-            },
-        });
-
-        return res.data.data.comments;
-    }
 }

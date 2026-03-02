@@ -78,15 +78,6 @@ export const freeapi = {
     social: {
         saveJob: (jobId: string) =>
             request<{ success: boolean; data: { isSaved: boolean } }>(`/freeapi/jobs/${jobId}/save`, { method: 'POST' }),
-
-        getComments: (jobId: string, page = 1, limit = 10) =>
-            request<{ success: boolean; data: { comments: Record<string, unknown>[] } }>(`/freeapi/jobs/${jobId}/comments?page=${page}&limit=${limit}`),
-
-        addComment: (jobId: string, text: string) =>
-            request<{ success: boolean; data: { comment: Record<string, unknown> } }>(`/freeapi/jobs/${jobId}/comments`, {
-                method: 'POST',
-                body: JSON.stringify({ text })
-            }),
     },
 
     chat: {

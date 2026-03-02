@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { ApplyModal } from '@/components/jobs/ApplyModal';
-import { JobComments } from '@/components/jobs/JobComments';
 import { ArrowLeft, ChevronRight, Share2, Bookmark, CheckCircle2, BookmarkCheck, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { timeAgo, formatSalary } from '@/lib/utils';
@@ -199,8 +198,6 @@ export default function JobDetailPage() {
                                             </ul>
                                         </section>
                                     )}
-
-                                    <JobComments jobId={job._id} />
                                 </div>
                             </ScrollReveal>
                         </div>
