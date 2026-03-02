@@ -1,0 +1,12 @@
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ΓÜÖ∩╕Å  load multiple .env files with { path: ['.env.local', '.env'] }
+MongoParseError: Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"
+    at new ConnectionString (C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\node_modules\mongodb-connection-string-url\src\index.ts:131:13)
+    at parseOptions (C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\node_modules\mongodb\src\connection_string.ts:250:15)
+    at new MongoClient (C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\node_modules\mongodb\src\mongo_client.ts:421:32)
+    at NativeConnection.createClient (C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\node_modules\mongoose\lib\drivers\node-mongodb-native\connection.js:334:14)
+    at NativeConnection.openUri (C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\node_modules\mongoose\lib\connection.js:1075:34)
+    at Mongoose.connect (C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\node_modules\mongoose\lib\mongoose.js:471:15)
+    at check (C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\check-db.ts:9:37)
+    at Object.<anonymous> (C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\check-db.ts:17:1)
+    at Module._compile (node:internal/modules/cjs/loader:1706:14)
+    at Module.m._compile (C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\node_modules\ts-node\src\index.ts:1618:23)

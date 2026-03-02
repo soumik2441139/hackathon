@@ -8,7 +8,7 @@ if (!process.env.MONGODB_URI) {
     dotenv.config({ path: path.join(__dirname, '.env') });
 }
 
-const url = process.env.MONGODB_URI || 'mongodb://localhost:27017/hackathon';
+const url = process.env.MONGODB_URI || 'mongodb://localhost:27017/test';
 
 const UserSchema = new mongoose.Schema({
     name: String,
