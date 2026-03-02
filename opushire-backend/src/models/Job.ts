@@ -19,8 +19,12 @@ export interface IJob extends Document {
     deadline?: Date;
     featured: boolean;
     posted: string;
-    postedBy: Types.ObjectId;
-    postedByModel: 'Recruiter' | 'Admin';
+    postedBy?: Types.ObjectId;
+    postedByModel?: 'Recruiter' | 'Admin';
+    // Bot-sourced fields
+    source?: 'manual' | 'remotive' | 'arbeitnow' | 'adzuna' | 'telegram';
+    externalId?: string;
+    externalUrl?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -53,8 +57,16 @@ const JobSchema = new Schema<IJob>(
         deadline: { type: Date },
         featured: { type: Boolean, default: false },
         posted: { type: String },
-        postedBy: { type: Schema.Types.ObjectId, required: true, refPath: 'postedByModel' },
-        postedByModel: { type: String, required: true, enum: ['Recruiter', 'Admin'] },
+        postedBy: { type: Schema.Types.ObjectId, refPath: 'postedByModel' },
+        postedByModel: { type: String, enum: ['Recruiter', 'Admin'] },
+        // Bot-sourced fields
+        source: {
+            type: String,
+            enum: ['manual', 'remotive', 'arbeitnow', 'adzuna', 'telegram'],
+            default: 'manual',
+        },
+        externalId: { type: String, sparse: true, unique: true },
+        externalUrl: { type: String },
     },
     { timestamps: true }
 );
@@ -67,5 +79,9 @@ JobSchema.index({ mode: 1 });
 JobSchema.index({ city: 1 });
 JobSchema.index({ featured: 1 });
 JobSchema.index({ createdAt: -1 });
+// Bot indexes
+JobSchema.index({ source: 1 });
+JobSchema.index({ externalId: 1 });
 
 export const Job = mongoose.model<IJob>('Job', JobSchema);
+
