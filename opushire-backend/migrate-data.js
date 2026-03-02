@@ -35,48 +35,67 @@ async function migrate() {
         const targetConn = await mongoose.createConnection(targetUri).asPromise();
         console.log('✅ Connected to Target DB');
 
-        const collections = ['jobs', 'applications'];
         const results = {};
 
-        // 1. Handle Users (Split into Students and Recruiters)
-        console.log(`\n👥 Processing collection: users (splitting into students and recruiters)`);
-        const sourceUsersCol = sourceConn.db.collection('users');
-        const users = await sourceUsersCol.find({}).toArray();
-        console.log(`   Found ${users.length} users in source.`);
+        // 1. Handle Users (Split into Students, Recruiters, and Admins)
+        console.log(`\n👥 Processing collection: users (splitting into specific collections)`);
+
+        // Try source first, then target's own 'users' collection as fallback
+        let sourceUsersCol = sourceConn.db.collection('users');
+        let users = await sourceUsersCol.find({}).toArray();
+
+        if (users.length === 0) {
+            console.log(`   ℹ️ Source users collection is empty. Checking target's own 'users' collection...`);
+            sourceUsersCol = targetConn.db.collection('users');
+            users = await sourceUsersCol.find({}).toArray();
+        }
+
+        console.log(`   Found ${users.length} total users to process.`);
 
         let studentCount = 0;
         let recruiterCount = 0;
+        let adminCount = 0;
 
         for (const user of users) {
             try {
-                if (user.role === 'student') {
+                if (user.role === 'student' || !user.role) {
                     await targetConn.db.collection('students').updateOne({ _id: user._id }, { $set: user }, { upsert: true });
                     studentCount++;
                 } else if (user.role === 'recruiter') {
                     await targetConn.db.collection('recruiters').updateOne({ _id: user._id }, { $set: user }, { upsert: true });
                     recruiterCount++;
-                } else {
-                    // Default to students or handle admin if needed
-                    await targetConn.db.collection('students').updateOne({ _id: user._id }, { $set: user }, { upsert: true });
-                    studentCount++;
+                } else if (user.role === 'admin') {
+                    await targetConn.db.collection('admins').updateOne({ _id: user._id }, { $set: user }, { upsert: true });
+                    adminCount++;
                 }
             } catch (err) {
                 console.error(`   ❌ Failed to migrate user ${user._id}:`, err.message);
             }
         }
-        console.log(`   ✅ Migrated ${studentCount} students and ${recruiterCount} recruiters.`);
+        console.log(`   ✅ Migrated ${studentCount} students, ${recruiterCount} recruiters, and ${adminCount} admins.`);
         results['students'] = studentCount;
         results['recruiters'] = recruiterCount;
+        results['admins'] = adminCount;
 
         // 2. Handle Jobs and Applications
+        const collections = ['jobs', 'applications'];
         for (const colName of collections) {
             console.log(`\n📦 Processing collection: ${colName}`);
-            const sourceCol = sourceConn.db.collection(colName);
+
+            // Try source first
+            let sourceCol = sourceConn.db.collection(colName);
+            let docs = await sourceCol.find({}).toArray();
+
+            // If empty in source, check if they exist in target's own collection (maybe they are already there)
+            if (docs.length === 0 && sourceDbName !== targetDbName) {
+                console.log(`   ℹ️ Source ${colName} is empty. Checking target's own collection...`);
+                sourceCol = targetConn.db.collection(colName);
+                docs = await sourceCol.find({}).toArray();
+            }
+
+            console.log(`   Found ${docs.length} documents to process for ${colName}.`);
+
             const targetCol = targetConn.db.collection(colName);
-
-            const docs = await sourceCol.find({}).toArray();
-            console.log(`   Found ${docs.length} documents in source.`);
-
             if (docs.length > 0) {
                 let inserted = 0;
                 for (const doc of docs) {
@@ -97,8 +116,7 @@ async function migrate() {
 
         console.log('\n--- 📊 MIGRATION SUMMARY ---');
         console.table(results);
-        console.log('\n✅ Data consolidation to "test" complete!');
-        console.log('💡 Note: Original data still remains in "hackathon" for safety.');
+        console.log('\n✅ Data reorganization in "test" complete!');
 
         await sourceConn.close();
         await targetConn.close();
