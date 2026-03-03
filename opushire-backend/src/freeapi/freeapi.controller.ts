@@ -115,7 +115,15 @@ export const toggleSaveJob = async (req: Request, res: Response): Promise<void> 
         }
 
         const token = await FreeApiAuthService.getOrGenerateToken(user.email, user.name);
+        // Call FreeAPI to toggle like status
         const { isLiked } = await FreeApiSocialService.toggleSaveJob(token, String(jobId));
+
+        // Sync with our local MongoDB for fast retrieval on profile page
+        if (isLiked) {
+            await (user.constructor as any).findByIdAndUpdate(userId, { $addToSet: { savedJobs: jobId } });
+        } else {
+            await (user.constructor as any).findByIdAndUpdate(userId, { $pull: { savedJobs: jobId } });
+        }
 
         res.json({ success: true, data: { isSaved: isLiked } });
     } catch (error: any) {

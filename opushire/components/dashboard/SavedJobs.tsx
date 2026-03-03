@@ -1,8 +1,11 @@
-import { MOCK_JOBS } from '@/lib/data';
 import { JobCard } from '../jobs/JobCard';
+import { useAuth } from '@/context/AuthContext';
+import { Job } from '@/lib/types';
 
 export const SavedJobs = () => {
-    const savedJobs = MOCK_JOBS.slice(0, 2);
+    const { user } = useAuth();
+    const savedJobs = (user?.savedJobs as Job[]) || [];
+
 
     return (
         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">

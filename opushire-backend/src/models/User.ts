@@ -15,6 +15,7 @@ export interface IUser extends Document {
     companyWebsite?: string;
     companyLogo?: string;
     avatar: string;
+    savedJobs: mongoose.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
     comparePassword(password: string): Promise<boolean>;
@@ -41,6 +42,7 @@ export const UserSchema = new Schema<IUser>(
         companyWebsite: { type: String, trim: true },
         companyLogo: { type: String, trim: true, default: '🏢' },
         avatar: { type: String },
+        savedJobs: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
     },
     { timestamps: true }
 );

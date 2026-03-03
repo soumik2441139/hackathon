@@ -17,7 +17,9 @@ export default function StudentDashboard() {
     const { user } = useAuth();
     const [isUploading, setIsUploading] = useState(false);
     const [activeTab, setActiveTab] = useState<'applications' | 'saved'>('applications');
-    const [stats, setStats] = useState({ apps: 0, saved: 2, profileViews: '18' });
+    const [stats, setStats] = useState({ apps: 0, profileViews: '18' });
+
+    const savedCount = user?.savedJobs?.length || 0;
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -126,7 +128,7 @@ export default function StudentDashboard() {
                         <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {[
                                 { title: 'Applications', value: stats.apps, icon: <Briefcase size={24} />, color: 'from-orange-500/10 to-transparent', border: 'border-orange-500/20', iconColor: 'text-orange-400' },
-                                { title: 'Saved Jobs', value: stats.saved, icon: <Bookmark size={24} />, color: 'from-yellow-500/10 to-transparent', border: 'border-yellow-500/20', iconColor: 'text-yellow-400' },
+                                { title: 'Saved Jobs', value: savedCount, icon: <Bookmark size={24} />, color: 'from-yellow-500/10 to-transparent', border: 'border-yellow-500/20', iconColor: 'text-yellow-400' },
                                 { title: 'Profile Views', value: stats.profileViews, icon: <UserIcon size={24} />, color: 'from-pink-500/10 to-transparent', border: 'border-pink-500/20', iconColor: 'text-pink-500' },
                             ].map((s, i) => (
                                 <div key={i} className={`p-8 rounded-2xl bg-[#2A2A2E] bg-gradient-to-br ${s.color} border border-white/5 hover:${s.border} transition-all duration-300 group overflow-hidden relative`}>

@@ -18,11 +18,11 @@ const findUserByEmail = async (email: string) => {
 };
 
 const findUserById = async (id: string) => {
-    let user = await Student.findById(id);
+    let user = await Student.findById(id).populate('savedJobs');
     if (user) return user;
-    user = await Recruiter.findById(id);
+    user = await Recruiter.findById(id).populate('savedJobs');
     if (user) return user;
-    user = await Admin.findById(id);
+    user = await Admin.findById(id).populate('savedJobs');
     return user;
 };
 

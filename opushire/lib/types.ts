@@ -14,6 +14,7 @@ export interface User {
     companyWebsite?: string;
     companyLogo?: string;
     avatar: string;
+    savedJobs?: string[] | Job[];
     createdAt: string;
     updatedAt: string;
 }
