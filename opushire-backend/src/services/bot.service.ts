@@ -1,5 +1,6 @@
 import { spawn, ChildProcess } from 'child_process';
 import path from 'path';
+import os from 'os';
 
 // Define the static bots available to the system
 export const BOTS = [
@@ -19,6 +20,22 @@ interface BotProcess {
 const activeBots = new Map<string, BotProcess>();
 const MAX_LOG_LINES = 100;
 
+/**
+ * Resolve the bot script directory.
+ * In development (__dirname = src/services) → 4 levels up to repo root.
+ * In production   (__dirname = dist/services) → also 4 levels up.
+ * On Azure the repo root contains all bot directories because we deploy them.
+ */
+function getBotScriptDir(botDir: string): string {
+    // Try to find from CWD first (most reliable in production)
+    const cwdPath = path.resolve(process.cwd(), botDir);
+    // Fallback: resolve relative to __dirname going up 4 levels
+    const relPath = path.resolve(__dirname, '../../../../', botDir);
+
+    // Return the one that's more likely to exist based on the environment
+    return process.env.NODE_ENV === 'production' ? cwdPath : relPath;
+}
+
 export const startBot = (botId: string) => {
     const botConfig = BOTS.find(b => b.id === botId);
     if (!botConfig) throw new Error('Unknown bot ID');
@@ -27,7 +44,7 @@ export const startBot = (botId: string) => {
         throw new Error(`${botConfig.name} is already running.`);
     }
 
-    const scriptPath = path.resolve(__dirname, '../../../../', botConfig.dir);
+    const scriptPath = getBotScriptDir(botConfig.dir);
 
     // Spawn standard detached process
     const child = spawn('node', [botConfig.script], {
@@ -37,7 +54,7 @@ export const startBot = (botId: string) => {
 
     const botState: BotProcess = {
         process: child,
-        logs: [],
+        logs: [`[SYSTEM] Starting ${botConfig.name} from ${scriptPath}...`],
         status: 'online',
         startTime: new Date()
     };
@@ -57,6 +74,15 @@ export const startBot = (botId: string) => {
     child.stdout?.on('data', appendLog);
     child.stderr?.on('data', appendLog);
 
+    child.on('error', (err) => {
+        const state = activeBots.get(botId);
+        if (state) {
+            state.status = 'error';
+            state.logs.push(`[ERROR] Failed to start process: ${err.message}`);
+            state.logs.push(`[ERROR] Looked for scripts in: ${scriptPath}`);
+        }
+    });
+
     child.on('close', (code) => {
         const state = activeBots.get(botId);
         if (state) {
@@ -72,13 +98,24 @@ export const stopBot = (botId: string) => {
     const state = activeBots.get(botId);
     if (!state) throw new Error('Bot is not currently running');
 
-    // Windows force kill workaround
-    spawn("taskkill", ["/pid", state.process.pid!.toString(), '/f', '/t']);
+    const pid = state.process.pid;
+    if (pid) {
+        if (os.platform() === 'win32') {
+            // Windows: use taskkill
+            spawn('taskkill', ['/pid', pid.toString(), '/f', '/t']);
+        } else {
+            // Linux/macOS (Azure App Service runs Linux)
+            try {
+                process.kill(pid, 'SIGTERM');
+            } catch {
+                // Process might already be dead
+            }
+        }
+    }
 
     state.status = 'stopped';
-    state.logs.push(`[SYSTEM] Sent stop signal manually by Admin.`);
+    state.logs.push(`[SYSTEM] Stop signal sent by Admin.`);
 
-    // We let the close event clean up the map usually, but we force it here
     setTimeout(() => {
         activeBots.delete(botId);
     }, 1000);
@@ -104,5 +141,5 @@ export const getAllBotStatuses = () => {
 
 export const getBotLogs = (botId: string) => {
     const state = activeBots.get(botId);
-    return state ? state.logs : ['[SYSTEM] Process is stopped entirely. No active memory logs.'];
+    return state ? state.logs : ['[SYSTEM] This bot is not running. Click Start Agent to begin.'];
 };

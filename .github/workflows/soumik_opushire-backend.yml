@@ -28,7 +28,30 @@ jobs:
           cd opushire-backend
           npm install
           npm run build --if-present
+          
+          # Install dependencies for each bot directory so they work on Azure
+          for botdir in bot1-scanner bot2-fixer bot3-supervisor bot4-cleanup; do
+            if [ -d "../$botdir" ]; then
+              echo "Installing deps for $botdir..."
+              cd "../$botdir"
+              npm install --production 2>/dev/null || true
+              cd "../opushire-backend"
+            fi
+          done
+
+          # Bundle backend + all bot dirs into one zip
+          # Zip the backend contents at root
           zip -r ../backend.zip .
+          
+          # Add bot directories at root level of zip
+          cd ..
+          for botdir in bot1-scanner bot2-fixer bot3-supervisor bot4-cleanup; do
+            if [ -d "$botdir" ]; then
+              zip -r backend.zip "$botdir/"
+              echo "Added $botdir to deployment package"
+            fi
+          done
+
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
