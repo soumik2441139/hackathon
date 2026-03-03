@@ -1,0 +1,16 @@
+{
+  "name": "bot3-supervisor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "supervise.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "mongodb": "^7.1.0"
+  }
+}

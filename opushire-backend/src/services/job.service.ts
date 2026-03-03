@@ -47,7 +47,9 @@ export const getJobs = async (filters: z.infer<typeof jobFilterSchema>) => {
     const limit = parseInt(filters.limit || '12');
     const skip = (page - 1) * limit;
 
-    const query: Record<string, unknown> = {};
+    const query: Record<string, unknown> = {
+        isArchived: { $ne: true }
+    };
 
     if (filters.q) {
         query.$text = { $search: filters.q };

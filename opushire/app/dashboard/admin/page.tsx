@@ -127,6 +127,12 @@ export default function AdminDashboard() {
                         >
                             <Briefcase size={16} /> Manage Job Listings
                         </Button>
+                        <Button
+                            className="bg-[#0C0C0E] hover:bg-white/10 text-white w-full border border-white/20 gap-2 h-12 rounded-2xl"
+                            onClick={() => window.location.href = '/dashboard/admin/bots'}
+                        >
+                            <Sparkles size={16} className="text-brand-cyan" /> Autonomous Bot Hub
+                        </Button>
                     </div>
                 </div>
 

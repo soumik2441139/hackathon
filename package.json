@@ -1,0 +1,25 @@
+{
+  "name": "hackathon",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">\r   <br />\r   <h1>OpusHire 🚀</h1>\r   <p><strong>Elevate your Career from Campus.</strong></p>\r   <p>The premium job portal designed explicitly for high-growth students and top-tier tech startups.</p>\r   <br />",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soumik2441139/hackathon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/soumik2441139/hackathon/issues"
+  },
+  "homepage": "https://github.com/soumik2441139/hackathon#readme",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "mongodb": "^7.1.0",
+    "mongoose": "^9.2.3"
+  }
+}

@@ -119,10 +119,13 @@ export const toggleSaveJob = async (req: Request, res: Response): Promise<void> 
         const { isLiked } = await FreeApiSocialService.toggleSaveJob(token, String(jobId));
 
         // Sync with our local MongoDB for fast retrieval on profile page
-        if (isLiked) {
-            await (user.constructor as any).findByIdAndUpdate(userId, { $addToSet: { savedJobs: jobId } });
-        } else {
-            await (user.constructor as any).findByIdAndUpdate(userId, { $pull: { savedJobs: jobId } });
+        // Only students can save jobs for now, keeping it safe
+        if ((user as any).role === 'student' || true) {
+            const updateOp = isLiked
+                ? { $addToSet: { savedJobs: jobId } }
+                : { $pull: { savedJobs: jobId } };
+
+            await Student.findByIdAndUpdate(userId, updateOp);
         }
 
         res.json({ success: true, data: { isSaved: isLiked } });

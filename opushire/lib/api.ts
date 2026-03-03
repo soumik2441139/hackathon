@@ -195,4 +195,15 @@ export const admin = {
 
     reSync: () =>
         request<{ success: boolean; data: unknown }>('/admin/debug-db?force=true'),
+
+    bots: {
+        getStatuses: () =>
+            request<{ success: boolean; data: any[] }>('/admin/bots'),
+        start: (id: string) =>
+            request<{ success: boolean; data: any }>(`/admin/bots/${id}/start`, { method: 'POST' }),
+        stop: (id: string) =>
+            request<{ success: boolean; data: any }>(`/admin/bots/${id}/stop`, { method: 'POST' }),
+        getLogs: (id: string) =>
+            request<{ success: boolean; data: string[] }>(`/admin/bots/${id}/logs`),
+    }
 };

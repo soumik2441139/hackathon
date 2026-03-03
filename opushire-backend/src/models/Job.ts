@@ -26,6 +26,7 @@ export interface IJob extends Document {
     externalId?: string;
     externalUrl?: string;
     freeApiPostId?: string;
+    isArchived?: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -69,6 +70,7 @@ const JobSchema = new Schema<IJob>(
         externalId: { type: String, sparse: true, unique: true },
         externalUrl: { type: String },
         freeApiPostId: { type: String },
+        isArchived: { type: Boolean, default: false },
     },
     { timestamps: true }
 );
