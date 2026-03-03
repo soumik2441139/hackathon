@@ -9,14 +9,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { admin as adminApi } from '@/lib/api';
-import dynamic from 'next/dynamic';
-import type { AgentState } from '@/components/ui/BarVisualizer';
-
-// Load BarVisualizer only on client-side to avoid SSR crash (requestAnimationFrame)
-const BarVisualizer = dynamic(
-    () => import('@/components/ui/BarVisualizer').then(m => m.BarVisualizer),
-    { ssr: false }
-);
+import { BarVisualizer, type AgentState } from '@/components/ui/BarVisualizer';
 
 interface BotConfig {
     id: string;
@@ -33,6 +26,10 @@ export default function AdminBotsDashboard() {
     const { user: currentUser } = useAuth();
     const [bots, setBots] = useState<BotConfig[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Mark as mounted after first client render (guards SSR-unsafe components)
+    useEffect(() => { setIsMounted(true); }, []);
 
     // Terminal Modal State
     const [selectedBotId, setSelectedBotId] = useState<string | null>(null);
@@ -185,16 +182,15 @@ export default function AdminBotsDashboard() {
                                         {bot.description}
                                     </p>
 
-                                    {/* BarVisualizer Heartbeat */}
+                                    {/* BarVisualizer Heartbeat - only once mounted on client */}
                                     <div className="mb-6">
-                                        {bot.status === 'online' ? (
+                                        {isMounted && bot.status === 'online' ? (
                                             <BarVisualizer
                                                 state={"speaking" as AgentState}
                                                 barCount={20}
                                                 minHeight={15}
                                                 maxHeight={90}
                                                 className="h-10"
-                                                style={{ color: bot.color }}
                                             />
                                         ) : (
                                             <div className="h-10 flex items-end gap-[3px]">
