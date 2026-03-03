@@ -1,0 +1,61 @@
+# Backend Deploy Pipeline — Build and deploy to Azure App Service
+trigger:
+  branches:
+    include:
+      - soumik
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: Build
+    displayName: 'Build Backend'
+    jobs:
+      - job: BuildAndPackage
+        displayName: 'Install, Build & Zip'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '20.x'
+            displayName: 'Use Node.js 20.x'
+
+          - script: |
+              cd opushire-backend
+              npm install
+              npm run build --if-present
+            displayName: 'Install & build'
+
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(System.DefaultWorkingDirectory)/opushire-backend'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/backend.zip'
+              replaceExistingArchive: true
+            displayName: 'Zip backend'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)/backend.zip'
+              artifactName: 'backend-app'
+            displayName: 'Publish artifact'
+
+  - stage: Deploy
+    displayName: 'Deploy Backend'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployBackend
+        displayName: 'Deploy to Azure App Service'
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: 'azure-app-service'
+                    appType: 'webAppLinux'
+                    appName: 'opushire-backend'
+                    package: '$(Pipeline.Workspace)/backend-app/backend.zip'
+                  displayName: 'Deploy backend to Azure'
