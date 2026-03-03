@@ -12,6 +12,7 @@ import applicationRoutes from './routes/application.routes';
 import adminRoutes from './routes/admin.routes';
 import freeapiRoutes from './freeapi/freeapi.routes';
 import botRoutes from './routes/bot.routes';
+import botStatRoutes from './routes/botStat.routes';
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/bots', botRoutes);
+app.use('/api/admin/bot-stats', botStatRoutes);
 app.use('/api/freeapi', freeapiRoutes);
 
 // 404

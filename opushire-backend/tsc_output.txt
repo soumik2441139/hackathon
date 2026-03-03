@@ -1,0 +1,3 @@
+src/services/admin.service.ts(73,13): error TS2339: Property 'tagTileStatus' does not exist on type 'Document<unknown, {}, IJob, {}, DefaultSchemaOptions> & IJob & Required<{ _id: ObjectId; }> & { __v: number; } & { id: string; }'.
+src/services/admin.service.ts(74,69): error TS2339: Property 'tagTileStatus' does not exist on type 'Document<unknown, {}, IJob, {}, DefaultSchemaOptions> & IJob & Required<{ _id: ObjectId; }> & { __v: number; } & { id: string; }'.
+src/services/admin.service.ts(81,35): error TS2339: Property 'verifiedTags' does not exist on type 'Document<unknown, {}, IJob, {}, DefaultSchemaOptions> & IJob & Required<{ _id: ObjectId; }> & { __v: number; } & { id: string; }'.

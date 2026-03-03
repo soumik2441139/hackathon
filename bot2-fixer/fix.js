@@ -6,6 +6,16 @@ require('dotenv').config({ path: '.env' });
 const { MongoClient } = require('mongodb');
 
 const POLL_INTERVAL = 15000; // Check DB every 15 seconds
+const isSingleRun = process.argv.includes('--single-run');
+
+async function incrementStat(db, metric, amount = 1) {
+    const today = new Date().toISOString().split('T')[0];
+    await db.collection('botstats').updateOne(
+        { date: today },
+        { $inc: { [metric]: amount } },
+        { upsert: true }
+    );
+}
 
 async function generateKeywords(longTags, apiKey) {
     const prompt = `Extract exactly 3 concise keywords (maximum 2 words each) from these required skills lines:\n`
@@ -39,11 +49,10 @@ async function runFixer() {
     await client.connect();
     const db = client.db();
 
-    console.log('🛠 Bot 2 (Fixer): Connected to database. Listening for broken tiles...');
+    console.log(`🛠 Bot 2 (Fixer): Connected to database. Mode: ${isSingleRun ? 'Single Run' : 'Continuous'}`);
 
-    while (true) {
+    const fixOnce = async () => {
         try {
-            // Pick up jobs flagged specifically by Bot 1
             const jobsToFix = await db.collection('jobs').find({
                 tagTileStatus: 'NEEDS_SHORTENING'
             }).toArray();
@@ -52,13 +61,14 @@ async function runFixer() {
                 console.log(`[Fixer] Found ${jobsToFix.length} jobs needing tag shortening...`);
             }
 
+            let fixedCount = 0;
+
             for (const job of jobsToFix) {
                 console.log(`  -> Processing LLM rewrite for: ${job.title}...`);
                 try {
                     const newKeywords = await generateKeywords(job.longTagsToFix || job.tags, apiKey);
 
                     if (newKeywords.length > 0) {
-                        // Keep the good tags, replace the bad ones with the new AI keywords
                         const goodTags = job.tags.filter(tag => !(tag.length > 25 || tag.split(' ').length > 3));
                         const finalTags = [...new Set([...goodTags, ...newKeywords])];
 
@@ -72,8 +82,8 @@ async function runFixer() {
                             }
                         );
                         console.log(`     Proposed tags for review: ${finalTags.join(', ')}`);
+                        fixedCount++;
                     } else {
-                        // LLM failed, fallback flag
                         await db.collection('jobs').updateOne({ _id: job._id }, { $set: { tagTileStatus: 'FAILED' } });
                     }
                 } catch (err) {
@@ -81,14 +91,29 @@ async function runFixer() {
                     await db.collection('jobs').updateOne({ _id: job._id }, { $set: { tagTileStatus: 'FAILED' } });
                 }
 
-                // Sleep slightly between LLM calls to respect rate limits
-                await new Promise(r => setTimeout(r, 2000));
+                if (!isSingleRun) {
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+            }
+
+            if (fixedCount > 0) {
+                await incrementStat(db, 'fixesMade', fixedCount);
             }
         } catch (err) {
             console.error('Fixer Error:', err);
         }
+    };
 
-        await new Promise(r => setTimeout(r, POLL_INTERVAL));
+    if (isSingleRun) {
+        await fixOnce();
+        console.log('🛠 Fixer finished single run. Exiting.');
+        await client.close();
+        process.exit(0);
+    } else {
+        while (true) {
+            await fixOnce();
+            await new Promise(r => setTimeout(r, POLL_INTERVAL));
+        }
     }
 }
 

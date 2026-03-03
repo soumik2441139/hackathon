@@ -7,6 +7,7 @@ const router = Router();
 router.use(authenticate); // Require authentication for all bot routes
 
 router.get('/', botController.getBotStatuses);
+router.post('/pipeline', botController.startPipeline);
 router.post('/:id/start', botController.startBot);
 router.post('/:id/stop', botController.stopBot);
 router.get('/:id/logs', botController.getBotLogs);

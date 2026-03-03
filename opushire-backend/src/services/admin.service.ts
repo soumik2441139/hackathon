@@ -60,6 +60,41 @@ export const getSystemStats = async () => {
     };
 };
 
+export const getPendingJobs = async () => {
+    return Job.find({ tagTileStatus: 'READY_TO_APPLY' })
+        .select('title company tags verifiedTags _id')
+        .lean();
+};
+
+export const resolvePendingJob = async (jobId: string, action: 'approve' | 'reject') => {
+    const job = await Job.findById(jobId);
+    if (!job) throw createError('Job not found', 404);
+
+    if (job.tagTileStatus !== 'READY_TO_APPLY') {
+        throw createError(`Job is not pending review. Status: ${job.tagTileStatus}`, 400);
+    }
+
+    if (action === 'approve') {
+        await Job.updateOne(
+            { _id: jobId },
+            {
+                $set: { tags: job.verifiedTags, tagTileStatus: 'VETTED' },
+                $unset: { verifiedTags: "" }
+            }
+        );
+        return { message: 'AI Fix Applied Successfully' };
+    } else {
+        await Job.updateOne(
+            { _id: jobId },
+            {
+                $set: { tagTileStatus: 'NEEDS_SHORTENING' },
+                $unset: { verifiedTags: "" }
+            }
+        );
+        return { message: 'AI Fix Rejected. Sent back to queue.' };
+    }
+};
+
 export const debugDatabase = async (forceMigrate: boolean = false) => {
     try {
         const conn = mongoose.connection;

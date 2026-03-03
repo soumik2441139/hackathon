@@ -4,6 +4,16 @@ require('dotenv').config({ path: '.env' });
 const { MongoClient } = require('mongodb');
 
 const POLL_INTERVAL = 30000; // Check DB every 30 seconds
+const isSingleRun = process.argv.includes('--single-run');
+
+async function incrementStat(db, metric, amount = 1) {
+    const today = new Date().toISOString().split('T')[0];
+    await db.collection('botstats').updateOne(
+        { date: today },
+        { $inc: { [metric]: amount } },
+        { upsert: true }
+    );
+}
 
 async function runScanner() {
     const uri = process.env.MONGODB_URI;
@@ -11,16 +21,14 @@ async function runScanner() {
 
     const client = new MongoClient(uri);
     await client.connect();
-    console.log('🤖 Bot 1 (Scanner): Connected to MongoDB. Running continuous scans...');
+    console.log(`🤖 Bot 1 (Scanner): Connected to MongoDB. Mode: ${isSingleRun ? 'Single Run' : 'Continuous'}`);
 
     const db = client.db();
 
-    while (true) {
+    const scanOnce = async () => {
         try {
-            // Find jobs that have not been vetted yet (we consider them vetted if tagTileStatus is 'VETTED')
-            // This ensures if new jobs are added in the future, they automatically get picked up
             const unvettedJobs = await db.collection('jobs').find({
-                tagTileStatus: { $nin: ['VETTED', 'NEEDS_SHORTENING', 'FAILED'] }
+                tagTileStatus: { $nin: ['VETTED', 'NEEDS_SHORTENING', 'FAILED', 'READY_TO_APPLY'] }
             }).toArray();
 
             if (unvettedJobs.length > 0) {
@@ -35,7 +43,6 @@ async function runScanner() {
                     continue;
                 }
 
-                // Identify tags that are too long to display cleanly
                 const longTags = job.tags.filter(tag => tag.length > 25 || tag.split(' ').length > 3);
 
                 if (longTags.length > 0) {
@@ -51,7 +58,6 @@ async function runScanner() {
                     flaggedCount++;
                     console.log(`  -> Flagged: "${job.title}" for bad tags.`);
                 } else {
-                    // It's clean
                     await db.collection('jobs').updateOne(
                         { _id: job._id },
                         { $set: { tagTileStatus: 'VETTED' } }
@@ -61,12 +67,23 @@ async function runScanner() {
 
             if (flaggedCount > 0) {
                 console.log(`[Scan] Flagged ${flaggedCount} jobs for the Fixer bot.`);
+                await incrementStat(db, 'anomaliesFound', flaggedCount);
             }
         } catch (err) {
             console.error('Scan Error:', err);
         }
+    };
 
-        await new Promise(r => setTimeout(r, POLL_INTERVAL));
+    if (isSingleRun) {
+        await scanOnce();
+        console.log('🤖 Scanner finished single run. Exiting.');
+        await client.close();
+        process.exit(0);
+    } else {
+        while (true) {
+            await scanOnce();
+            await new Promise(r => setTimeout(r, POLL_INTERVAL));
+        }
     }
 }
 

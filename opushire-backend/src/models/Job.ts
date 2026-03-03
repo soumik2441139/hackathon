@@ -26,6 +26,8 @@ export interface IJob extends Document {
     externalId?: string;
     externalUrl?: string;
     freeApiPostId?: string;
+    tagTileStatus?: 'OK' | 'NEEDS_SHORTENING' | 'READY_TO_APPLY' | 'VETTED';
+    verifiedTags?: string[];
     isArchived?: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -70,6 +72,12 @@ const JobSchema = new Schema<IJob>(
         externalId: { type: String, sparse: true, unique: true },
         externalUrl: { type: String },
         freeApiPostId: { type: String },
+        tagTileStatus: {
+            type: String,
+            enum: ['OK', 'NEEDS_SHORTENING', 'READY_TO_APPLY', 'VETTED'],
+            default: 'OK',
+        },
+        verifiedTags: [{ type: String, trim: true }],
         isArchived: { type: Boolean, default: false },
     },
     { timestamps: true }

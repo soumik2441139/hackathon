@@ -196,14 +196,29 @@ export const admin = {
     reSync: () =>
         request<{ success: boolean; data: unknown }>('/admin/debug-db?force=true'),
 
+    getPendingJobs: () =>
+        request<{ success: boolean; data: any[] }>('/admin/pending-jobs'),
+
+    resolvePendingJob: (id: string, action: 'approve' | 'reject') =>
+        request<{ success: boolean; data: any }>(`/admin/apply-fix/${id}`, {
+            method: 'POST',
+            body: JSON.stringify({ action })
+        }),
+
     bots: {
         getStatuses: () =>
             request<{ success: boolean; data: any[] }>('/admin/bots'),
+        pipeline: () =>
+            request<{ success: boolean; message: string }>('/admin/bots/pipeline', { method: 'POST' }),
         start: (id: string) =>
             request<{ success: boolean; data: any }>(`/admin/bots/${id}/start`, { method: 'POST' }),
         stop: (id: string) =>
             request<{ success: boolean; data: any }>(`/admin/bots/${id}/stop`, { method: 'POST' }),
         getLogs: (id: string) =>
             request<{ success: boolean; data: string[] }>(`/admin/bots/${id}/logs`),
+    },
+
+    botStats: {
+        getToday: () => request<{ success: boolean; data: any }>('/admin/bot-stats/today')
     }
 };

@@ -6,6 +6,16 @@ require('dotenv').config({ path: '.env' });
 const { MongoClient } = require('mongodb');
 
 const POLL_INTERVAL = 20000; // Check DB every 20 seconds
+const isSingleRun = process.argv.includes('--single-run');
+
+async function incrementStat(db, metric, amount = 1) {
+    const today = new Date().toISOString().split('T')[0];
+    await db.collection('botstats').updateOne(
+        { date: today },
+        { $inc: { [metric]: amount } },
+        { upsert: true }
+    );
+}
 
 async function evaluateKeywords(originalTags, proposedTags, apiKey) {
     const prompt = `You are a strict QA bot. The original job requirements were:\n`
@@ -44,11 +54,10 @@ async function runSupervisor() {
     await client.connect();
     const db = client.db();
 
-    console.log('⚖️ Bot 3 (Supervisor): Connected to database. Waiting to review Bot 2...');
+    console.log(`⚖️ Bot 3 (Supervisor): Connected to database. Mode: ${isSingleRun ? 'Single Run' : 'Continuous'}`);
 
-    while (true) {
+    const superviseOnce = async () => {
         try {
-            // Find jobs that have been rewritten by Bot 2 and are awaiting QA
             const jobsToReview = await db.collection('jobs').find({
                 tagTileStatus: 'PENDING_REVIEW'
             }).toArray();
@@ -57,6 +66,9 @@ async function runSupervisor() {
                 console.log(`[Supervisor] Found ${jobsToReview.length} jobs awaiting QA review...`);
             }
 
+            let approvals = 0;
+            let hallucinations = 0;
+
             for (const job of jobsToReview) {
                 console.log(`  -> Reviewing tags for: ${job.title}...`);
                 try {
@@ -64,42 +76,59 @@ async function runSupervisor() {
                     const isApproved = await evaluateKeywords(originalLongTags, job.proposedTags, apiKey);
 
                     if (isApproved) {
-                        // Supervisor Approved! Commit the proposed tags to the actual tags array
+                        // Supervisor Approved! Put in READY_TO_APPLY for Admin Review
                         await db.collection('jobs').updateOne(
                             { _id: job._id },
                             {
                                 $set: {
-                                    tags: job.proposedTags,
-                                    tagTileStatus: 'VETTED'
+                                    verifiedTags: job.proposedTags,
+                                    tagTileStatus: 'READY_TO_APPLY'
                                 },
                                 $unset: { longTagsToFix: "", proposedTags: "" }
                             }
                         );
-                        console.log(`     ✅ APPROVED: "${job.proposedTags.join(', ')}". Marked as VETTED.`);
+                        console.log(`     ✅ APPROVED: "${job.proposedTags.join(', ')}". Sent to Admin Queue (READY_TO_APPLY).`);
+                        approvals++;
                     } else {
-                        // Supervisor Rejected! Send it back to the Fixer
+                        // Supervisor Rejected! Send back to Fixer
                         await db.collection('jobs').updateOne(
                             { _id: job._id },
                             {
-                                $set: { tagTileStatus: 'NEEDS_SHORTENING' }, // Send back to Bot 2
-                                $unset: { proposedTags: "" } // Drop the bad proposal
+                                $set: { tagTileStatus: 'NEEDS_SHORTENING' },
+                                $unset: { proposedTags: "" }
                             }
                         );
                         console.log(`     ❌ REJECTED! Hallucination detected. Sending back to Bot 2.`);
+                        hallucinations++;
                     }
                 } catch (err) {
                     console.error(`     Failed to review job ${job._id}:`, err);
                     await db.collection('jobs').updateOne({ _id: job._id }, { $set: { tagTileStatus: 'FAILED' } });
                 }
 
-                // Sleep slightly between LLM calls to respect rate limits
-                await new Promise(r => setTimeout(r, 2000));
+                if (!isSingleRun) {
+                    await new Promise(r => setTimeout(r, 2000));
+                }
             }
+
+            if (approvals > 0) await incrementStat(db, 'approvals', approvals);
+            if (hallucinations > 0) await incrementStat(db, 'hallucinationsCaught', hallucinations);
+
         } catch (err) {
             console.error('Supervisor Error:', err);
         }
+    };
 
-        await new Promise(r => setTimeout(r, POLL_INTERVAL));
+    if (isSingleRun) {
+        await superviseOnce();
+        console.log('⚖️ Supervisor finished single run. Exiting.');
+        await client.close();
+        process.exit(0);
+    } else {
+        while (true) {
+            await superviseOnce();
+            await new Promise(r => setTimeout(r, POLL_INTERVAL));
+        }
     }
 }
 
