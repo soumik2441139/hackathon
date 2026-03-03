@@ -2,14 +2,14 @@
   <br />
   <h1>OpusHire 🚀</h1>
   <p><strong>Elevate your Career from Campus.</strong></p>
-  <p>The premium job portal designed explicitly for high-growth students and top-tier tech startups.</p>
+  <p>The premium job portal designed explicitly for high-growth students, top-tier tech startups, and autonomous AI micro-agents.</p>
   <br />
 
   [![Deploy on Azure](https://img.shields.io/badge/Deploy_on_Azure-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white)](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
   [![Frontend Tech](https://img.shields.io/badge/Next.js_14-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](#)
   [![Styling](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](#)
-  [![Animation](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)](#)
-  [![Bot](https://img.shields.io/badge/Recruiter_Bot-4CAF50?style=for-the-badge&logo=probot&logoColor=white)](#-recruiter-bot)
+  [![Agents](https://img.shields.io/badge/Groq_Llama3-F55036?style=for-the-badge&logo=groq&logoColor=white)](#)
+  [![Agents](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 
 </div>
 
@@ -17,7 +17,9 @@
 
 ## 🌟 Overview
 
-OpusHire is a modern, full-stack recruitment platform and application tracking system (ATS) crafted to seamlessly connect elite student talent with world-class technology companies. It features an **AI-powered Recruiter Bot** that automatically fetches internship and junior roles from 4 external sources.
+OpusHire is a modern, full-stack recruitment platform and application tracking system (ATS) crafted to seamlessly connect top-tier student talent with world-class technology companies. 
+
+Beyond standard job portal features, OpusHire implements an **Autonomous AI Ecosystem** consisting of several micro-agents that scrape jobs, clean data using LLMs, supervise each other to prevent hallucinations, and automatically archive expired roles.
 
 ---
 
@@ -25,9 +27,13 @@ OpusHire is a modern, full-stack recruitment platform and application tracking s
 
 ```
 hackathon/
-├── opushire/               ← Frontend (Next.js 14 + Tailwind v4)
+├── opushire/               ← Frontend (Next.js 14 + Tailwind v4 + Framer Motion)
 ├── opushire-backend/       ← Backend API (Express.js + MongoDB)
-├── recruiter-bot/          ← Autonomous Job Fetcher Bot
+├── recruiter-bot/          ← Autonomous Job Scraper (Telegram/APIs)
+├── bot1-scanner/           ← AI: Flags messy job tags 
+├── bot2-fixer/             ← AI: Gemini Flash rewrites messy tags
+├── bot3-supervisor/        ← AI: Groq Llama-3 QA verifies Gemini outputs
+├── bot4-cleanup/           ← Core: Hard/Soft archives expired jobs
 ├── .github/workflows/      ← CI/CD pipelines (Azure deployment)
 ├── .gitignore
 └── README.md
@@ -50,153 +56,73 @@ graph LR
     R_Post --> R_Review["Review Applicants"]
     R_Review --> R_Status["Update Status"]
     
-    Dashboard -->|Admin| A_Panel["Admin Panel"]
-    A_Panel --> A_Users["Manage Users"]
-    A_Panel --> A_Bot["Trigger Bot Fetch"]
-    A_Panel --> A_Stats["View System Stats"]
+    Dashboard -->|Admin| A_Panel["Admin Bot Hub"]
+    A_Panel --> A_Manage["Manage Bots"]
+    A_Manage --> A_Logs["View Live Micro-agent Logs"]
 ```
 
 ---
 
-## 🏗 System Architecture
+## 🏗 System Architecture & AI Ecosystem
+
+The architecture handles core portal logic alongside a background swarm of micro-agents deployed directly into the backend App Service.
 
 ```mermaid
 graph TD
-    subgraph Frontend["Frontend — /opushire"]
-        NextJS["Next.js 14 App Router"]
+    subgraph Frontend["Frontend — Next.js 14"]
+        AppRouter["App Router"]
         TW["Tailwind CSS v4"]
         FM["Framer Motion"]
+        AdminDashboard["Admin AI Bot Hub"]
     end
 
-    subgraph Backend["Backend — /opushire-backend"]
-        Express["Express.js REST API"]
-        Auth["JWT Auth + RBAC"]
-        Models["Mongoose Models"]
+    subgraph Backend["Backend — Express.js"]
+        API["REST API (JWT)"]
+        BotSpawner["Bot Process Manager"]
     end
 
-    subgraph Bot["Recruiter Bot — /recruiter-bot"]
-        Remotive["Remotive API"]
-        Arbeitnow["Arbeitnow API"]
-        Adzuna["Adzuna API"]
-        Telegram["Telegram Scraper"]
-        BotService["Bot Orchestrator"]
+    subgraph Database["MongoDB Atlas"]
+        Jobs[(Jobs Collection)]
     end
 
-    subgraph Cloud["Cloud Infrastructure"]
-        AzureFE["Azure App Service — Frontend"]
-        AzureBE["Azure App Service — Backend"]
-        MongoDB[("MongoDB Atlas")]
+    subgraph AI_Ecosystem["Autonomous Micro-agents"]
+        Bot0["Recruiter Bot (Scraper)"]
+        Bot1["Bot 1: Scanner (Detection)"]
+        Bot2["Bot 2: Fixer (Gemini Flash)"]
+        Bot3["Bot 3: Supervisor (Groq Llama-3)"]
+        Bot4["Bot 4: Cleanup (Archival)"]
     end
 
-    NextJS --> AzureFE
-    Express --> AzureBE
-    AzureFE -->|"REST API"| AzureBE
-    AzureBE -->|"Mongoose ODM"| MongoDB
-
-    Remotive --> BotService
-    Arbeitnow --> BotService
-    Adzuna --> BotService
-    Telegram --> BotService
-    BotService -->|"Store Jobs"| MongoDB
-```
-
----
-
-## 🔐 Authentication Flow
-
-```mermaid
-sequenceDiagram
-    participant C as Client (Next.js)
-    participant B as Backend (Express)
-    participant D as Database (MongoDB)
+    Frontend -->|"REST API"| API
+    AdminDashboard -->|"Start/Stop/Logs"| BotSpawner
+    BotSpawner -->|"Spawns Child Processes"| AI_Ecosystem
+    API -->|"CRUD"| Jobs
+    AI_Ecosystem -->|"Read/Write (poll interval)"| Jobs
     
-    C->>B: POST /api/auth/login
-    B->>D: Find User by Email
-    D-->>B: User Document
-    B->>B: Verify Password (bcrypt)
-    B->>B: Generate JWT Token
-    B-->>C: Token + User Data
-    C->>C: Store in localStorage
-    C->>B: GET /api/jobs (Authorization header)
-    B->>B: Verify JWT Middleware
-    B->>B: Check Role (RBAC)
-    B-->>C: Authorized Response
+    Bot2 -->|"LLM Call"| Gemini["Google Gemini API"]
+    Bot3 -->|"LLM Call"| Groq["Groq API"]
 ```
 
 ---
 
-## 📊 Data Architecture
+## 🔒 The Multi-Agent Data Pipeline
 
-```mermaid
-erDiagram
-    STUDENT ||--o{ APPLICATION : applies
-    RECRUITER ||--o{ JOB : posts
-    ADMIN ||--o{ JOB : manages
-    JOB ||--o{ APPLICATION : receives
-    BOT ||--o{ JOB : fetches
-    
-    STUDENT {
-        string name
-        string email
-        string college
-        string skills
-        string resume
-    }
-    RECRUITER {
-        string name
-        string email
-        string company
-        string companyWebsite
-    }
-    JOB {
-        string title
-        string company
-        string type
-        string mode
-        string source
-        string externalId
-        string externalUrl
-    }
-    APPLICATION {
-        string status
-        date appliedAt
-        string coverLetter
-    }
-    BOT {
-        string source
-        date lastRun
-        number jobsFetched
-    }
-```
+OpusHire uses a chained agent architecture to ensure data quality without human intervention:
+
+1. **Recruiter Bot**: Ingests messy, unformatted job postings from Telegram and external APIs.
+2. **Scanner Bot**: Watches the DB. Flags jobs with excessively long or messy tags (`tagTileStatus: NEEDS_SHORTENING`).
+3. **Fixer Bot**: Picks up flagged jobs. Uses **Gemini 1.5 Flash** to extract concise, 3-keyword summaries (`tagTileStatus: PENDING_REVIEW`).
+4. **Supervisor Bot**: QA Agent. Uses **Groq Llama-3 70B** to verify Gemini's output against the original text. Overrides hallucinations and approves clean data (`tagTileStatus: VETTED`).
+5. **Cleanup Bot**: Soft-archives 1-week-old jobs and hard-deletes 3-week-old jobs to keep the platform fresh.
 
 ---
 
-## ✨ Core Features
+## ✨ Core UI/UX Features
 
-### 🎨 Premium UI/UX
-- **Glassmorphism Aesthetic**: Deep dark oceanic themes with frosted glass cards (`backdrop-blur`)
-- **Immersive Micro-interactions**: Smooth transitions powered by Framer Motion
-- **Custom Scrolling Marquees**: Infinite CSS-masked marquee with company logos
-- **Scroll Reveal Animations**: Elements gracefully animate on scroll
-
-### 🔐 Multi-Tier RBAC
-| Role | Capabilities |
-|------|-------------|
-| **Student** | Browse jobs, apply, track applications, manage profile |
-| **Recruiter** | Post jobs, review applicants, update pipeline status |
-| **Admin** | Manage all users, view system stats, trigger bot fetch, data re-sync |
-
-### 🤖 Recruiter Bot
-An autonomous job fetcher that pulls internship & junior roles from 4 external sources:
-
-| Source | Type | API Key? |
-|--------|------|----------|
-| Remotive | REST API — remote tech jobs | No |
-| Arbeitnow | REST API — tech jobs worldwide | No |
-| Adzuna | REST API — 16+ countries | Yes |
-| Telegram | Public channel scraper | No |
-
-> See [`recruiter-bot/README.md`](recruiter-bot/README.md) for full architecture details.
+- **Premium Glassmorphism**: Deep dark oceanic themes with frosted glass cards (`backdrop-blur`).
+- **Tactile Interactions**: Smooth, physics-based spring animations (`whileHover`, `whileTap`) using Framer Motion.
+- **Real-time Bot Hub**: Admins can start, stop, and monitor live streaming stdout/stderr terminal logs from the AI swarm.
+- **Audio Visualizers**: Animated bar visualizers that pulse when an AI agent is actively online and processing.
 
 ---
 
@@ -207,10 +133,10 @@ An autonomous job fetcher that pulls internship & junior roles from 4 external s
 | **Frontend** | Next.js 14, TypeScript, Tailwind CSS v4, Framer Motion, Lucide Icons |
 | **Backend** | Node.js, Express.js, TypeScript, Mongoose ODM |
 | **Database** | MongoDB Atlas |
-| **Auth** | JWT, bcryptjs, Role-Based Middleware |
-| **Bot** | Axios, Cheerio-style HTML parsing, Clearbit Logos |
-| **CI/CD** | GitHub Actions → Azure App Service |
-| **Hosting** | Microsoft Azure (Central India region) |
+| **Agent LLMs** | Google Gemini 1.5 Flash, Groq Llama-3 70B |
+| **Micro-agents** | Native Node.js `child_process` (cross-platform Linux/Win) |
+| **CI/CD** | GitHub Actions (Zip-deployment strategy) |
+| **Hosting** | Microsoft Azure App Service (Platform-as-a-Service) |
 
 ---
 
@@ -218,25 +144,28 @@ An autonomous job fetcher that pulls internship & junior roles from 4 external s
 
 | Service | URL |
 |---------|-----|
-| **Frontend** | [opushire-frontend-app.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net) |
-| **Backend API** | [opushire-backend.azurewebsites.net/api](https://opushire-backend.azurewebsites.net/api) |
-| **Health Check** | [opushire-backend.azurewebsites.net/health](https://opushire-backend.azurewebsites.net/health) |
+| **Frontend Platform** | [opushire-frontend-app.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net) |
+| **Backend API** | [opushire-backend-app.azurewebsites.net](https://opushire-backend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net/health) |
 
 ---
 
 ## 🛠 Local Development
 
 ### Prerequisites
-- Node.js 18+
-- MongoDB Atlas connection string (or local MongoDB)
+- Node.js 20+
+- MongoDB Atlas connection string
+- Gemini API Key
+- Groq API Key
 
-### 1. Backend
+### 1. Backend + Micro-agents
 ```bash
 cd opushire-backend
 npm install
-# Create .env with: MONGODB_URI, JWT_SECRET, FRONTEND_URL, PORT=5000
+# Create .env with: MONGODB_URI, JWT_SECRET, GEMINI_API_KEY, GROQ_API_KEY, PORT=5000
 npm run dev
 ```
+
+*(Note: The backend automatically manages and spawns the bot scripts located in `bot1`, `bot2`, `bot3`, `bot4`, and `recruiter-bot` folders when triggered from the admin UI).*
 
 ### 2. Frontend
 ```bash
@@ -247,78 +176,7 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-### 3. Recruiter Bot
-```bash
-cd recruiter-bot
-npm install
-cp .env.example .env
-# Edit .env → set MONGODB_URI
-npm run dev
-# Dashboard at http://localhost:5001
-```
-
-### 4. Seed Sample Data
-```bash
-cd opushire-backend
-npx tsx seed-jobs.ts
-```
-
 ---
 
-## 📂 Project Organization
+> Built with 🩵 for high-growth students everywhere by **Soumik** and **Sagnik**.
 
-```
-opushire/                        ← Next.js Frontend
-├── app/
-│   ├── page.tsx                 ← Landing page
-│   ├── jobs/page.tsx            ← Job board
-│   ├── dashboard/
-│   │   ├── student/page.tsx     ← Student dashboard
-│   │   ├── recruiter/page.tsx   ← Recruiter dashboard
-│   │   └── admin/page.tsx       ← Admin panel
-│   └── auth/                    ← Login / Register
-├── components/ui/               ← Reusable UI components
-├── context/AuthContext.tsx       ← Auth state management
-└── lib/api.ts                   ← API client helpers
-
-opushire-backend/                ← Express Backend
-├── src/
-│   ├── server.ts                ← App entry point
-│   ├── config/                  ← DB, CORS, env config
-│   ├── models/                  ← Mongoose schemas
-│   ├── routes/                  ← Express route definitions
-│   ├── controllers/             ← Request handlers
-│   ├── services/                ← Business logic
-│   └── middleware/              ← Auth, RBAC, error handling
-├── logs/                        ← Historical log files
-├── seed-jobs.ts                 ← Database seeder
-└── migrate-data.js              ← Data migration utility
-
-recruiter-bot/                   ← Autonomous Job Fetcher
-├── src/
-│   ├── providers/               ← External API integrations
-│   ├── models/Job.ts            ← Shared Job schema
-│   ├── bot.service.ts           ← Orchestrator
-│   ├── server.ts                ← API + Dashboard
-│   └── cli.ts                   ← CLI runner
-└── .env.example                 ← Configuration template
-```
-
----
-
-## 🔄 CI/CD Pipeline
-
-```mermaid
-graph LR
-    Push["Git Push to 'soumik' branch"] --> GHA["GitHub Actions"]
-    GHA --> BuildFE["Build Frontend (next build)"]
-    GHA --> BuildBE["Build Backend (tsc)"]
-    BuildFE --> DeployFE["Deploy to Azure Frontend App"]
-    BuildBE --> DeployBE["Deploy to Azure Backend App"]
-    DeployFE --> Live["🟢 Live on Azure"]
-    DeployBE --> Live
-```
-
----
-
-> Built with 🩵 for high-growth students everywhere by Soumik and [Sagnik](https://github.com/SagnikSarkar31).
