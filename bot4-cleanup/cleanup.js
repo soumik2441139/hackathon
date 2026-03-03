@@ -1,4 +1,7 @@
+// Load env: try local dev paths first, then fall back to process.env (Azure App Settings)
 require('dotenv').config({ path: '../opushire-backend/.env' });
+require('dotenv').config({ path: '.env' });
+
 const { MongoClient } = require('mongodb');
 
 const POLL_INTERVAL = 60 * 1000; // Run check every 1 minute

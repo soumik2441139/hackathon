@@ -204,28 +204,36 @@ export default function AdminBotsDashboard() {
 
                                 <div className="flex items-center gap-3">
                                     {bot.status === 'online' ? (
-                                        <Button
+                                        <motion.button
                                             onClick={() => handleAction(bot.id, 'stop')}
-                                            className="bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20"
+                                            whileHover={{ scale: 1.04, backgroundColor: 'rgba(239,68,68,1)', color: '#fff' }}
+                                            whileTap={{ scale: 0.95 }}
+                                            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 text-sm font-bold cursor-pointer"
                                         >
-                                            <Square size={16} className="mr-2" /> Stop Agent
-                                        </Button>
+                                            <Square size={15} /> Stop Agent
+                                        </motion.button>
                                     ) : (
-                                        <Button
+                                        <motion.button
                                             onClick={() => handleAction(bot.id, 'start')}
-                                            className="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white border border-emerald-500/20"
+                                            whileHover={{ scale: 1.04, backgroundColor: 'rgba(16,185,129,1)', color: '#fff' }}
+                                            whileTap={{ scale: 0.95 }}
+                                            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-sm font-bold cursor-pointer"
                                         >
-                                            <Play size={16} className="mr-2" /> Start Agent
-                                        </Button>
+                                            <Play size={15} /> Start Agent
+                                        </motion.button>
                                     )}
 
-                                    <Button
-                                        variant="outline"
+                                    <motion.button
                                         onClick={() => setSelectedBotId(bot.id)}
-                                        className="border-white/10 text-white/60 hover:text-white hover:bg-white/5"
+                                        whileHover={{ scale: 1.04, backgroundColor: 'rgba(255,255,255,0.06)', color: '#fff' }}
+                                        whileTap={{ scale: 0.95 }}
+                                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                                        className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-white/50 text-sm font-bold cursor-pointer"
                                     >
-                                        <TerminalIcon size={16} className="mr-2" /> View Live Logs
-                                    </Button>
+                                        <TerminalIcon size={15} /> View Live Logs
+                                    </motion.button>
                                 </div>
                             </div>
                         ))}
