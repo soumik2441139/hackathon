@@ -94,15 +94,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Apply theme based on role
     useEffect(() => {
         const root = document.documentElement;
-        root.classList.remove('theme-recruiter', 'theme-admin');
+        root.classList.remove('theme-recruiter', 'theme-student', 'theme-admin');
         if (user?.role === 'recruiter') root.classList.add('theme-recruiter');
+        else if (user?.role === 'student') root.classList.add('theme-student');
         else if (user?.role === 'admin') root.classList.add('theme-admin');
     }, [user?.role]);
 
     const logout = useCallback(() => {
         localStorage.removeItem('opushire_token');
         localStorage.removeItem('opushire_user');
-        document.documentElement.classList.remove('theme-recruiter', 'theme-admin');
+        document.documentElement.classList.remove('theme-recruiter', 'theme-student', 'theme-admin');
         setToken(null);
         setUser(null);
         router.push('/');

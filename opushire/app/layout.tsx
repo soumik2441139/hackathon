@@ -14,7 +14,7 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-body",
 });
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
+
 
 export const metadata: Metadata = {
   title: "Opushire | Premium Student Job Portal",
@@ -30,11 +30,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${outfit.variable} ${inter.variable} font-body bg-brand-dark text-white`}>
         <AuthProvider>
-          <ThemeProvider>
-            <Navbar />
-            {children}
-            <Footer />
-          </ThemeProvider>
+          <Navbar />
+          {children}
+          <Footer />
         </AuthProvider>
       </body>
     </html>
