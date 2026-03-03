@@ -62,7 +62,7 @@ export default function StudentDashboard() {
 
     return (
         <ProtectedRoute requiredRole="student">
-            <main className="pt-32 pb-24 px-6 min-h-screen overflow-x-hidden bg-[#006078] selection:bg-orange-500/30">
+            <main className="pt-32 pb-24 px-6 min-h-screen overflow-x-hidden bg-[#1C1C1E] selection:bg-orange-500/30">
                 <div className="max-w-6xl mx-auto">
                     <motion.div
                         variants={containerVariants}
@@ -194,7 +194,7 @@ export default function StudentDashboard() {
                                 { title: 'Saved Jobs', value: stats.saved, icon: <Bookmark size={24} />, color: 'from-yellow-500/10 to-transparent', border: 'border-yellow-500/20', iconColor: 'text-yellow-400' },
                                 { title: 'Profile Views', value: stats.profileViews, icon: <UserIcon size={24} />, color: 'from-pink-500/10 to-transparent', border: 'border-pink-500/20', iconColor: 'text-pink-500' },
                             ].map((s, i) => (
-                                <div key={i} className={`glass-card p-8 bg-gradient-to-br ${s.color} border border-white/5 hover:${s.border} transition-all duration-300 group overflow-hidden relative`}>
+                                <div key={i} className={`p-8 rounded-2xl bg-[#2A2A2E] bg-gradient-to-br ${s.color} border border-white/5 hover:${s.border} transition-all duration-300 group overflow-hidden relative`}>
                                     <div className={`absolute -right-6 -top-6 opacity-5 group-hover:opacity-10 transition-opacity scale-150 rotate-12 ${s.iconColor}`}>
                                         {s.icon}
                                     </div>
@@ -210,7 +210,7 @@ export default function StudentDashboard() {
                         </motion.div>
 
                         {/* Interactive Main Section */}
-                        <motion.div variants={itemVariants} className="glass-card rounded-[2.5rem] p-4 md:p-8 border-white/5 bg-[#18181B]/80">
+                        <motion.div variants={itemVariants} className="rounded-[2.5rem] p-4 md:p-8 border border-white/5 bg-[#2A2A2E]">
                             <div className="flex items-center gap-2 mb-8 p-1 bg-white/5 border border-white/10 rounded-2xl w-fit">
                                 <button
                                     onClick={() => setActiveTab('applications')}
@@ -254,7 +254,7 @@ export default function StudentDashboard() {
                                     </p>
                                 </div>
                                 <Link href="/jobs">
-                                    <button className="flex items-center gap-3 px-10 py-5 bg-[#004354] text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-black hover:scale-105 transition-all shadow-xl">
+                                    <button className="flex items-center gap-3 px-10 py-5 bg-[#1C1C1E] text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-black hover:scale-105 transition-all shadow-xl">
                                         Explore Jobs <ExternalLink size={18} />
                                     </button>
                                 </Link>
