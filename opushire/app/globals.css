@@ -28,6 +28,16 @@
   --brand-secondary: #84CC16;
 }
 
+.theme-student {
+  /* Warm Dark Data-Driven — from Power BI reference */
+  --background: #1C1C1E;
+  --foreground: #F5F5F5;
+  --brand-primary: #F97316;
+  /* Orange 500 */
+  --brand-secondary: #EAB308;
+  /* Yellow 500 */
+}
+
 .theme-admin {
   --background: #000000;
   --foreground: #FFFFFF;
