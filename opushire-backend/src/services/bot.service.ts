@@ -4,7 +4,7 @@ import os from 'os';
 import fs from 'fs';
 
 export const BOTS = [
-    { id: 'bot0-recruiter', name: 'Recruiter', description: 'Scrapes jobs from integrated sources.', dir: 'recruiter-bot', script: 'npx ts-node src/cli.ts', isTsNode: true, color: '#ff4b4b' },
+    { id: 'bot0-recruiter', name: 'Recruiter', description: 'Scrapes jobs from integrated sources.', dir: 'recruiter-bot', script: os.platform() === 'win32' ? 'npx.cmd ts-node src/cli.ts' : 'npx ts-node src/cli.ts', isTsNode: true, color: '#ff4b4b' },
     { id: 'bot1-scanner', name: 'Scanner', description: 'Scans new jobs and flags broken tag tiles.', dir: 'bot1-scanner', script: 'scan.js', color: '#06b6d4' },
     { id: 'bot2-fixer', name: 'Fixer', description: 'Takes flagged tags and generates keywords via Gemini LLM.', dir: 'bot2-fixer', script: 'fix.js', color: '#eab308' },
     { id: 'bot3-supervisor', name: 'Supervisor', description: 'QA Agent utilizing Groq Llama-3 to prevent hallucination.', dir: 'bot3-supervisor', script: 'supervise.js', color: '#d946ef' },
@@ -57,8 +57,10 @@ export const startBot = (botId: string, args: string[] = []) => {
 
         // The recruiter bot requires ts-node from local node_modules
         if ((botConfig as any).isTsNode) {
-            childUrl = 'npx';
-            childArgs = ['ts-node', 'src/cli.ts', ...args];
+            childUrl = 'node';
+            // Path correctly resolves the local module bin inside the dir
+            const tsNodeBin = path.join(scriptPath, 'node_modules', '.bin', 'ts-node');
+            childArgs = [tsNodeBin, 'src/cli.ts', ...args];
         }
 
         const child = spawn(childUrl, childArgs, {

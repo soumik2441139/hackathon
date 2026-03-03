@@ -124,6 +124,22 @@ export default function AdminBotsDashboard() {
     };
 
     const handlePipelineTrigger = async () => {
+        // If already running a pipeline/has online bots, user probably wants to STOP
+        if (onlineCount > 0) {
+            if (!confirm('This will stop ALL currently running bots in the ecosystem. Proceed?')) return;
+            try {
+                // Stop all sequentially
+                for (const bot of bots.filter(b => b.status === 'online')) {
+                    await adminApi.bots.stop(bot.id);
+                }
+                alert('Ecosystem pipeline stopped.');
+                fetchBotStatuses();
+            } catch (err: any) {
+                alert(err.message || 'Failed to stop pipeline');
+            }
+            return;
+        }
+
         if (!confirm('This will trigger the full autonomous sequence: Recruiter -> Scanner -> Fixer -> Supervisor -> Archiver. Proceed?')) return;
         try {
             await adminApi.bots.pipeline();
@@ -157,6 +173,7 @@ export default function AdminBotsDashboard() {
     }
 
     const onlineCount = bots.filter(b => b.status === 'online').length;
+    const isPipelineRunning = onlineCount > 0;
 
     // Map bot ID to the stat it tracks
     const getBotStatMetric = (botId: string) => {
@@ -194,9 +211,13 @@ export default function AdminBotsDashboard() {
                             onClick={handlePipelineTrigger}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className="bg-brand-violet text-white px-6 py-3 rounded-xl font-bold uppercase tracking-wider text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(139,92,246,0.5)] border border-brand-violet/50"
+                            className={`${isPipelineRunning ? 'bg-red-500/10 text-red-500 border border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:bg-red-500 hover:text-white' : 'bg-brand-violet text-white border border-brand-violet/50 shadow-[0_0_20px_rgba(139,92,246,0.5)]'} transition-colors px-6 py-3 rounded-xl font-bold uppercase tracking-wider text-sm flex items-center gap-2 `}
                         >
-                            <Play size={16} fill="white" /> Initiate Autonomous Pipeline
+                            {isPipelineRunning ? (
+                                <><Square size={16} fill="currentColor" /> Stop Pipeline</>
+                            ) : (
+                                <><Play size={16} fill="white" /> Initiate Autonomous Pipeline</>
+                            )}
                         </motion.button>
                     </div>
 
