@@ -4,7 +4,7 @@ import { ApplicationTracker } from '@/components/dashboard/ApplicationTracker';
 import { SavedJobs } from '@/components/dashboard/SavedJobs';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import {
-    Settings, Bell, Camera, Loader2, Target,
+    Camera, Loader2, Target,
     Bookmark, Briefcase, Zap, Sparkles, User as UserIcon,
     ChevronRight, ExternalLink
 } from 'lucide-react';
@@ -15,8 +15,6 @@ import Link from 'next/link';
 
 export default function StudentDashboard() {
     const { user } = useAuth();
-    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [activeTab, setActiveTab] = useState<'applications' | 'saved'>('applications');
     const [stats, setStats] = useState({ apps: 0, saved: 2, profileViews: '18' });
@@ -121,73 +119,6 @@ export default function StudentDashboard() {
                                     </div>
                                 </div>
 
-                                <div className="flex gap-4">
-                                    <div className="relative">
-                                        <button
-                                            onClick={() => { setIsNotificationsOpen(!isNotificationsOpen); setIsSettingsOpen(false); }}
-                                            className={`w-14 h-14 rounded-2xl border flex items-center justify-center transition-all ${isNotificationsOpen ? 'bg-orange-500/10 border-orange-500/30 text-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.2)]' : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'}`}
-                                        >
-                                            <Bell size={24} />
-                                            <span className="absolute top-3 right-3 w-3 h-3 bg-yellow-500 rounded-full border-2 border-[#0B0D17] animate-pulse"></span>
-                                        </button>
-
-                                        <AnimatePresence>
-                                            {isNotificationsOpen && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, x: 10, scale: 0.95 }}
-                                                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                                                    exit={{ opacity: 0, x: 10, scale: 0.95 }}
-                                                    transition={{ duration: 0.2, ease: 'easeOut' }}
-                                                    style={{ transformOrigin: 'right center' }}
-                                                    className="absolute right-full top-0 mr-3 w-80 rounded-2xl bg-[#2A2A2E] border border-orange-500/20 p-6 z-50 shadow-2xl shadow-black/40"
-                                                >
-                                                    <h3 className="font-bold mb-4 text-xs uppercase tracking-[0.2em] text-orange-400">Notifications</h3>
-                                                    <div className="space-y-3">
-                                                        <div className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-yellow-500/30 hover:bg-white/10 transition-all cursor-pointer group">
-                                                            <p className="font-bold text-sm text-white group-hover:text-yellow-400 transition-colors">Profile Viewed</p>
-                                                            <p className="text-xs text-white/50 mt-1 leading-relaxed">A recruiter from Notional checked out your resume.</p>
-                                                            <p className="text-[10px] uppercase font-bold text-white/20 mt-3">2 hours ago</p>
-                                                        </div>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
-
-                                    <div className="relative">
-                                        <button
-                                            onClick={() => { setIsSettingsOpen(!isSettingsOpen); setIsNotificationsOpen(false); }}
-                                            className={`w-14 h-14 rounded-2xl border flex items-center justify-center transition-all ${isSettingsOpen ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.2)]' : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'}`}
-                                        >
-                                            <Settings size={24} className={isSettingsOpen ? "animate-spin-slow" : ""} />
-                                        </button>
-
-                                        <AnimatePresence>
-                                            {isSettingsOpen && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, x: -10, scale: 0.95 }}
-                                                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                                                    exit={{ opacity: 0, x: -10, scale: 0.95 }}
-                                                    transition={{ duration: 0.2, ease: 'easeOut' }}
-                                                    style={{ transformOrigin: 'left center' }}
-                                                    className="absolute left-full top-0 ml-3 w-72 rounded-2xl bg-[#2A2A2E] border border-yellow-500/20 p-6 z-50 shadow-2xl shadow-black/40"
-                                                >
-                                                    <h3 className="font-bold mb-4 text-xs uppercase tracking-[0.2em] text-yellow-400">Preferences</h3>
-                                                    <div className="space-y-4">
-                                                        {['Job Alerts', 'Application Updates', 'Newsletter'].map((item, i) => (
-                                                            <div key={item} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors">
-                                                                <span className="text-sm font-bold text-white/80">{item}</span>
-                                                                <div className={`w-10 h-5 rounded-full relative cursor-pointer ${i < 2 ? 'bg-yellow-500' : 'bg-white/10'}`}>
-                                                                    <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${i < 2 ? 'right-0.5' : 'left-0.5'}`} />
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
-                                </div>
                             </div>
                         </motion.div>
 
