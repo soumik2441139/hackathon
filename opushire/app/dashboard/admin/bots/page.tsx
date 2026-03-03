@@ -159,11 +159,11 @@ export default function AdminBotsDashboard() {
                             <div key={bot.id} className="glass-card p-6 md:p-8 border-white/5 relative group transition-all hover:border-white/10 flex flex-col justify-between">
                                 {/* Hover Gradient */}
                                 <div
-                                    className="absolute inset-0 opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500 rounded-3xl"
+                                    className="absolute inset-0 opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500 rounded-3xl pointer-events-none z-0"
                                     style={{ background: `radial-gradient(circle at center, ${bot.color} 0%, transparent 70%)` }}
                                 />
 
-                                <div>
+                                <div className="flex-1 relative z-10">
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
                                             <h3 className="text-2xl font-black uppercase tracking-tighter" style={{ color: bot.color }}>{bot.name}</h3>
@@ -202,7 +202,8 @@ export default function AdminBotsDashboard() {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 relative z-10">
+
                                     {bot.status === 'online' ? (
                                         <motion.button
                                             onClick={() => handleAction(bot.id, 'stop')}
