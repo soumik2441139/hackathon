@@ -24,16 +24,16 @@ jobs:
           node-version: '20.x'
 
       - name: npm install, build, and zip standalone
+        working-directory: opushire
         run: |
-          cd opushire
           npm install
           echo "NEXT_PUBLIC_API_URL=https://opushire-backend.azurewebsites.net/api" > .env.production
           npm run build --if-present
-          mkdir -p .next/standalone/.next/static
-          cp -r .next/static/* .next/standalone/.next/static/ || true
-          cp -r public .next/standalone/public/ || true
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public 2>/dev/null || true
           cd .next/standalone
-          zip -r ../../../frontend.zip .
+          zip -r "$GITHUB_WORKSPACE/frontend.zip" .
+
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
