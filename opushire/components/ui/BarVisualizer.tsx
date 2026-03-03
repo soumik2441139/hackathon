@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
+// Safe wrappers for browser-only APIs (requestAnimationFrame is undefined on SSR)
+const raf = typeof window !== 'undefined' ? window.requestAnimationFrame.bind(window) : (cb: FrameRequestCallback) => setTimeout(cb, 16);
+const caf = typeof window !== 'undefined' ? window.cancelAnimationFrame.bind(window) : clearTimeout;
+
 export type AgentState =
     | "connecting"
     | "initializing"
@@ -84,12 +88,12 @@ export function BarVisualizer({
                     return h + diff * 0.07;
                 });
             });
-            animationRef.current = requestAnimationFrame(animate);
+            animationRef.current = raf(animate);
         }
 
-        animationRef.current = requestAnimationFrame(animate);
+        animationRef.current = raf(animate);
         return () => {
-            if (animationRef.current) cancelAnimationFrame(animationRef.current);
+            if (animationRef.current) caf(animationRef.current);
         };
     }, []);
 

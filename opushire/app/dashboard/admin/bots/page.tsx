@@ -9,7 +9,14 @@ import {
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { admin as adminApi } from '@/lib/api';
-import { BarVisualizer, type AgentState } from '@/components/ui/BarVisualizer';
+import dynamic from 'next/dynamic';
+import type { AgentState } from '@/components/ui/BarVisualizer';
+
+// Load BarVisualizer only on client-side to avoid SSR crash (requestAnimationFrame)
+const BarVisualizer = dynamic(
+    () => import('@/components/ui/BarVisualizer').then(m => m.BarVisualizer),
+    { ssr: false }
+);
 
 interface BotConfig {
     id: string;
