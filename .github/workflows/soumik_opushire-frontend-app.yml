@@ -32,9 +32,13 @@ jobs:
           npm run build --if-present
           echo "--- Verifying standalone output ---"
           ls -la .next/standalone/ || (echo "ERROR: .next/standalone not found!" && exit 1)
-          cp -r .next/static .next/standalone/.next/static
-          cp -r public .next/standalone/public 2>/dev/null || true
-          cd .next/standalone
+          # Next.js nests standalone in a subdir matching the app folder name
+          STANDALONE_DIR=$(ls -d .next/standalone/*/ | head -1)
+          echo "Using standalone dir: $STANDALONE_DIR"
+          ls -la "$STANDALONE_DIR"
+          cp -r .next/static "${STANDALONE_DIR}.next/static"
+          cp -r public "${STANDALONE_DIR}public" 2>/dev/null || true
+          cd "$STANDALONE_DIR"
           zip -r "$GITHUB_WORKSPACE/frontend.zip" .
           echo "--- Verifying zip contains server.js ---"
           unzip -l "$GITHUB_WORKSPACE/frontend.zip" | grep "server.js" || echo "WARNING: server.js not found in zip!"
