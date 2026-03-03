@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/Button';
 import { HeroScene } from '@/components/animations/HeroScene';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
+import { TextStagger } from '@/components/animations/TextStagger';
 import { TrustedByMarquee } from './TrustedByMarquee';
 import Link from 'next/link';
 
@@ -11,11 +12,11 @@ export const HeroSection = () => {
 
             <div className="max-w-4xl text-center z-10 w-full">
 
-                <ScrollReveal delay={0.2} duration={1}>
-                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-8 leading-[1.1] tracking-tighter text-brand-text">
-                        Elevate your <span className="text-gradient">Career</span> from Campus.
-                    </h1>
-                </ScrollReveal>
+                <TextStagger
+                    text="Elevate your Career from Campus."
+                    className="text-5xl md:text-7xl lg:text-8xl font-black mb-8 leading-[1.1] tracking-tighter text-brand-text"
+                    delay={0}
+                />
 
                 <ScrollReveal delay={0.4} duration={1}>
                     <p className="text-xl md:text-2xl text-brand-text/60 mb-12 max-w-2xl mx-auto leading-relaxed">

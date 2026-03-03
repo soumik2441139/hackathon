@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/ui/Navbar";
 import { Footer } from "@/components/ui/Footer";
 import { AuthProvider } from "@/context/AuthContext";
+import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -29,11 +30,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${outfit.variable} ${inter.variable} font-body bg-brand-dark text-white`}>
-        <AuthProvider>
-          <Navbar />
-          {children}
-          <Footer />
-        </AuthProvider>
+        <SmoothScrollProvider>
+          <AuthProvider>
+            <Navbar />
+            {children}
+            <Footer />
+          </AuthProvider>
+        </SmoothScrollProvider>
       </body>
     </html>
   );
