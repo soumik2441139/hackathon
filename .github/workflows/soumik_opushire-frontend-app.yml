@@ -37,15 +37,14 @@ jobs:
           echo "Using standalone dir: $STANDALONE_DIR"
           ls -la "$STANDALONE_DIR"
           
-          # Fix: We must copy into .next/standalone/opushire/.next/static 
-          # but the directory inside the loop is actually just `opushire` since it strips the path
-          # Specifically: cp -r .next/static ".next/standalone/opushire/.next/" so it lands as .next/static
+          # We must copy static assets so they are served by the standalone server
           mkdir -p "${STANDALONE_DIR}.next"
           cp -r .next/static "${STANDALONE_DIR}.next/"
           cp -r public "${STANDALONE_DIR}public" 2>/dev/null || true
           
-          # Package everything from inside the root of standalone so node_modules are included
-          cd .next/standalone
+          # Since Next.js traces to the git root, EVERYTHING is inside STANDALONE_DIR
+          # We must zip from within STANDALONE_DIR so server.js is at the root of the ZIP
+          cd "$STANDALONE_DIR"
           zip -r "$GITHUB_WORKSPACE/frontend.zip" .
           echo "--- Verifying zip contains server.js ---"
           unzip -l "$GITHUB_WORKSPACE/frontend.zip" | grep "server.js" || echo "WARNING: server.js not found in zip!"
