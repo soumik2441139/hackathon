@@ -14,7 +14,7 @@ import { timeAgo, formatSalary } from '@/lib/utils';
 export default function JobDetailPage() {
     const { id } = useParams<{ id: string }>();
     const router = useRouter();
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
 
     const [job, setJob] = useState<Job | null>(null);
     const [loading, setLoading] = useState(true);
@@ -43,6 +43,13 @@ export default function JobDetailPage() {
             .catch(err => setError(err.message || 'Failed to load job details'))
             .finally(() => setLoading(false));
     }, [id]);
+
+    useEffect(() => {
+        if (user?.savedJobs && job) {
+            const saved = user.savedJobs.some((sj: any) => typeof sj === 'string' ? sj === job._id : sj._id === job._id);
+            setIsSaved(saved);
+        }
+    }, [user?.savedJobs, job]);
 
     if (loading) return (
         <main className="pt-32 pb-20 px-6">
@@ -98,6 +105,7 @@ export default function JobDetailPage() {
             const res = await freeapi.social.saveJob(job._id);
             if (res.success) {
                 setIsSaved(res.data.isSaved);
+                await refreshUser();
             }
         } catch (err) {
             console.error('Failed to save job', err);

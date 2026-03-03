@@ -16,6 +16,7 @@ interface AuthContextValue {
         companyName?: string; companyWebsite?: string;
         companyLogo?: string;
     }) => Promise<void>;
+    refreshUser: () => Promise<void>;
     logout: () => void;
 }
 
@@ -109,8 +110,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push('/');
     }, [router]);
 
+    const refreshUser = useCallback(async () => {
+        try {
+            const res = await auth.getMe();
+            if (res.success && res.data) {
+                const currentToken = localStorage.getItem('opushire_token') || token;
+                if (currentToken) {
+                    persist(res.data, currentToken);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to refresh user:', err);
+        }
+    }, [token]);
+
     return (
-        <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, token, loading, login, register, refreshUser, logout }}>
             {children}
         </AuthContext.Provider>
     );
