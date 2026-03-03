@@ -42,8 +42,11 @@ jobs:
           cp -r .next/static "${STANDALONE_DIR}.next/"
           cp -r public "${STANDALONE_DIR}public" 2>/dev/null || true
           
-          # Since Next.js traces to the git root, EVERYTHING is inside STANDALONE_DIR
-          # We must zip from within STANDALONE_DIR so server.js is at the root of the ZIP
+          # Since Next.js traces to the git root, server.js is inside STANDALONE_DIR, 
+          # but node_modules is hoisted to the root of .next/standalone/
+          # We must move node_modules INTO STANDALONE_DIR so we can zip everything together
+          mv .next/standalone/node_modules "$STANDALONE_DIR" || true
+          
           cd "$STANDALONE_DIR"
           zip -r "$GITHUB_WORKSPACE/frontend.zip" .
           echo "--- Verifying zip contains server.js ---"
