@@ -134,10 +134,12 @@ export default function StudentDashboard() {
                                         <AnimatePresence>
                                             {isNotificationsOpen && (
                                                 <motion.div
-                                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
                                                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                    className="absolute right-0 mt-4 w-80 glass-card p-6 z-50 border-orange-500/20 shadow-2xl"
+                                                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                                                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                                                    style={{ transformOrigin: 'top right' }}
+                                                    className="absolute right-0 mt-3 w-80 rounded-2xl bg-[#2A2A2E] border border-orange-500/20 p-6 z-50 shadow-2xl shadow-black/40"
                                                 >
                                                     <h3 className="font-bold mb-4 text-xs uppercase tracking-[0.2em] text-orange-400">Notifications</h3>
                                                     <div className="space-y-3">
@@ -163,10 +165,12 @@ export default function StudentDashboard() {
                                         <AnimatePresence>
                                             {isSettingsOpen && (
                                                 <motion.div
-                                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
                                                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                    className="absolute right-0 mt-4 w-72 glass-card p-6 z-50 border-yellow-500/20 shadow-2xl"
+                                                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                                                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                                                    style={{ transformOrigin: 'top left' }}
+                                                    className="absolute left-0 mt-3 w-72 rounded-2xl bg-[#2A2A2E] border border-yellow-500/20 p-6 z-50 shadow-2xl shadow-black/40"
                                                 >
                                                     <h3 className="font-bold mb-4 text-xs uppercase tracking-[0.2em] text-yellow-400">Preferences</h3>
                                                     <div className="space-y-4">
