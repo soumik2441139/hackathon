@@ -26,13 +26,18 @@ jobs:
       - name: npm install, build, and zip standalone
         working-directory: opushire
         run: |
+          set -e
           npm install
           echo "NEXT_PUBLIC_API_URL=https://opushire-backend.azurewebsites.net/api" > .env.production
           npm run build --if-present
+          echo "--- Verifying standalone output ---"
+          ls -la .next/standalone/ || (echo "ERROR: .next/standalone not found!" && exit 1)
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public 2>/dev/null || true
           cd .next/standalone
           zip -r "$GITHUB_WORKSPACE/frontend.zip" .
+          echo "--- Verifying zip contains server.js ---"
+          unzip -l "$GITHUB_WORKSPACE/frontend.zip" | grep "server.js" || echo "WARNING: server.js not found in zip!"
 
 
       - name: Upload artifact for deployment job
