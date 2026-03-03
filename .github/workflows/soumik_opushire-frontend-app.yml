@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -45,15 +45,20 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: frontend-app
-      
+
+      - name: Unzip artifact
+        run: |
+          mkdir -p deploy
+          unzip -o frontend.zip -d deploy
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -61,12 +66,30 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_74FA6C070D134E819954A8DE818913AE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_878262FAD14243D694B9BAC094B92841 }}
 
+      - name: Configure Azure Web App settings
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: 'opushire-frontend-app'
+          app-settings-json: |
+            [
+              { "name": "WEBSITE_RUN_FROM_PACKAGE", "value": "0" },
+              { "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "false" },
+              { "name": "PORT", "value": "3000" },
+              { "name": "HOSTNAME", "value": "0.0.0.0" }
+            ]
+
+      - name: Set startup command
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az webapp config set --resource-group soumik_group --name opushire-frontend-app --startup-file "node server.js"
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'opushire-frontend-app'
           slot-name: 'Production'
-          package: frontend.zip
+          package: deploy
           clean: true
           restart: true
