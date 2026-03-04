@@ -7,7 +7,7 @@ function getToken(): string | null {
 
 async function request<T>(
     path: string,
-    options: RequestInit = {}
+    options: RequestInit = { cache: 'no-store' }
 ): Promise<T> {
     const token = getToken();
     const headers: Record<string, string> = {
