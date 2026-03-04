@@ -25,7 +25,7 @@ export async function estimateSalaryWithAI(jobId: string) {
         // Extract basic body text from Google Search results
         const html = await page.evaluate(() => {
             const scripts = document.querySelectorAll('script, style, noscript');
-            scripts.forEach(s => s.remove());
+            scripts.forEach((s: any) => s.remove());
             return document.body.innerText;
         });
 
