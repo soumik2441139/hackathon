@@ -27,6 +27,16 @@ let lastStatus: BotStatus = {
     totalDuplicates: 0,
 };
 
+const BLOCKED_LOCATIONS = [
+    'germany', 'switzerland', 'berlin', 'munich', 'frankfurt', 'zurich', 'geneva', 'basel', 'hamburg', 'cologne', 'stuttgart', 'dusseldorf', 'bern', 'lausanne'
+];
+
+function isBlockedJob(job: NormalizedJob): boolean {
+    const textToCheck = `${job.location} ${job.city} ${job.title}`.toLowerCase();
+    const regex = new RegExp(`\\b(${BLOCKED_LOCATIONS.join('|')})\\b`, 'i');
+    return regex.test(textToCheck);
+}
+
 async function storeJobs(jobs: NormalizedJob[], sourceName: string): Promise<FetchResult> {
     const result: FetchResult = {
         source: sourceName,
@@ -37,6 +47,11 @@ async function storeJobs(jobs: NormalizedJob[], sourceName: string): Promise<Fet
     };
 
     for (const job of jobs) {
+        if (isBlockedJob(job)) {
+            result.errors.push(`Excluded location: ${job.location || job.city || job.title}`);
+            continue;
+        }
+
         try {
             const exists = await BotJob.findOne({ externalId: job.externalId });
             if (exists) {

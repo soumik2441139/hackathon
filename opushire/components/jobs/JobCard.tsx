@@ -60,7 +60,15 @@ export const JobCard = ({ job }: JobCardProps) => {
                 <Link href={`/jobs/${job._id}`} className="flex-1">
                     <Button variant="glass" className="w-full h-10 font-bold uppercase tracking-widest text-[10px]">Details</Button>
                 </Link>
-                <Button variant="primary" className="px-8 h-10 font-bold uppercase tracking-widest text-[10px]">Apply</Button>
+                {job.externalUrl ? (
+                    <Link href={job.externalUrl} target="_blank" rel="noopener noreferrer">
+                        <Button variant="primary" className="px-8 h-10 font-bold uppercase tracking-widest text-[10px]">Apply</Button>
+                    </Link>
+                ) : (
+                    <Link href={`/jobs/${job._id}`}>
+                        <Button variant="primary" className="px-8 h-10 font-bold uppercase tracking-widest text-[10px]">Apply</Button>
+                    </Link>
+                )}
             </div>
         </div>
     );

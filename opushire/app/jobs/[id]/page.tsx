@@ -69,6 +69,10 @@ export default function JobDetailPage() {
     );
 
     const handleApplyClick = () => {
+        if (job?.externalUrl) {
+            window.open(job.externalUrl, '_blank', 'noopener,noreferrer');
+            return;
+        }
         if (!user) { router.push('/login'); return; }
         if (user.role !== 'student') return;
         setShowApplyModal(true);

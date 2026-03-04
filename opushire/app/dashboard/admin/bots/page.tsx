@@ -292,34 +292,47 @@ export default function AdminBotsDashboard() {
                                     </div>
 
                                     <div className="flex items-center gap-3 relative z-10 w-full">
-                                        {bot.status === 'online' ? (
+                                        {bot.id === 'bot5-cleaner' ? (
                                             <motion.button
-                                                onClick={() => handleAction(bot.id, 'stop')}
-                                                whileHover={{ scale: 1.04, backgroundColor: 'rgba(239,68,68,1)', color: '#fff' }}
+                                                onClick={() => window.location.href = '/dashboard/admin/cleaner'}
+                                                whileHover={{ scale: 1.04, backgroundColor: 'rgba(249,115,22,1)', color: '#fff' }}
                                                 whileTap={{ scale: 0.95 }}
-                                                className="flex flex-1 justify-center items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 text-sm font-bold cursor-pointer"
+                                                className="flex flex-1 justify-center items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 text-orange-500 border border-orange-500/30 text-sm font-bold cursor-pointer"
                                             >
-                                                <Square size={15} /> Stop Agent
+                                                <ShieldAlert size={15} /> Open Cleaner Dashboard
                                             </motion.button>
                                         ) : (
-                                            <motion.button
-                                                onClick={() => handleAction(bot.id, 'start')}
-                                                whileHover={{ scale: 1.04, backgroundColor: 'rgba(16,185,129,1)', color: '#fff' }}
-                                                whileTap={{ scale: 0.95 }}
-                                                className="flex flex-1 justify-center items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-sm font-bold cursor-pointer"
-                                            >
-                                                <Play size={15} /> Start Force
-                                            </motion.button>
-                                        )}
+                                            <>
+                                                {bot.status === 'online' ? (
+                                                    <motion.button
+                                                        onClick={() => handleAction(bot.id, 'stop')}
+                                                        whileHover={{ scale: 1.04, backgroundColor: 'rgba(239,68,68,1)', color: '#fff' }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        className="flex flex-1 justify-center items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 text-sm font-bold cursor-pointer"
+                                                    >
+                                                        <Square size={15} /> Stop Agent
+                                                    </motion.button>
+                                                ) : (
+                                                    <motion.button
+                                                        onClick={() => handleAction(bot.id, 'start')}
+                                                        whileHover={{ scale: 1.04, backgroundColor: 'rgba(16,185,129,1)', color: '#fff' }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        className="flex flex-1 justify-center items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-sm font-bold cursor-pointer"
+                                                    >
+                                                        <Play size={15} /> Start Force
+                                                    </motion.button>
+                                                )}
 
-                                        <motion.button
-                                            onClick={() => setSelectedBotId(bot.id)}
-                                            whileHover={{ scale: 1.04, backgroundColor: 'rgba(255,255,255,0.06)', color: '#fff' }}
-                                            whileTap={{ scale: 0.95 }}
-                                            className="flex flex-1 justify-center items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-white/50 text-sm font-bold cursor-pointer"
-                                        >
-                                            <TerminalIcon size={15} /> Logs
-                                        </motion.button>
+                                                <motion.button
+                                                    onClick={() => setSelectedBotId(bot.id)}
+                                                    whileHover={{ scale: 1.04, backgroundColor: 'rgba(255,255,255,0.06)', color: '#fff' }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    className="flex flex-1 justify-center items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-white/50 text-sm font-bold cursor-pointer"
+                                                >
+                                                    <TerminalIcon size={15} /> Logs
+                                                </motion.button>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             );

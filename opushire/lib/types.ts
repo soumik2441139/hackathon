@@ -43,6 +43,7 @@ export interface Job {
     posted: string;
     postedBy: string | Partial<User>;
     postedByModel?: 'Recruiter' | 'Admin';
+    externalUrl?: string;
     createdAt: string;
     updatedAt: string;
 }
