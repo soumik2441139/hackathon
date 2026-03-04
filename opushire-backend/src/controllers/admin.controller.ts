@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as AdminService from '../services/admin.service';
+import { autoFixJobWithAI } from '../services/ai-extractor.service';
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -56,6 +57,15 @@ export const debugDatabase = async (req: Request, res: Response, next: NextFunct
         const force = req.query.force === 'true';
         const debugInfo = await AdminService.debugDatabase(force);
         res.json({ success: true, data: debugInfo });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const autoFixJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await autoFixJobWithAI(req.params.id as string);
+        res.json({ success: true, data: result });
     } catch (err) {
         next(err);
     }

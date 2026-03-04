@@ -13,6 +13,7 @@ router.delete('/users/:id', AdminController.deleteUser);
 router.get('/stats', AdminController.getSystemStats);
 router.get('/pending-jobs', AdminController.getPendingJobs);
 router.post('/apply-fix/:id', AdminController.resolvePendingJob);
+router.post('/cleaner/auto-fix/:id', AdminController.autoFixJob);
 router.get('/debug-db', AdminController.debugDatabase);
 
 export default router;

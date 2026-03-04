@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     Search, Trash2, ArrowLeft, DatabaseZap,
-    Filter, AlertCircle, RefreshCcw, Edit, X, Save
+    Filter, AlertCircle, RefreshCcw, Edit, X, Save, Sparkles
 } from 'lucide-react';
-import { jobs as jobsApi } from '@/lib/api';
+import { jobs as jobsApi, admin as adminApi } from '@/lib/api';
 import { Job } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -27,6 +27,7 @@ export default function CleanerDashboard() {
     const [editingJob, setEditingJob] = useState<Job | null>(null);
     const [editForm, setEditForm] = useState<Partial<Job>>({});
     const [saving, setSaving] = useState(false);
+    const [autoFixing, setAutoFixing] = useState<string | null>(null);
 
     useEffect(() => {
         if (user?.role === 'admin') {
@@ -142,6 +143,20 @@ export default function CleanerDashboard() {
             alert('Failed to update job: ' + err.message);
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleAutoFix = async (id: string) => {
+        setAutoFixing(id);
+        try {
+            const res = await adminApi.autoFixJob(id);
+            if (res.success && res.data) {
+                setJobs(prev => prev.map(j => j._id === id ? { ...j, title: res.data.title, company: res.data.company } as Job : j));
+            }
+        } catch (err: any) {
+            alert('Failed to auto-fix job: ' + err.message);
+        } finally {
+            setAutoFixing(null);
         }
     };
 
@@ -319,6 +334,17 @@ export default function CleanerDashboard() {
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.9 }}
+                                                        onClick={() => handleAutoFix(job._id)}
+                                                        disabled={autoFixing === job._id || !job.externalUrl}
+                                                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${!job.externalUrl ? 'bg-gray-500/10 text-gray-500 border border-gray-500/20 cursor-not-allowed' : 'bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500 hover:text-white'
+                                                            }`}
+                                                        title={!job.externalUrl ? "No external URL available" : "Auto-Fix with AI"}
+                                                    >
+                                                        {autoFixing === job._id ? <RefreshCcw size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                                                    </motion.button>
                                                     <motion.button
                                                         whileHover={{ scale: 1.1 }}
                                                         whileTap={{ scale: 0.9 }}

@@ -205,6 +205,11 @@ export const admin = {
             body: JSON.stringify({ action })
         }),
 
+    autoFixJob: (id: string) =>
+        request<{ success: boolean; data: import('./types').Job }>(`/admin/cleaner/auto-fix/${id}`, {
+            method: 'POST'
+        }),
+
     bots: {
         getStatuses: () =>
             request<{ success: boolean; data: any[] }>('/admin/bots'),
