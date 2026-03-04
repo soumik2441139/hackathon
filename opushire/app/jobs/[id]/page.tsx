@@ -136,12 +136,16 @@ export default function JobDetailPage() {
                             <ScrollReveal direction="right">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                                     <div className="flex gap-5">
-                                        <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-4xl overflow-hidden shrink-0">
-                                            {job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? (
-                                                <img src={job.companyLogo} alt={`${job.company} logo`} className="w-full h-full object-contain p-2" />
-                                            ) : (
-                                                job.companyLogo || '🏢'
-                                            )}
+                                        <div className="w-20 h-20 rounded-2xl bg-white border border-white/10 flex items-center justify-center text-4xl overflow-hidden shrink-0 relative shadow-lg">
+                                            <img
+                                                src={job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? job.companyLogo : `https://logo.clearbit.com/${job.company.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`}
+                                                alt={`${job.company} logo`}
+                                                className="w-full h-full object-contain p-2 z-10 bg-white"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).style.display = 'none';
+                                                }}
+                                            />
+                                            <span className="text-brand-dark font-bold absolute z-0">{job.companyLogo && !job.companyLogo.startsWith('http') && job.companyLogo !== '🏢' ? job.companyLogo : '🏢'}</span>
                                         </div>
                                         <div>
                                             <h1 className="text-3xl md:text-4xl font-black mb-1.5 text-brand-text">{job.title}</h1>
