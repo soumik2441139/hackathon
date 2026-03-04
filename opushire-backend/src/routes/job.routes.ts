@@ -15,4 +15,6 @@ router.post('/', authenticate, requireRole('admin', 'recruiter'), JobController.
 router.put('/:id', authenticate, requireRole('admin', 'recruiter'), JobController.updateJob);
 router.delete('/:id', authenticate, requireRole('admin', 'recruiter'), JobController.deleteJob);
 
+router.post('/:id/auto-apply', authenticate, requireRole('student', 'admin'), JobController.autoApply);
+
 export default router;

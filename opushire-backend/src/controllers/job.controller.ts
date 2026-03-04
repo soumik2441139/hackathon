@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import * as JobService from '../services/job.service';
 import { jobFilterSchema, createJobSchema } from '../services/job.service';
+import { autoApplyToJob } from '../services/auto-apply.service';
 
 export const getJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -54,6 +55,15 @@ export const getRecruiterStats = async (req: AuthRequest, res: Response, next: N
     try {
         const stats = await JobService.getRecruiterStats(req.user!.id);
         res.json({ success: true, data: stats });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const autoApply = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const result = await autoApplyToJob(req.params.id as string, req.user!.id);
+        res.json(result);
     } catch (err) {
         next(err);
     }

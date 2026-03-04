@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { ApplyModal } from '@/components/jobs/ApplyModal';
-import { ArrowLeft, ChevronRight, Share2, Bookmark, CheckCircle2, BookmarkCheck, MessageSquare } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Share2, Bookmark, CheckCircle2, BookmarkCheck, MessageSquare, Sparkles } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { timeAgo, formatSalary } from '@/lib/utils';
 
@@ -21,6 +21,7 @@ export default function JobDetailPage() {
     const [error, setError] = useState('');
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [applied, setApplied] = useState(false);
+    const [autoApplying, setAutoApplying] = useState(false);
 
     // FreeAPI Social State
     const [isSaved, setIsSaved] = useState(false);
@@ -76,6 +77,24 @@ export default function JobDetailPage() {
         if (!user) { router.push('/login'); return; }
         if (user.role !== 'student') return;
         setShowApplyModal(true);
+    };
+
+    const handleAutoApply = async () => {
+        if (!user) { router.push('/login'); return; }
+        if (user.role !== 'student') return;
+
+        setAutoApplying(true);
+        try {
+            const res = await jobsApi.autoApply(job!._id as string);
+            if (res.success) {
+                setApplied(true);
+                alert(res.message);
+            }
+        } catch (err: any) {
+            alert(err.message || 'Auto-Apply Failed');
+        } finally {
+            setAutoApplying(false);
+        }
     };
 
     const handleMessageRecruiter = async () => {
@@ -227,13 +246,27 @@ export default function JobDetailPage() {
                                             <CheckCircle2 size={20} /> Applied!
                                         </div>
                                     ) : (
-                                        <Button
-                                            className="w-full h-14 text-lg"
-                                            onClick={handleApplyClick}
-                                            disabled={user?.role === 'admin'}
-                                        >
-                                            {!user ? 'Login to Apply' : user.role === 'admin' ? 'Admin View' : 'Apply Now'}
-                                        </Button>
+                                        <div className="space-y-3">
+                                            <Button
+                                                className="w-full h-14 text-lg bg-emerald-500 text-white hover:bg-emerald-600 border-none relative overflow-hidden group"
+                                                onClick={handleAutoApply}
+                                                disabled={autoApplying || user?.role === 'admin' || !job.externalUrl}
+                                            >
+                                                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+                                                <span className="flex items-center justify-center gap-2">
+                                                    {autoApplying ? <span className="animate-spin w-5 h-5 border-2 border-white/50 border-t-transparent rounded-full" /> : <Sparkles size={20} />}
+                                                    {autoApplying ? 'Injecting Data...' : '1-Click AI Auto-Apply'}
+                                                </span>
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full h-12 border-white/10"
+                                                onClick={handleApplyClick}
+                                                disabled={user?.role === 'admin'}
+                                            >
+                                                {!user ? 'Login to Apply' : user.role === 'admin' ? 'Admin View' : 'Apply Manually'}
+                                            </Button>
+                                        </div>
                                     )}
 
                                     <div className="flex gap-4">

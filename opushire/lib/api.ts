@@ -145,6 +145,11 @@ export const jobs = {
 
     getStats: () =>
         request<{ success: boolean; data: { activeJobs: number; totalApplicants: number; profileViews: string } }>('/jobs/stats/me'),
+
+    autoApply: (id: string) =>
+        request<{ success: boolean; message: string }>(`/jobs/${id}/auto-apply`, {
+            method: 'POST',
+        }),
 };
 
 // ─── Applications ─────────────────────────────────────────────────────────────
