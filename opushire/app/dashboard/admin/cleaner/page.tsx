@@ -21,6 +21,7 @@ export default function CleanerDashboard() {
     const [search, setSearch] = useState('');
     const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'featured'>('newest');
     const [filterSource, setFilterSource] = useState<string>('all');
+    const [selectedJobs, setSelectedJobs] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         if (user?.role === 'admin') {
@@ -63,11 +64,53 @@ export default function CleanerDashboard() {
         try {
             await jobsApi.delete(id);
             setJobs(prev => prev.filter(j => j._id !== id));
+            setSelectedJobs(prev => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+            });
         } catch (err: any) {
             alert('Failed to delete job: ' + err.message);
         } finally {
             setDeleting(null);
         }
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedJobs.size === 0) return;
+        if (!confirm(`Are you sure you want to permanently delete ${selectedJobs.size} jobs?`)) return;
+
+        setDeleting('bulk');
+        try {
+            const arr = Array.from(selectedJobs);
+            for (const id of arr) {
+                await jobsApi.delete(id);
+            }
+            setJobs(prev => prev.filter(j => !selectedJobs.has(j._id)));
+            setSelectedJobs(new Set());
+        } catch (err: any) {
+            alert('Failed to delete some jobs: ' + err.message);
+        } finally {
+            setDeleting(null);
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedJobs.size === filteredJobs.length && filteredJobs.length > 0) {
+            setSelectedJobs(new Set());
+        } else {
+            setSelectedJobs(new Set(filteredJobs.map(j => j._id)));
+        }
+    };
+
+    const toggleSelectJob = (id: string) => {
+        const next = new Set(selectedJobs);
+        if (next.has(id)) {
+            next.delete(id);
+        } else {
+            next.add(id);
+        }
+        setSelectedJobs(next);
     };
 
     if (user?.role !== 'admin') {
@@ -163,11 +206,40 @@ export default function CleanerDashboard() {
                     </div>
                 </div>
 
+                {selectedJobs.size > 0 && (
+                    <div className="flex items-center justify-between bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-8">
+                        <div className="flex items-center gap-3 text-red-400">
+                            <Trash2 size={18} />
+                            <span className="font-bold">{selectedJobs.size} jobs selected</span>
+                        </div>
+                        <button
+                            onClick={handleBulkDelete}
+                            disabled={deleting === 'bulk'}
+                            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg text-sm transition-colors flex items-center gap-2"
+                        >
+                            {deleting === 'bulk' ? <RefreshCcw size={14} className="animate-spin" /> : 'Delete Selected'}
+                        </button>
+                    </div>
+                )}
+
                 <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-white/5 text-[10px] uppercase font-black tracking-widest text-white/40 border-b border-white/10">
                                 <tr>
+                                    <th className="px-6 py-4 w-12 text-center">
+                                        <input
+                                            type="checkbox"
+                                            className="w-4 h-4 rounded border-white/10 bg-black/50 accent-orange-500 cursor-pointer"
+                                            checked={selectedJobs.size > 0 && selectedJobs.size === filteredJobs.length}
+                                            ref={input => {
+                                                if (input) {
+                                                    input.indeterminate = selectedJobs.size > 0 && selectedJobs.size < filteredJobs.length;
+                                                }
+                                            }}
+                                            onChange={toggleSelectAll}
+                                        />
+                                    </th>
                                     <th className="px-6 py-4">Job Title</th>
                                     <th className="px-6 py-4">Company</th>
                                     <th className="px-6 py-4">Location</th>
@@ -178,19 +250,27 @@ export default function CleanerDashboard() {
                             <tbody className="divide-y divide-white/5">
                                 {loading && jobs.length === 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-white/30 italic">
+                                        <td colSpan={6} className="px-6 py-12 text-center text-white/30 italic">
                                             Executing database scan...
                                         </td>
                                     </tr>
                                 ) : filteredJobs.length === 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-white/30 italic">
+                                        <td colSpan={6} className="px-6 py-12 text-center text-white/30 italic">
                                             No jobs match the current matrix parameters.
                                         </td>
                                     </tr>
                                 ) : (
                                     filteredJobs.map((job: any) => (
                                         <tr key={job._id} className="hover:bg-white/5 transition-colors group">
+                                            <td className="px-6 py-4 text-center">
+                                                <input
+                                                    type="checkbox"
+                                                    className="w-4 h-4 rounded border-white/10 bg-black/50 accent-orange-500 cursor-pointer"
+                                                    checked={selectedJobs.has(job._id)}
+                                                    onChange={() => toggleSelectJob(job._id)}
+                                                />
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
                                                     {job.featured && <span className="w-2 h-2 rounded-full bg-brand-violet animate-pulse" title="Featured" />}
