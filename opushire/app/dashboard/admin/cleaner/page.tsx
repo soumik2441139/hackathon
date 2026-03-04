@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     Search, Trash2, ArrowLeft, DatabaseZap,
-    Filter, AlertCircle, RefreshCcw
+    Filter, AlertCircle, RefreshCcw, Edit, X, Save
 } from 'lucide-react';
 import { jobs as jobsApi } from '@/lib/api';
 import { Job } from '@/lib/types';
@@ -22,6 +22,11 @@ export default function CleanerDashboard() {
     const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'featured'>('newest');
     const [filterSource, setFilterSource] = useState<string>('all');
     const [selectedJobs, setSelectedJobs] = useState<Set<string>>(new Set());
+
+    // Edit Modal State
+    const [editingJob, setEditingJob] = useState<Job | null>(null);
+    const [editForm, setEditForm] = useState<Partial<Job>>({});
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         if (user?.role === 'admin') {
@@ -111,6 +116,33 @@ export default function CleanerDashboard() {
             next.add(id);
         }
         setSelectedJobs(next);
+    };
+
+    const handleEditClick = (job: Job) => {
+        setEditingJob(job);
+        setEditForm({
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            externalUrl: job.externalUrl,
+            description: job.description
+        });
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editingJob) return;
+        setSaving(true);
+        try {
+            const res = await jobsApi.update(editingJob._id as string, editForm);
+            if (res.success) {
+                setJobs(prev => prev.map(j => j._id === editingJob._id ? { ...j, ...editForm } as Job : j));
+                setEditingJob(null);
+            }
+        } catch (err: any) {
+            alert('Failed to update job: ' + err.message);
+        } finally {
+            setSaving(false);
+        }
     };
 
     if (user?.role !== 'admin') {
@@ -286,20 +318,31 @@ export default function CleanerDashboard() {
                                                 <span className="uppercase text-[10px] tracking-wider font-bold text-white/50">{job.source || 'Manual'}</span>
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <motion.button
-                                                    whileHover={{ scale: 1.1 }}
-                                                    whileTap={{ scale: 0.9 }}
-                                                    onClick={() => handleDelete(job._id, job.title)}
-                                                    disabled={deleting === job._id}
-                                                    className="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 flex items-center justify-center ml-auto hover:bg-red-500 hover:text-white transition-colors"
-                                                    title="Permanently Delete Job"
-                                                >
-                                                    {deleting === job._id ? (
-                                                        <RefreshCcw size={14} className="animate-spin" />
-                                                    ) : (
-                                                        <Trash2 size={14} />
-                                                    )}
-                                                </motion.button>
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.9 }}
+                                                        onClick={() => handleEditClick(job)}
+                                                        className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-colors"
+                                                        title="Edit Job"
+                                                    >
+                                                        <Edit size={14} />
+                                                    </motion.button>
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.9 }}
+                                                        onClick={() => handleDelete(job._id, job.title)}
+                                                        disabled={deleting === job._id}
+                                                        className="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
+                                                        title="Permanently Delete Job"
+                                                    >
+                                                        {deleting === job._id ? (
+                                                            <RefreshCcw size={14} className="animate-spin" />
+                                                        ) : (
+                                                            <Trash2 size={14} />
+                                                        )}
+                                                    </motion.button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
@@ -309,6 +352,85 @@ export default function CleanerDashboard() {
                     </div>
                 </div>
             </div>
+
+            {editingJob && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-[#111] border border-white/10 p-6 rounded-2xl w-full max-w-2xl shadow-2xl overflow-y-auto max-h-[90vh]"
+                    >
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-2xl font-black uppercase tracking-widest text-white flex items-center gap-2">
+                                <Edit size={24} className="text-blue-500" />
+                                Edit Job Details
+                            </h2>
+                            <button onClick={() => setEditingJob(null)} className="text-white/40 hover:text-white transition-colors">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-1">Job Title</label>
+                                <input
+                                    type="text"
+                                    value={editForm.title || ''}
+                                    onChange={e => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 transition-colors"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-1">Company</label>
+                                    <input
+                                        type="text"
+                                        value={editForm.company || ''}
+                                        onChange={e => setEditForm(prev => ({ ...prev, company: e.target.value }))}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 transition-colors"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-1">Location</label>
+                                    <input
+                                        type="text"
+                                        value={editForm.location || ''}
+                                        onChange={e => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 transition-colors"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-1">External Application URL</label>
+                                <input
+                                    type="text"
+                                    value={editForm.externalUrl || ''}
+                                    onChange={e => setEditForm(prev => ({ ...prev, externalUrl: e.target.value }))}
+                                    placeholder="https://"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-blue-500/50 transition-colors"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="mt-8 flex justify-end gap-3">
+                            <button
+                                onClick={() => setEditingJob(null)}
+                                className="px-6 py-3 rounded-xl border border-white/10 text-white/60 hover:text-white hover:bg-white/5 font-bold transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveEdit}
+                                disabled={saving}
+                                className="px-6 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold transition-colors flex items-center gap-2"
+                            >
+                                {saving ? <RefreshCcw size={16} className="animate-spin" /> : <Save size={16} />}
+                                Save Changes
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </main>
     );
 }
