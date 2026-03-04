@@ -27,7 +27,7 @@ async function main() {
     if (status.totalNew > 0) {
         const today = new Date().toISOString().split('T')[0];
         try {
-            await mongoose.connection.db.collection('botstats').updateOne(
+            await mongoose.connection.db!.collection('botstats').updateOne(
                 { date: today },
                 { $inc: { jobsAdded: status.totalNew } },
                 { upsert: true }

@@ -38,7 +38,7 @@ function writeLog(botId: string, lines: string[]) {
 
 function getBotScriptDir(botDir: string): string {
     const cwdPath = path.resolve(process.cwd(), botDir);
-    const relPath = path.resolve(__dirname, '../../../../', botDir);
+    const relPath = path.resolve(__dirname, '../../../', botDir);
     return process.env.NODE_ENV === 'production' ? cwdPath : relPath;
 }
 
@@ -55,12 +55,9 @@ export const startBot = (botId: string, args: string[] = []) => {
         let childUrl = 'node';
         let childArgs = [botConfig.script, ...args];
 
-        // The recruiter bot requires ts-node from local node_modules
         if ((botConfig as any).isTsNode) {
-            childUrl = 'node';
-            // Path correctly resolves the local module bin inside the dir
-            const tsNodeBin = path.join(scriptPath, 'node_modules', '.bin', 'ts-node');
-            childArgs = [tsNodeBin, 'src/cli.ts', ...args];
+            childUrl = 'npx';
+            childArgs = ['ts-node', 'src/cli.ts', ...args];
         }
 
         const child = spawn(childUrl, childArgs, {

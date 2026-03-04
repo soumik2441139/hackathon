@@ -30,7 +30,7 @@ jobs:
           npm run build --if-present
           
           # Install dependencies for each bot directory so they work on Azure
-          for botdir in bot1-scanner bot2-fixer bot3-supervisor bot4-cleanup; do
+          for botdir in recruiter-bot bot1-scanner bot2-fixer bot3-supervisor bot4-cleanup; do
             if [ -d "../$botdir" ]; then
               echo "Installing deps for $botdir..."
               cd "../$botdir"
@@ -45,7 +45,7 @@ jobs:
           
           # Add bot directories at root level of zip
           cd ..
-          for botdir in bot1-scanner bot2-fixer bot3-supervisor bot4-cleanup; do
+          for botdir in recruiter-bot bot1-scanner bot2-fixer bot3-supervisor bot4-cleanup; do
             if [ -d "$botdir" ]; then
               zip -r backend.zip "$botdir/"
               echo "Added $botdir to deployment package"
