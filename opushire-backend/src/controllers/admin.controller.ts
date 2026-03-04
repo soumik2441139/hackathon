@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as AdminService from '../services/admin.service';
 import { autoFixJobWithAI } from '../services/ai-extractor.service';
+import { estimateSalaryWithAI } from '../services/salary-estimator.service';
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -65,6 +66,15 @@ export const debugDatabase = async (req: Request, res: Response, next: NextFunct
 export const autoFixJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const result = await autoFixJobWithAI(req.params.id as string);
+        res.json({ success: true, data: result });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const estimateSalary = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await estimateSalaryWithAI(req.params.id as string);
         res.json({ success: true, data: result });
     } catch (err) {
         next(err);

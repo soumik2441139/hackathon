@@ -210,6 +210,11 @@ export const admin = {
             method: 'POST'
         }),
 
+    estimateSalary: (id: string) =>
+        request<{ success: boolean; data: import('./types').Job }>(`/admin/cleaner/estimate-salary/${id}`, {
+            method: 'POST'
+        }),
+
     bots: {
         getStatuses: () =>
             request<{ success: boolean; data: any[] }>('/admin/bots'),

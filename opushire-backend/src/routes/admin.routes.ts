@@ -14,6 +14,7 @@ router.get('/stats', AdminController.getSystemStats);
 router.get('/pending-jobs', AdminController.getPendingJobs);
 router.post('/apply-fix/:id', AdminController.resolvePendingJob);
 router.post('/cleaner/auto-fix/:id', AdminController.autoFixJob);
+router.post('/cleaner/estimate-salary/:id', AdminController.estimateSalary);
 router.get('/debug-db', AdminController.debugDatabase);
 
 export default router;

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     Search, Trash2, ArrowLeft, DatabaseZap,
-    Filter, AlertCircle, RefreshCcw, Edit, X, Save, Sparkles
+    Filter, AlertCircle, RefreshCcw, Edit, X, Save, Sparkles, DollarSign
 } from 'lucide-react';
 import { jobs as jobsApi, admin as adminApi } from '@/lib/api';
 import { Job } from '@/lib/types';
@@ -28,6 +28,7 @@ export default function CleanerDashboard() {
     const [editForm, setEditForm] = useState<Partial<Job>>({});
     const [saving, setSaving] = useState(false);
     const [autoFixing, setAutoFixing] = useState<string | null>(null);
+    const [estimatingSalary, setEstimatingSalary] = useState<string | null>(null);
 
     useEffect(() => {
         if (user?.role === 'admin') {
@@ -157,6 +158,22 @@ export default function CleanerDashboard() {
             alert('Failed to auto-fix job: ' + err.message);
         } finally {
             setAutoFixing(null);
+        }
+    };
+
+    const handleEstimateSalary = async (id: string, currentSalary?: string) => {
+        if (currentSalary && !confirm(`This job already has a salary (${currentSalary}). Overwrite with AI estimation?`)) return;
+
+        setEstimatingSalary(id);
+        try {
+            const res = await adminApi.estimateSalary(id);
+            if (res.success && res.data) {
+                setJobs(prev => prev.map(j => j._id === id ? { ...j, salary: res.data.salary } as Job : j));
+            }
+        } catch (err: any) {
+            alert('Failed to estimate salary: ' + err.message);
+        } finally {
+            setEstimatingSalary(null);
         }
     };
 
@@ -334,6 +351,16 @@ export default function CleanerDashboard() {
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.9 }}
+                                                        onClick={() => handleEstimateSalary(job._id, job.salary)}
+                                                        disabled={estimatingSalary === job._id}
+                                                        className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-colors"
+                                                        title="Estimate Salary via Google Search AI"
+                                                    >
+                                                        {estimatingSalary === job._id ? <RefreshCcw size={14} className="animate-spin" /> : <DollarSign size={14} />}
+                                                    </motion.button>
                                                     <motion.button
                                                         whileHover={{ scale: 1.1 }}
                                                         whileTap={{ scale: 0.9 }}

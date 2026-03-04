@@ -8,7 +8,7 @@ export const BOTS = [
     { id: 'bot1-scanner', name: 'Scanner', description: 'Scans new jobs and flags broken tag tiles.', dir: 'bot1-scanner', script: 'scan.js', color: '#06b6d4' },
     { id: 'bot2-fixer', name: 'Fixer', description: 'Takes flagged tags and generates keywords via Gemini LLM.', dir: 'bot2-fixer', script: 'fix.js', color: '#eab308' },
     { id: 'bot3-supervisor', name: 'Supervisor', description: 'QA Agent utilizing Groq Llama-3 to prevent hallucination.', dir: 'bot3-supervisor', script: 'supervise.js', color: '#d946ef' },
-    { id: 'bot4-cleanup', name: 'Archiver', description: 'Soft-archives week-old jobs & hard deletes 3-week-old data.', dir: 'bot4-cleanup', script: 'cleanup.js', color: '#22c55e' },
+    { id: 'bot4-archiver', name: 'Ghost Detector', description: 'Visits active links with Puppeteer to archive dead positions.', dir: 'bot4-archiver', script: 'archive.js', color: '#22c55e' },
     { id: 'bot5-cleaner', name: 'Cleaner', description: 'Manual database interaction layer for direct job purging.', dir: 'frontend', script: 'n/a', color: '#f97316', isManual: true }
 ];
 
