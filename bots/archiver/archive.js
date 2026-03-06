@@ -1,5 +1,5 @@
-require('dotenv').config({ path: '../opushire-backend/.env' });
-require('dotenv').config({ path: '../recruiter-bot/.env' });
+require('dotenv').config({ path: '../../opushire-backend/.env' });
+require('dotenv').config({ path: '../../recruiter-bot/.env' });
 require('dotenv').config({ path: '.env' });
 
 const { MongoClient } = require('mongodb');

@@ -3,10 +3,10 @@ const path = require('path');
 
 // Configuration for all sub-agents in the ecosystem
 const bots = [
-    { name: 'Scanner', dir: 'bot1-scanner', script: 'scan.js', color: '\x1b[36m' },     // Cyan
-    { name: 'Fixer', dir: 'bot2-fixer', script: 'fix.js', color: '\x1b[33m' },         // Yellow
-    { name: 'Supervisor', dir: 'bot3-supervisor', script: 'supervise.js', color: '\x1b[35m' }, // Magenta
-    { name: 'Archiver', dir: 'bot4-cleanup', script: 'cleanup.js', color: '\x1b[32m' }     // Green
+    { name: 'Scanner', dir: 'bots/scanner', script: 'scan.js', color: '\x1b[36m' },     // Cyan
+    { name: 'Fixer', dir: 'bots/fixer', script: 'fix.js', color: '\x1b[33m' },         // Yellow
+    { name: 'Supervisor', dir: 'bots/supervisor', script: 'supervise.js', color: '\x1b[35m' }, // Magenta
+    { name: 'Archiver', dir: 'bots/cleanup', script: 'cleanup.js', color: '\x1b[32m' }     // Green
 ];
 
 console.log('🚀 Starting OpusHire Autonomous AI Bot Ecosystem...\n');

@@ -184,6 +184,7 @@ export default function AdminBotsDashboard() {
             case 'bot2-fixer': return { label: 'Fixes Proposed', value: stats.fixesMade || 0 };
             case 'bot3-supervisor': return { label: 'Fixes Verified', value: stats.approvals || 0 };
             case 'bot4-cleanup': return { label: 'Jobs Archived', value: stats.jobsArchived || 0 };
+            case 'bot6-archiver': return { label: 'Ghost Jobs Removed', value: stats.jobsArchived || 0 };
             default: return { label: 'No Data', value: 0 };
         }
     };

@@ -5,11 +5,12 @@ import fs from 'fs';
 
 export const BOTS = [
     { id: 'bot0-recruiter', name: 'Recruiter', description: 'Scrapes jobs from integrated sources.', dir: 'recruiter-bot', script: os.platform() === 'win32' ? 'npx.cmd ts-node src/cli.ts' : 'npx ts-node src/cli.ts', isTsNode: true, color: '#ff4b4b' },
-    { id: 'bot1-scanner', name: 'Scanner', description: 'Scans new jobs and flags broken tag tiles.', dir: 'bot1-scanner', script: 'scan.js', color: '#06b6d4' },
-    { id: 'bot2-fixer', name: 'Fixer', description: 'Takes flagged tags and generates keywords via Gemini LLM.', dir: 'bot2-fixer', script: 'fix.js', color: '#eab308' },
-    { id: 'bot3-supervisor', name: 'Supervisor', description: 'QA Agent utilizing Groq Llama-3 to prevent hallucination.', dir: 'bot3-supervisor', script: 'supervise.js', color: '#d946ef' },
-    { id: 'bot4-archiver', name: 'Ghost Detector', description: 'Visits active links with Puppeteer to archive dead positions.', dir: 'bot4-archiver', script: 'archive.js', color: '#22c55e' },
-    { id: 'bot5-cleaner', name: 'Cleaner', description: 'Manual database interaction layer for direct job purging.', dir: 'frontend', script: 'n/a', color: '#f97316', isManual: true }
+    { id: 'bot1-scanner', name: 'Scanner', description: 'Scans new jobs and flags broken tag tiles.', dir: 'bots/scanner', script: 'scan.js', color: '#06b6d4' },
+    { id: 'bot2-fixer', name: 'Fixer', description: 'Takes flagged tags and generates keywords via Gemini LLM.', dir: 'bots/fixer', script: 'fix.js', color: '#eab308' },
+    { id: 'bot3-supervisor', name: 'Supervisor', description: 'QA Agent utilizing Groq Llama-3 to prevent hallucination.', dir: 'bots/supervisor', script: 'supervise.js', color: '#d946ef' },
+    { id: 'bot4-cleanup', name: 'Cleaner', description: 'Removes old or invalid job postings through record rotation.', dir: 'bots/cleanup', script: 'cleanup.js', color: '#22c55e' },
+    { id: 'bot5-cleaner', name: 'Cleaner', description: 'Manual database interaction layer for direct job purging.', dir: 'frontend', script: 'n/a', color: '#f97316', isManual: true },
+    { id: 'bot6-archiver', name: 'Ghost Detector', description: 'Visits active links with Puppeteer to archive dead positions.', dir: 'bots/archiver', script: 'archive.js', color: '#10b981' }
 ];
 
 interface BotProcess {

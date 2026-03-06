@@ -17,6 +17,12 @@
     "url": "https://github.com/soumik2441139/hackathon/issues"
   },
   "homepage": "https://github.com/soumik2441139/hackathon#readme",
+  "workspaces": [
+    "opushire",
+    "opushire-backend",
+    "bots/*",
+    "recruiter-bot"
+  ],
   "dependencies": {
     "dotenv": "^17.3.1",
     "mongodb": "^7.1.0",

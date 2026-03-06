@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
 import { Job } from '../models/Job';
+import { routeAIExtraction } from './ai-router.service';
 
 export async function autoFixJobWithAI(jobId: string) {
     const job = await Job.findById(jobId);
@@ -27,59 +28,35 @@ export async function autoFixJobWithAI(jobId: string) {
         let bodyText = $('body').text().replace(/\s+/g, ' ').trim();
         bodyText = bodyText.substring(0, 4000); // Give Groq ~4000 chars
 
-        const prompt = `You are an expert job data extraction bot.
-Based ONLY on the context provided below, extract the EXACT "Job Title" and "Company Name".
-Respond ONLY with a JSON object in this format: {"title": "The Job Title", "company": "The Company Name"}.
-If you cannot find a company name, try to infer it from the text or return "Unknown".
-If you cannot specify a job title, return "Unknown".
+        const systemPrompt = `You are an expert job data extraction bot.
+Your sole purpose is to parse raw DOM text.
+You MUST return a JSON object with your extraction and a confidence_score (0-100).
+If you cannot find the title or company, do not guess. Return "Unknown" and a low confidence_score.
+Format: {"title": "The Job Title", "company": "The Company Name", "confidence_score": Number}`;
 
-Context:
+        const userPrompt = `Context:
 Title Tag: ${titleTag}
 OG Title: ${ogTitle}
 Body Content Snippet:
 ${bodyText}`;
 
-        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
-                response_format: { type: "json_object" },
-                messages: [{ role: "user", content: prompt }]
-            })
-        });
+        const result = await routeAIExtraction({ systemPrompt, userPrompt });
 
-        const data: any = await groqRes.json();
-
-        if (data.choices && data.choices[0].message.content) {
-            let result;
-            try {
-                result = JSON.parse(data.choices[0].message.content);
-            } catch (e) {
-                throw new Error('AI did not return valid JSON');
-            }
-
-            let wasUpdated = false;
-            if (result.title && result.title !== 'Unknown') {
-                job.title = result.title;
-                wasUpdated = true;
-            }
-            if (result.company && result.company !== 'Unknown') {
-                job.company = result.company;
-                wasUpdated = true;
-            }
-
-            if (wasUpdated) {
-                await job.save();
-            }
-
-            return job;
-        } else {
-            throw new Error('Invalid response from Groq API');
+        let wasUpdated = false;
+        if (result.title && result.title !== 'Unknown') {
+            job.title = result.title;
+            wasUpdated = true;
         }
+        if (result.company && result.company !== 'Unknown') {
+            job.company = result.company;
+            wasUpdated = true;
+        }
+
+        if (wasUpdated) {
+            await job.save();
+        }
+
+        return job;
     } finally {
         await browser.close();
     }
