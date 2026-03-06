@@ -33,9 +33,7 @@ jobs:
           for botdir in recruiter-bot bots/scanner bots/fixer bots/supervisor bots/cleanup bots/archiver; do
             if [ -d "../$botdir" ]; then
               echo "Installing deps for $botdir..."
-              cd "../$botdir"
-              npm install --production 2>/dev/null || true
-              cd "../opushire-backend"
+              (cd "../$botdir" && npm install --production)
             fi
           done
 
