@@ -25,17 +25,22 @@ Beyond standard job portal features, OpusHire implements an **Autonomous AI Ecos
 
 ## 📁 Monorepo Structure
 
+OpusHire now utilizes **npm workspaces** for centralized dependency management and a cleaner root structure.
+
 ```
 hackathon/
-├── opushire/               ← Frontend (Next.js 14 + Tailwind v4 + Framer Motion)
+├── bots/                   ← Centralized AI Micro-agents
+│   ├── scanner/            ← Detection: Flags messy job tags
+│   ├── fixer/              ← LLM: Gemini Flash rewrites tags
+│   ├── supervisor/         ← QA: Groq Llama-3 verifies outputs
+│   ├── cleanup/            ← Core: Expired record rotation
+│   └── archiver/           ← Core: Ghost job detector (Puppeteer)
+├── opushire/               ← Frontend (Next.js 14 + Tailwind v4)
 ├── opushire-backend/       ← Backend API (Express.js + MongoDB)
-├── recruiter-bot/          ← Autonomous Job Scraper (Telegram/APIs)
-├── bot1-scanner/           ← AI: Flags messy job tags 
-├── bot2-fixer/             ← AI: Gemini Flash rewrites messy tags
-├── bot3-supervisor/        ← AI: Groq Llama-3 QA verifies Gemini outputs
-├── bot4-cleanup/           ← Core: Hard/Soft archives expired jobs
+├── recruiter-bot/          ← Autonomous Scraper (Telegram/APIs)
+├── start-bots.js           ← Ecosystem orchestration script
+├── package.json            ← Root Workspace Configuration
 ├── .github/workflows/      ← CI/CD pipelines (Azure deployment)
-├── .gitignore
 └── README.md
 ```
 
@@ -65,14 +70,13 @@ graph LR
 
 ## 🏗 System Architecture & AI Ecosystem
 
-The architecture handles core portal logic alongside a background swarm of micro-agents deployed directly into the backend App Service.
+The architecture handles core portal logic alongside a background swarm of micro-agents organized into a unified workspace.
 
 ```mermaid
 graph TD
     subgraph Frontend["Frontend — Next.js 14"]
         AppRouter["App Router"]
         TW["Tailwind CSS v4"]
-        FM["Framer Motion"]
         AdminDashboard["Admin AI Bot Hub"]
     end
 
@@ -87,10 +91,10 @@ graph TD
 
     subgraph AI_Ecosystem["Autonomous Micro-agents"]
         Bot0["Recruiter Bot (Scraper)"]
-        Bot1["Bot 1: Scanner (Detection)"]
-        Bot2["Bot 2: Fixer (Gemini Flash)"]
-        Bot3["Bot 3: Supervisor (Groq Llama-3)"]
-        Bot4["Bot 4: Cleanup (Archival)"]
+        Bot1["Scanner (Detection)"]
+        Bot2["Fixer (Gemini Flash)"]
+        Bot3["Supervisor (Groq Llama-3)"]
+        Bot4["Cleanup & Archiver"]
     end
 
     Frontend -->|"REST API"| API
@@ -113,14 +117,15 @@ OpusHire uses a chained agent architecture to ensure data quality without human 
 2. **Scanner Bot**: Watches the DB. Flags jobs with excessively long or messy tags (`tagTileStatus: NEEDS_SHORTENING`).
 3. **Fixer Bot**: Picks up flagged jobs. Uses **Gemini 1.5 Flash** to extract concise, 3-keyword summaries (`tagTileStatus: PENDING_REVIEW`).
 4. **Supervisor Bot**: QA Agent. Uses **Groq Llama-3 70B** to verify Gemini's output against the original text. Overrides hallucinations and approves clean data (`tagTileStatus: VETTED`).
-5. **Cleanup Bot**: Soft-archives 1-week-old jobs and hard-deletes 3-week-old jobs to keep the platform fresh.
+5. **Cleanup Bot**: Manages record rotation (soft-archives @ 1 week, hard-deletes @ 3 weeks).
+6. **Archiver (Ghost Detector)**: Uses **Puppeteer** to visit external links and verify job availability, automatically archiving "ghost" postings.
 
 ---
 
 ## ✨ Core UI/UX Features
 
 - **Premium Glassmorphism**: Deep dark oceanic themes with frosted glass cards (`backdrop-blur`).
-- **Tactile Interactions**: Smooth, physics-based spring animations (`whileHover`, `whileTap`) using Framer Motion.
+- **Tactile Interactions**: Smooth, physics-based spring animations using Framer Motion.
 - **Real-time Bot Hub**: Admins can start, stop, and monitor live streaming stdout/stderr terminal logs from the AI swarm.
 - **Audio Visualizers**: Animated bar visualizers that pulse when an AI agent is actively online and processing.
 
@@ -130,13 +135,14 @@ OpusHire uses a chained agent architecture to ensure data quality without human 
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | Next.js 14, TypeScript, Tailwind CSS v4, Framer Motion, Lucide Icons |
+| **Frontend** | Next.js 14, TypeScript, Tailwind CSS v4, Framer Motion |
 | **Backend** | Node.js, Express.js, TypeScript, Mongoose ODM |
 | **Database** | MongoDB Atlas |
 | **Agent LLMs** | Google Gemini 1.5 Flash, Groq Llama-3 70B |
-| **Micro-agents** | Native Node.js `child_process` (cross-platform Linux/Win) |
+| **Workspace** | npm Workspaces (Monorepo Management) |
+| **Micro-agents** | Native Node.js `child_process` (cross-platform) |
 | **CI/CD** | GitHub Actions (Zip-deployment strategy) |
-| **Hosting** | Microsoft Azure App Service (Platform-as-a-Service) |
+| **Hosting** | Microsoft Azure App Service |
 
 ---
 
@@ -145,36 +151,34 @@ OpusHire uses a chained agent architecture to ensure data quality without human 
 | Service | URL |
 |---------|-----|
 | **Frontend Platform** | [opushire-frontend-app.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net) |
-| **Backend API** | [opushire-backend-app.azurewebsites.net](https://opushire-backend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net/health) |
+| **Backend API** | [opushire-backend-app.azurewebsites.net](https://opushire-backend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net/api/health) |
 
 ---
 
 ## 🛠 Local Development
 
+OpusHire uses **npm Workspaces**. You can manage the entire project from the root.
+
 ### Prerequisites
 - Node.js 20+
 - MongoDB Atlas connection string
-- Gemini API Key
-- Groq API Key
+- Gemini & Groq API Keys
 
-### 1. Backend + Micro-agents
+### 1. Setup
 ```bash
-cd opushire-backend
-npm install
-# Create .env with: MONGODB_URI, JWT_SECRET, GEMINI_API_KEY, GROQ_API_KEY, PORT=5000
-npm run dev
+git clone https://github.com/soumik2441139/hackathon.git
+cd hackathon
+npm install  # Installs dependencies for ALL sub-projects at once
 ```
 
-*(Note: The backend automatically manages and spawns the bot scripts located in `bot1`, `bot2`, `bot3`, `bot4`, and `recruiter-bot` folders when triggered from the admin UI).*
+### 2. Environment Configuration
+Create a `.env` file in the root or specifically in `opushire-backend/` containing:
+`MONGODB_URI`, `JWT_SECRET`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `PORT=5000`
 
-### 2. Frontend
-```bash
-cd opushire
-npm install
-# Create .env.local with: NEXT_PUBLIC_API_URL=http://localhost:5000/api
-npm run dev
-# Open http://localhost:3000
-```
+### 3. Execution
+- **Full Ecosystem**: Run `node start-bots.js` from the root.
+- **Backend**: `cd opushire-backend && npm run dev`.
+- **Frontend**: `cd opushire && npm run dev`.
 
 ---
 
