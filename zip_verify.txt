@@ -1,0 +1,262 @@
+
+  build	npm install, build, and zip standalone	2026-03-08T05:23:16.9886718Z mv .next/standalone/node_modules "$STANDALONE_DIR" || true
+  build	npm install, build, and zip standalone	2026-03-08T05:23:16.9888087Z 
+  build	npm install, build, and zip standalone	2026-03-08T05:23:16.9889311Z # Now zip the CONTENTS of STANDALONE_DIR so they are at the root of the zip
+  build	npm install, build, and zip standalone	2026-03-08T05:23:16.9890918Z cd "$STANDALONE_DIR"
+  build	npm install, build, and zip standalone	2026-03-08T05:23:16.9892009Z zip -r "$GITHUB_WORKSPACE/frontend.zip" .
+> build	npm install, build, and zip standalone	2026-03-08T05:23:16.9893400Z echo "--- Verifying zip contains server.js ---"
+> build	npm install, build, and zip standalone	2026-03-08T05:23:16.9895663Z unzip -l "$GITHUB_WORKSPACE/frontend.zip" | grep "server.js" || echo "WARNING: server.js not found in zip!"
+  build	npm install, build, and zip standalone	2026-03-08T05:23:16.9960475Z shell: /usr/bin/bash -e {0}
+  build	npm install, build, and zip standalone	2026-03-08T05:23:16.9961440Z ##[endgroup]
+  build	npm install, build, and zip standalone	2026-03-08T05:23:30.0177921Z 
+  build	npm install, build, and zip standalone	2026-03-08T05:23:30.0187586Z added 394 packages, and audited 396 packages in 13s
+  build	npm install, build, and zip standalone	2026-03-08T05:23:30.0188296Z 
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9313904Z   adding: react-dom/index.js (deflated 53%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9314721Z   adding: typescript/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9315485Z   adding: typescript/lib/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9316305Z   adding: typescript/lib/zh-cn/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9409288Z   adding: typescript/lib/zh-cn/diagnosticMessages.generated.json (deflated 73%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:47.9410677Z   adding: typescript/lib/tsserver.js (deflated 38%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9411661Z   adding: typescript/lib/ja/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9532422Z   adding: typescript/lib/ja/diagnosticMessages.generated.json (deflated 77%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9535258Z   adding: typescript/lib/_typingsInstaller.js (deflated 70%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9535819Z   adding: typescript/lib/tr/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9643395Z   adding: typescript/lib/tr/diagnosticMessages.generated.json (deflated 75%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9765279Z   adding: typescript/lib/zh-tw/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:47.9859402Z   adding: typescript/lib/zh-tw/diagnosticMessages.generated.json (deflated 72%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.1671605Z   adding: typescript/lib/_tsc.js (deflated 82%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.1672142Z   adding: typescript/lib/fr/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.1790398Z   adding: typescript/lib/fr/diagnosticMessages.generated.json (deflated 76%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.1798517Z   adding: typescript/lib/_tsserver.js (deflated 73%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.1799251Z   adding: typescript/lib/tsserverlibrary.js (deflated 46%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.1799899Z   adding: typescript/lib/typingsInstaller.js (deflated 38%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.1800665Z   adding: typescript/lib/pl/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.1911839Z   adding: typescript/lib/pl/diagnosticMessages.generated.json (deflated 75%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.1912457Z   adding: typescript/lib/ko/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6285625Z   adding: next/dist/lib/is-app-route-route.js (deflated 42%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6286453Z   adding: next/dist/lib/batcher.js (deflated 63%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6289386Z   adding: next/dist/lib/worker.js (deflated 69%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6290891Z   adding: next/dist/lib/verify-partytown-setup.js (deflated 66%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6291500Z   adding: next/dist/lib/memory/ (stored 0%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.6292092Z   adding: next/dist/lib/memory/gc-observer.js (deflated 57%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6293155Z   adding: next/dist/lib/memory/trace.js (deflated 69%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6294325Z   adding: next/dist/lib/memory/startup.js (deflated 56%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6295120Z   adding: next/dist/lib/memory/shutdown.js (deflated 58%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6295696Z   adding: next/dist/lib/framework/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6296357Z   adding: next/dist/lib/framework/boundary-components.js (deflated 74%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6333999Z   adding: next/dist/lib/inline-static-env.js (deflated 67%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6334751Z   adding: next/dist/lib/is-internal-component.js (deflated 59%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6335365Z   adding: next/dist/experimental/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6335912Z   adding: next/dist/experimental/testmode/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6336597Z   adding: next/dist/experimental/testmode/context.js (deflated 64%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.6337342Z   adding: next/dist/experimental/testmode/server.js (deflated 66%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6338270Z   adding: next/dist/experimental/testmode/fetch.js (deflated 65%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6339057Z   adding: next/dist/experimental/testmode/server-edge.js (deflated 55%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6339832Z   adding: next/dist/experimental/testmode/httpget.js (deflated 55%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6340433Z   adding: next/dist/export/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6340921Z   adding: next/dist/export/helpers/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6355942Z   adding: next/dist/server/after/after-context.js (deflated 69%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6356826Z   adding: next/dist/server/after/index.js (deflated 49%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6358771Z   adding: next/dist/server/load-components.js (deflated 74%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6359635Z   adding: next/dist/server/utils.js (deflated 61%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6360164Z   adding: next/dist/server/mcp/ (stored 0%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.6360826Z   adding: next/dist/server/mcp/get-or-create-mcp-server.js (deflated 66%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6361642Z   adding: next/dist/server/mcp/mcp-telemetry-tracker.js (deflated 65%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6362501Z   adding: next/dist/server/mcp/get-mcp-middleware.js (deflated 57%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6363142Z   adding: next/dist/server/mcp/tools/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6364156Z   adding: next/dist/server/mcp/tools/get-server-action-by-id.js (deflated 76%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6365061Z   adding: next/dist/server/mcp/tools/next-instance-error-state.js (deflated 50%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6405645Z   adding: next/dist/server/route-modules/checks.js (deflated 71%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6406339Z   adding: next/dist/server/route-modules/app-page/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6407079Z   adding: next/dist/server/route-modules/app-page/vendored/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6407890Z   adding: next/dist/server/route-modules/app-page/vendored/rsc/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6408821Z   adding: next/dist/server/route-modules/app-page/vendored/rsc/react-dom.js (deflated 11%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.6409870Z   adding: next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-webpack-server.js (deflated 21%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6411035Z   adding: next/dist/server/route-modules/app-page/vendored/rsc/react.js (deflated 10%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6412101Z   adding: next/dist/server/route-modules/app-page/vendored/rsc/react-jsx-runtime.js (deflated 15%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6413316Z   adding: next/dist/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.js (deflated 15%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6414616Z   adding: next/dist/server/route-modules/app-page/vendored/rsc/entrypoints.js (deflated 74%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6415858Z   adding: next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-turbopack-static.js (deflated 19%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6417090Z   adding: next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-webpack-static.js (deflated 18%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6418366Z   adding: next/dist/server/route-modules/app-page/vendored/rsc/react-compiler-runtime.js (deflated 19%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.6419673Z   adding: next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-turbopack-server.js (deflated 21%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6420786Z   adding: next/dist/server/route-modules/app-page/vendored/ssr/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6421728Z   adding: next/dist/server/route-modules/app-page/vendored/ssr/react-dom.js (deflated 11%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6422743Z   adding: next/dist/server/route-modules/app-page/vendored/ssr/react.js (deflated 10%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6423687Z   adding: next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-runtime.js (deflated 15%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6424909Z   adding: next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js (deflated 15%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.6426063Z   adding: next/dist/server/route-modules/app-page/vendored/ssr/react-dom-server.js (deflated 14%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6427308Z   adding: next/dist/server/route-modules/app-page/vendored/ssr/react-server-dom-webpack-client.js (deflated 18%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6428178Z   adding: next/dist/server/route-modules/app-page/vendored/ssr/entrypoints.js (deflated 70%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6428886Z   adding: next/dist/server/route-modules/app-page/vendored/ssr/react-server-dom-turbopack-client.js (deflated 19%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6429628Z   adding: next/dist/server/route-modules/app-page/vendored/ssr/react-compiler-runtime.js (deflated 19%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6430238Z   adding: next/dist/server/route-modules/app-page/vendored/contexts/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6470120Z   adding: next/dist/server/lib/types.js (deflated 5%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6470719Z   adding: next/dist/server/lib/module-loader/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6471444Z   adding: next/dist/server/lib/module-loader/route-module-loader.js (deflated 54%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6472114Z   adding: next/dist/server/lib/module-loader/module-loader.js (deflated 15%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6473022Z   adding: next/dist/server/lib/module-loader/node-module-loader.js (deflated 48%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.6473949Z   adding: next/dist/server/lib/render-server.js (deflated 69%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6474583Z   adding: next/dist/server/lib/etag.js (deflated 51%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6475224Z   adding: next/dist/server/lib/patch-set-header.js (deflated 58%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6475874Z   adding: next/dist/server/lib/fix-mojibake.js (deflated 45%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6476247Z   adding: next/dist/server/lib/router-utils/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6481463Z   adding: next/dist/server/lib/router-utils/typegen.js (deflated 76%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6511485Z   adding: next/dist/server/lib/experimental/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6512277Z   adding: next/dist/server/lib/experimental/create-env-definitions.js (deflated 53%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6513065Z   adding: next/dist/server/lib/experimental/ppr.js (deflated 66%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6515497Z   adding: next/dist/server/lib/mock-request.js (deflated 78%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6516220Z   adding: next/dist/server/lib/format-hostname.js (deflated 42%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.6521182Z   adding: next/dist/server/lib/start-server.js (deflated 73%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6521970Z   adding: next/dist/server/lib/is-ipv6.js (deflated 49%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6524525Z   adding: next/dist/server/lib/dedupe-fetch.js (deflated 65%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6526289Z   adding: next/dist/server/lib/lru-cache.js (deflated 68%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6527073Z   adding: next/dist/server/lib/parse-stack.js (deflated 56%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6527669Z   adding: next/dist/server/lib/trace/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6555823Z   adding: next/dist/server/lib/node-fs-methods.js (deflated 54%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6556520Z   adding: next/dist/server/lib/app-dir-module.js (deflated 65%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6557203Z   adding: next/dist/server/lib/worker-utils.js (deflated 55%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6557849Z   adding: next/dist/server/lib/to-route.js (deflated 54%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6558533Z   adding: next/dist/server/lib/streaming-metadata.js (deflated 54%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.6567729Z   adding: next/dist/server/lib/router-server.js (deflated 76%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6569188Z   adding: next/dist/server/lib/find-page-file.js (deflated 69%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6570654Z   adding: next/dist/server/lib/chrome-devtools-workspace.js (deflated 66%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6571661Z   adding: next/dist/server/lib/implicit-tags.js (deflated 64%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6584000Z   adding: next/dist/server/lib/patch-fetch.js (deflated 79%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6586516Z   adding: next/dist/server/lib/source-maps.js (deflated 68%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6822649Z   adding: next/dist/server/typescript/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6823330Z   adding: next/dist/server/typescript/utils.js (deflated 75%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6824384Z   adding: next/dist/server/typescript/constant.js (deflated 67%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6825054Z   adding: next/dist/server/typescript/rules/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6826320Z   adding: next/dist/server/typescript/rules/entry.js (deflated 77%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.6827323Z   adding: next/dist/server/typescript/rules/server.js (deflated 73%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6829033Z   adding: next/dist/server/typescript/rules/client-boundary.js (deflated 73%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6835786Z   adding: next/dist/server/typescript/rules/config.js (deflated 78%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6836550Z   adding: next/dist/server/typescript/rules/error.js (deflated 57%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6837869Z   adding: next/dist/server/typescript/rules/server-boundary.js (deflated 75%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6840091Z   adding: next/dist/server/typescript/rules/metadata.js (deflated 85%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6874990Z   adding: next/dist/server/app-render/create-error-handler.js (deflated 74%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6875951Z   adding: next/dist/server/app-render/get-layer-assets.js (deflated 66%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6878904Z   adding: next/dist/server/app-render/staged-rendering.js (deflated 74%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6936602Z   adding: next/dist/server/app-render/app-render.js (deflated 80%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6938966Z   adding: next/dist/server/app-render/use-flight-response.js (deflated 73%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.6940287Z   adding: next/dist/server/app-render/encryption-utils-server.js (deflated 66%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6941894Z   adding: next/dist/server/app-render/make-get-server-inserted-html.js (deflated 66%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6943166Z   adding: next/dist/server/app-render/work-unit-async-storage-instance.js (deflated 47%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6944578Z   adding: next/dist/server/app-render/create-component-styles-and-scripts.js (deflated 57%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6945738Z   adding: next/dist/server/app-render/dynamic-access-async-storage.external.js (deflated 49%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.6946763Z   adding: next/dist/server/app-render/segment-explorer-path.js (deflated 69%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7480020Z   adding: next/dist/server/revalidation-utils.js (deflated 72%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7480750Z   adding: next/dist/server/route-matcher-managers/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7481770Z   adding: next/dist/server/route-matcher-managers/route-matcher-manager.js (deflated 9%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7484620Z   adding: next/dist/server/route-matcher-managers/default-route-matcher-manager.js (deflated 70%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7486112Z   adding: next/dist/server/route-matcher-managers/dev-route-matcher-manager.js (deflated 67%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.7505667Z   adding: next/dist/server/next-server.js (deflated 77%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7506341Z   adding: next/dist/server/normalizers/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7507015Z   adding: next/dist/server/normalizers/built/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7507740Z   adding: next/dist/server/normalizers/built/app/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7508684Z   adding: next/dist/server/normalizers/built/app/app-page-normalizer.js (deflated 57%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7509859Z   adding: next/dist/server/normalizers/built/app/app-pathname-normalizer.js (deflated 66%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7543704Z   adding: next/dist/server/route-matchers/app-page-route-matcher.js (deflated 48%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7544287Z   adding: next/dist/server/route-matchers/locale-route-matcher.js (deflated 69%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7544973Z   adding: next/dist/server/route-matchers/app-route-route-matcher.js (deflated 46%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7545565Z   adding: next/dist/server/font-utils.js (deflated 62%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7545928Z   adding: next/dist/server/serve-static.js (deflated 60%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.7576777Z   adding: next/dist/server/base-server.js (deflated 78%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7577430Z   adding: next/dist/server/setup-http-agent-env.js (deflated 57%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7577879Z   adding: next/dist/server/web/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7579196Z   adding: next/dist/server/web/utils.js (deflated 69%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7579729Z   adding: next/dist/server/web/types.js (deflated 5%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7580933Z   adding: next/dist/server/web/web-on-close.js (deflated 63%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7669484Z   adding: next/dist/client/app-build-id.js (deflated 55%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7670197Z   adding: next/dist/client/add-base-path.js (deflated 54%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7670860Z   adding: next/dist/client/components/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7671838Z   adding: next/dist/client/components/dev-root-http-access-fallback-boundary.js (deflated 63%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7672955Z   adding: next/dist/client/components/nav-failure-handler.js (deflated 63%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.7674097Z   adding: next/dist/client/components/unstable-rethrow.server.js (deflated 64%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7675115Z   adding: next/dist/client/components/is-next-router-error.js (deflated 58%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7675836Z   adding: next/dist/client/components/app-router-utils.js (deflated 58%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7676340Z   adding: next/dist/client/components/unresolved-thenable.js (deflated 53%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7677579Z   adding: next/dist/client/components/links.js (deflated 72%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7678364Z   adding: next/dist/client/components/redirect-status-code.js (deflated 62%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7757811Z   adding: next/dist/client/components/segment-cache/navigation.js (deflated 74%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7758916Z   adding: next/dist/client/components/segment-cache/prefetch.js (deflated 58%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7782835Z   adding: next/dist/client/components/segment-cache/cache.js (deflated 77%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7785776Z   adding: next/dist/client/components/segment-cache/vary-path.js (deflated 71%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7802666Z   adding: next/dist/client/components/segment-cache/scheduler.js (deflated 77%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.7803745Z   adding: next/dist/client/components/navigation.react-server.js (deflated 70%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7804876Z   adding: next/dist/client/components/app-router-announcer.js (deflated 64%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7805749Z   adding: next/dist/client/components/http-access-fallback/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7806725Z   adding: next/dist/client/components/http-access-fallback/http-access-fallback.js (deflated 68%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7807796Z   adding: next/dist/client/components/http-access-fallback/error-boundary.js (deflated 68%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7809159Z   adding: next/dist/client/components/use-action-queue.js (deflated 63%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7827628Z   adding: next/dist/client/lib/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7828657Z   adding: next/dist/client/lib/console.js (deflated 71%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7829208Z   adding: next/dist/client/dev/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7829804Z   adding: next/dist/client/dev/debug-channel.js (deflated 67%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7832686Z   adding: next/dist/client/route-params.js (deflated 71%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.7833347Z   adding: next/dist/client/app-call-server.js (deflated 59%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7834152Z   adding: next/dist/client/assign-location.js (deflated 58%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7834818Z   adding: next/dist/client/remove-base-path.js (deflated 55%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7835682Z   adding: next/dist/client/app-find-source-map-url.js (deflated 55%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7836556Z   adding: next/dist/client/normalize-trailing-slash.js (deflated 62%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.7837188Z   adding: next/dist/compiled/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9247804Z   adding: next/dist/build/webpack-config-rules/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9248748Z   adding: next/dist/build/webpack-config-rules/resolve.js (deflated 61%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9249518Z   adding: next/dist/build/webpack/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9250243Z   adding: next/dist/build/webpack/utils.js (deflated 71%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9250986Z   adding: next/dist/build/webpack/alias/ (stored 0%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.9251870Z   adding: next/dist/build/webpack/alias/react-dom-server.js (deflated 59%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9253051Z   adding: next/dist/build/webpack/alias/react-dom-server-experimental.js (deflated 60%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9254201Z   adding: next/dist/build/webpack/config/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9255028Z   adding: next/dist/build/webpack/config/utils.js (deflated 35%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9255935Z   adding: next/dist/build/webpack/config/helpers.js (deflated 74%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9256795Z   adding: next/dist/build/webpack/config/blocks/ (stored 0%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9949009Z   adding: detect-libc/lib/detect-libc.js (deflated 79%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9949642Z   adding: detect-libc/lib/elf.js (deflated 54%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9950275Z   adding: detect-libc/lib/filesystem.js (deflated 55%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9950892Z   adding: detect-libc/lib/process.js (deflated 49%)
+  build	npm install, build, and zip standalone	2026-03-08T05:23:48.9951493Z   adding: detect-libc/package.json (deflated 51%)
+> build	npm install, build, and zip standalone	2026-03-08T05:23:48.9952157Z --- Verifying zip contains server.js ---
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0061809Z       272  2026-03-08 05:23   typescript/lib/tsserver.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0062250Z     27888  2026-03-08 05:23   typescript/lib/_tsserver.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0062679Z      1320  2026-03-08 05:23   next/dist/lib/memory/gc-observer.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0063343Z      1696  2026-03-08 05:23   next/dist/experimental/testmode/server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0064137Z      1673  2026-03-08 05:23   next/dist/server/mcp/get-or-create-mcp-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0064863Z       175  2026-03-08 05:23   next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-webpack-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0066031Z       179  2026-03-08 05:23   next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-turbopack-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0067230Z       147  2026-03-08 05:23   next/dist/server/route-modules/app-page/vendored/ssr/react-dom-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0068136Z      5682  2026-03-08 05:23   next/dist/server/lib/render-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0068676Z     20377  2026-03-08 05:23   next/dist/server/lib/start-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0069122Z     35791  2026-03-08 05:23   next/dist/server/lib/router-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0069594Z      3563  2026-03-08 05:23   next/dist/server/typescript/rules/server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0070132Z      4823  2026-03-08 05:23   next/dist/server/app-render/encryption-utils-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0070628Z     69964  2026-03-08 05:23   next/dist/server/next-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0071001Z    104472  2026-03-08 05:23   next/dist/server/base-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0071441Z      1582  2026-03-08 05:23   next/dist/client/components/unstable-rethrow.server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0071929Z      2314  2026-03-08 05:23   next/dist/client/components/navigation.react-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0072355Z      1164  2026-03-08 05:23   next/dist/client/app-call-server.js
+> build	npm install, build, and zip standalone	2026-03-08T05:23:49.0072771Z      1181  2026-03-08 05:23   next/dist/build/webpack/alias/react-dom-server.js
+  build	Upload artifact for deployment job	﻿2026-03-08T05:23:49.0133082Z ##[group]Run actions/upload-artifact@v4
+  build	Upload artifact for deployment job	2026-03-08T05:23:49.0133351Z with:
+  build	Upload artifact for deployment job	2026-03-08T05:23:49.0133660Z   name: frontend-app
+  build	Upload artifact for deployment job	2026-03-08T05:23:49.0133854Z   path: frontend.zip
+  build	Upload artifact for deployment job	2026-03-08T05:23:49.0134049Z   if-no-files-found: warn
+  deploy	Configure Azure Web App settings	  { "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "false" },
+  deploy	Configure Azure Web App settings	  { "name": "PORT", "value": "3000" },
+  deploy	Configure Azure Web App settings	  { "name": "HOSTNAME", "value": "0.0.0.0" }
+  deploy	Configure Azure Web App settings	]
+  deploy	Configure Azure Web App settings	
+> deploy	Configure Azure Web App settings	2026-03-08T05:24:14.8833049Z   general-settings-json: {"appCommandLine": "node server.js"}
+  deploy	Configure Azure Web App settings	2026-03-08T05:24:14.8833427Z   mask-inputs: true
+  deploy	Configure Azure Web App settings	2026-03-08T05:24:14.8833636Z ##[endgroup]
+  deploy	Configure Azure Web App settings	2026-03-08T05:24:15.6645602Z Got service connection details for Azure App Service: opushire-frontend-app
+  deploy	Configure Azure Web App settings	2026-03-08T05:24:16.8904392Z Resource Group : opushire-rg
+  deploy	Configure Azure Web App settings	2026-03-08T05:24:16.8913552Z Updating App Service Application settings. Data: {"WEBSITE_RUN_FROM_PACKAGE":"***","SCM_DO_BUILD_DURING_DEPLOYMENT":"***","PORT":"***","HOSTNAME":"***"}
+> deploy	Configure Azure Web App settings	2026-03-08T05:24:17.8368729Z Updating App Service Configuration settings. Data: {"appCommandLine":"node server.js"}
+  deploy	Configure Azure Web App settings	2026-03-08T05:24:39.6799115Z Updated App Service Configuration settings.
+  deploy	Configure Azure Web App settings	2026-03-08T05:24:40.8955752Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2***22-1***-11-github-actions-deprecating-save-state-and-set-output-commands/
+  deploy	Deploy to Azure Web App	﻿2026-03-08T05:24:40.9058106Z ##[group]Run azure/webapps-deploy@v3
+  deploy	Deploy to Azure Web App	2026-03-08T05:24:40.9058438Z with:
+  deploy	Deploy to Azure Web App	2026-03-08T05:24:40.9058660Z   app-name: opushire-frontend-app
+

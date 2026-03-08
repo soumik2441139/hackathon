@@ -32,18 +32,21 @@ jobs:
           npm run build --if-present
           echo "--- Verifying standalone output ---"
           ls -la .next/standalone/ || (echo "ERROR: .next/standalone not found!" && exit 1)
-          # Next.js nests standalone in a subdir matching the app folder name
-          STANDALONE_DIR=$(ls -d .next/standalone/*/ | head -1)
-          echo "Using standalone dir: $STANDALONE_DIR"
+          # Next.js may nest standalone in a subdir (e.g., .next/standalone/opushire/)
+          # We search for the directory containing the main server.js
+          STANDALONE_DIR=$(find .next/standalone -name "server.js" -exec dirname {} \; | head -1)
+          echo "Found standalone server.js in: $STANDALONE_DIR"
           
-          # We must copy static assets so they are served by the standalone server
-          mkdir -p "${STANDALONE_DIR}.next"
-          cp -r .next/static "${STANDALONE_DIR}.next/"
-          cp -r public "${STANDALONE_DIR}public" 2>/dev/null || true
+          # Next.js hoists node_modules to the root of .next/standalone/
+          # We move it into $STANDALONE_DIR so it's included in the app zip
+          if [ -d ".next/standalone/node_modules" ]; then
+            mv ".next/standalone/node_modules" "$STANDALONE_DIR/"
+          fi
           
-          # Move node_modules FROM .next/standalone/ INTO the app-specific standalone dir
-          # so that $STANDALONE_DIR contains everything needed to run.
-          mv .next/standalone/node_modules "$STANDALONE_DIR" || true
+          # Copy static and public assets into the app-specific standalone dir
+          mkdir -p "${STANDALONE_DIR}/.next"
+          cp -r .next/static "${STANDALONE_DIR}/.next/"
+          cp -r public "${STANDALONE_DIR}/public" 2>/dev/null || true
           
           # Now zip the CONTENTS of STANDALONE_DIR so they are at the root of the zip
           cd "$STANDALONE_DIR"
