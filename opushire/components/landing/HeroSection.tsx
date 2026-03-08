@@ -1,9 +1,14 @@
 import { Button } from '@/components/ui/Button';
-import { ShaderAnimation } from '@/components/ui/ShaderAnimation';
+import dynamic from 'next/dynamic';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { TextStagger } from '@/components/animations/TextStagger';
 import { TrustedByMarquee } from './TrustedByMarquee';
 import Link from 'next/link';
+
+const ShaderAnimation = dynamic(() => import('@/components/ui/ShaderAnimation').then(mod => mod.ShaderAnimation), {
+    ssr: false,
+    loading: () => <div className="absolute inset-0 bg-black" />
+});
 
 export const HeroSection = () => {
     return (
