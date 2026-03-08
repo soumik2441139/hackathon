@@ -66,10 +66,10 @@ const AnimatedLoadingSkeleton = () => {
             scale: Array(shuffledPositions.length).fill(1.2),
             transition: {
                 duration: shuffledPositions.length * 2,
-                repeat: Infinity, // Loop animation infinitely
-                ease: [0.4, 0, 0.2, 1], // Ease function for smooth animation
+                repeat: Infinity,
+                ease: "easeInOut" as any,
                 times: shuffledPositions.map((_, i) => i / (shuffledPositions.length - 1))
-            }
+            } as any
         }
     }
 
@@ -115,8 +115,8 @@ const AnimatedLoadingSkeleton = () => {
             transition: {
                 duration: 1,
                 repeat: Infinity,
-                ease: "easeInOut" // Smooth pulsation
-            }
+                ease: "easeInOut" as any
+            } as any
         }
     }
 
