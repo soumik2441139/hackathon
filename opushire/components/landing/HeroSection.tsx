@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/Button';
-import { HeroScene } from '@/components/animations/HeroScene';
+import { ShaderAnimation } from '@/components/ui/ShaderAnimation';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { TextStagger } from '@/components/animations/TextStagger';
 import { TrustedByMarquee } from './TrustedByMarquee';
@@ -8,7 +8,11 @@ import Link from 'next/link';
 export const HeroSection = () => {
     return (
         <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 pb-0 px-6 overflow-hidden">
-            <HeroScene />
+            <div className="absolute inset-0 -z-10 bg-black">
+                <ShaderAnimation />
+                <div className="absolute inset-0 bg-brand-dark/20 backdrop-blur-[40px]" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-dark/20 to-brand-dark" />
+            </div>
 
             <div className="max-w-4xl text-center z-10 w-full">
 

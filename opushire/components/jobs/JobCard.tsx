@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { MapPin, Clock, Briefcase, IndianRupee } from 'lucide-react';
 import Link from 'next/link';
 import { formatSalary, timeAgo } from '@/lib/utils';
+import { GlowingEffect } from '../ui/GlowingEffect';
 
 interface JobCardProps {
     job: Job;
@@ -11,68 +12,79 @@ interface JobCardProps {
 
 export const JobCard = ({ job }: JobCardProps) => {
     return (
-        <div className="glass-card p-6 flex flex-col h-full hover:border-white/20 hover:bg-white/[0.05] transition-all group justify-between">
-            <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                    <div className="flex gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-xl transition-transform group-hover:scale-110 overflow-hidden shrink-0 shadow-sm border border-white/10 relative">
-                            <img
-                                src={job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? job.companyLogo : `https://logo.clearbit.com/${job.company.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`}
-                                alt={`${job.company} logo`}
-                                className="w-full h-full object-contain p-1.5 z-10 bg-white"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                }}
-                            />
-                            <span className="text-brand-dark font-bold absolute z-0">{job.companyLogo && !job.companyLogo.startsWith('http') && job.companyLogo !== '🏢' ? job.companyLogo : '🏢'}</span>
+        <div className="relative h-full group">
+            <GlowingEffect
+                blur={0}
+                borderWidth={2}
+                spread={80}
+                glow={true}
+                disabled={false}
+                proximity={64}
+                inactiveZone={0.01}
+            />
+            <div className="relative glass-card p-6 flex flex-col h-full hover:border-white/20 hover:bg-white/[0.05] transition-all justify-between overflow-hidden z-10">
+                <div className="space-y-4">
+                    <div className="flex justify-between items-start">
+                        <div className="flex gap-4">
+                            <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-xl transition-transform group-hover:scale-110 overflow-hidden shrink-0 shadow-sm border border-white/10 relative">
+                                <img
+                                    src={job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? job.companyLogo : `https://logo.clearbit.com/${job.company.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`}
+                                    alt={`${job.company} logo`}
+                                    className="w-full h-full object-contain p-1.5 z-10 bg-white"
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                />
+                                <span className="text-brand-dark font-bold absolute z-0">{job.companyLogo && !job.companyLogo.startsWith('http') && job.companyLogo !== '🏢' ? job.companyLogo : '🏢'}</span>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold group-hover:text-brand-violet transition-colors text-brand-text line-clamp-1">{job.title}</h3>
+                                <p className="text-sm text-brand-text/50 font-medium">{job.company}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="text-lg font-bold group-hover:text-brand-violet transition-colors text-brand-text line-clamp-1">{job.title}</h3>
-                            <p className="text-sm text-brand-text/50 font-medium">{job.company}</p>
+                        {job.featured && <Badge variant="violet" className="shrink-0 text-[10px] py-0 h-5">Featured</Badge>}
+                    </div>
+
+                    <div className="flex flex-wrap gap-y-2 gap-x-5">
+                        <div className="flex items-center gap-1.5 text-xs text-brand-text/50 font-medium">
+                            <MapPin size={14} className="text-brand-cyan" />
+                            <span>{job.location}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-brand-text/50 font-medium">
+                            <Briefcase size={14} className="text-brand-cyan" />
+                            <span>{job.type}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-brand-text/50 font-medium">
+                            <IndianRupee size={14} className="text-brand-cyan" />
+                            <span>{job.salary || formatSalary(job.salaryMin, job.salaryMax)}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-brand-text/50 font-medium">
+                            <Clock size={14} className="text-brand-cyan" />
+                            <span>{job.posted || timeAgo(job.createdAt)}</span>
                         </div>
                     </div>
-                    {job.featured && <Badge variant="violet" className="shrink-0 text-[10px] py-0 h-5">Featured</Badge>}
-                </div>
 
-                <div className="flex flex-wrap gap-y-2 gap-x-5">
-                    <div className="flex items-center gap-1.5 text-xs text-brand-text/50 font-medium">
-                        <MapPin size={14} className="text-brand-cyan" />
-                        <span>{job.location}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-brand-text/50 font-medium">
-                        <Briefcase size={14} className="text-brand-cyan" />
-                        <span>{job.type}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-brand-text/50 font-medium">
-                        <IndianRupee size={14} className="text-brand-cyan" />
-                        <span>{job.salary || formatSalary(job.salaryMin, job.salaryMax)}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-brand-text/50 font-medium">
-                        <Clock size={14} className="text-brand-cyan" />
-                        <span>{job.posted || timeAgo(job.createdAt)}</span>
+                    <div className="flex flex-wrap gap-2 content-start">
+                        {job.tags.slice(0, 4).map(tag => (
+                            <Badge key={tag} variant="outline" className="bg-white/5 border-white/10 uppercase tracking-tighter text-[9px] px-2 h-5 font-bold">{tag}</Badge>
+                        ))}
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2 content-start">
-                    {job.tags.slice(0, 4).map(tag => (
-                        <Badge key={tag} variant="outline" className="bg-white/5 border-white/10 uppercase tracking-tighter text-[9px] px-2 h-5 font-bold">{tag}</Badge>
-                    ))}
-                </div>
-            </div>
-
-            <div className="flex gap-3 pt-5 mt-5 border-t border-white/5">
-                <Link href={`/jobs/${job._id}`} className="flex-1">
-                    <Button variant="glass" className="w-full h-10 font-bold uppercase tracking-widest text-[10px]">Details</Button>
-                </Link>
-                {job.externalUrl ? (
-                    <Link href={job.externalUrl} target="_blank" rel="noopener noreferrer">
-                        <Button variant="primary" className="px-8 h-10 font-bold uppercase tracking-widest text-[10px]">Apply</Button>
+                <div className="flex gap-3 pt-5 mt-5 border-t border-white/5">
+                    <Link href={`/jobs/${job._id}`} className="flex-1">
+                        <Button variant="glass" className="w-full h-10 font-bold uppercase tracking-widest text-[10px]">Details</Button>
                     </Link>
-                ) : (
-                    <Link href={`/jobs/${job._id}`}>
-                        <Button variant="primary" className="px-8 h-10 font-bold uppercase tracking-widest text-[10px]">Apply</Button>
-                    </Link>
-                )}
+                    {job.externalUrl ? (
+                        <Link href={job.externalUrl} target="_blank" rel="noopener noreferrer">
+                            <Button variant="primary" className="px-8 h-10 font-bold uppercase tracking-widest text-[10px]">Apply</Button>
+                        </Link>
+                    ) : (
+                        <Link href={`/jobs/${job._id}`}>
+                            <Button variant="primary" className="px-8 h-10 font-bold uppercase tracking-widest text-[10px]">Apply</Button>
+                        </Link>
+                    )}
+                </div>
             </div>
         </div>
     );
