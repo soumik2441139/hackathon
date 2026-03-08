@@ -1,0 +1,228 @@
+build	Set up job	﻿2026-03-08T05:33:43.5250793Z Current runner version: '2.332.0'
+build	Set up job	2026-03-08T05:33:43.5287981Z ##[group]Runner Image Provisioner
+build	Set up job	2026-03-08T05:33:43.5289184Z Hosted Compute Agent
+build	Set up job	2026-03-08T05:33:43.5290120Z Version: 20260213.493
+build	Set up job	2026-03-08T05:33:43.5291194Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+build	Set up job	2026-03-08T05:33:43.5292595Z Build Date: 2026-02-13T00:28:41Z
+build	Set up job	2026-03-08T05:33:43.5294016Z Worker ID: {b57e7138-5a6f-4e27-987e-2af88732d488}
+build	Set up job	2026-03-08T05:33:43.5295274Z Azure Region: eastus2
+build	Set up job	2026-03-08T05:33:43.5296275Z ##[endgroup]
+build	Set up job	2026-03-08T05:33:43.5298601Z ##[group]Operating System
+build	Set up job	2026-03-08T05:33:43.5299771Z Ubuntu
+build	Set up job	2026-03-08T05:33:43.5300640Z 24.04.3
+build	Set up job	2026-03-08T05:33:43.5301466Z LTS
+build	Set up job	2026-03-08T05:33:43.5302210Z ##[endgroup]
+build	Set up job	2026-03-08T05:33:43.5303570Z ##[group]Runner Image
+build	Set up job	2026-03-08T05:33:43.5304571Z Image: ubuntu-24.04
+build	Set up job	2026-03-08T05:33:43.5305371Z Version: 20260302.42.1
+build	Set up job	2026-03-08T05:33:43.5307358Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260302.42/images/ubuntu/Ubuntu2404-Readme.md
+build	Set up job	2026-03-08T05:33:43.5310279Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260302.42
+build	Set up job	2026-03-08T05:33:43.5311769Z ##[endgroup]
+build	Set up job	2026-03-08T05:33:43.5313536Z ##[group]GITHUB_TOKEN Permissions
+build	Set up job	2026-03-08T05:33:43.5316555Z Contents: read
+build	Set up job	2026-03-08T05:33:43.5317431Z Metadata: read
+build	Set up job	2026-03-08T05:33:43.5318280Z ##[endgroup]
+build	Set up job	2026-03-08T05:33:43.5321767Z Secret source: Actions
+build	Set up job	2026-03-08T05:33:43.5323392Z Prepare workflow directory
+build	Set up job	2026-03-08T05:33:43.5794002Z Prepare all required actions
+build	Set up job	2026-03-08T05:33:43.5849618Z Getting action download info
+build	Set up job	2026-03-08T05:33:43.8952481Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+build	Set up job	2026-03-08T05:33:44.0795496Z Download action repository 'actions/setup-node@v3' (SHA:3235b876344d2a9aa001b8d1453c930bba69e610)
+build	Set up job	2026-03-08T05:33:44.2145034Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+build	Set up job	2026-03-08T05:33:44.4771984Z Complete job name: build
+build	Run actions/checkout@v4	﻿2026-03-08T05:33:44.5483680Z ##[group]Run actions/checkout@v4
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5484539Z with:
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5484939Z   repository: soumik2441139/hackathon
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5485585Z   token: ***
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5485955Z   ssh-strict: true
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5486338Z   ssh-user: git
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5486719Z   persist-credentials: true
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5487150Z   clean: true
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5487532Z   sparse-checkout-cone-mode: true
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5487997Z   fetch-depth: 1
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5488365Z   fetch-tags: false
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5488749Z   show-progress: true
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5489134Z   lfs: false
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5489495Z   submodules: false
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5489887Z   set-safe-directory: true
+build	Run actions/checkout@v4	2026-03-08T05:33:44.5490504Z ##[endgroup]
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6619942Z Syncing repository: soumik2441139/hackathon
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6622716Z ##[group]Getting Git version info
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6624313Z Working directory is '/home/runner/work/hackathon/hackathon'
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6626030Z [command]/usr/bin/git version
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6721762Z git version 2.53.0
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6749619Z ##[endgroup]
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6766743Z Temporarily overriding HOME='/home/runner/work/_temp/8bbaadf4-023d-448a-82c5-21e3787d314f' before making global git config changes
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6769112Z Adding repository directory to the temporary git global config as a safe directory
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6781375Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/hackathon/hackathon
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6824132Z Deleting the contents of '/home/runner/work/hackathon/hackathon'
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6828249Z ##[group]Initializing the repository
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6833426Z [command]/usr/bin/git init /home/runner/work/hackathon/hackathon
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6956251Z hint: Using 'master' as the name for the initial branch. This default branch name
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6957772Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6958992Z hint: to use in all of your new repositories, which will suppress this warning,
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6960325Z hint: call:
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6960782Z hint:
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6961771Z hint: 	git config --global init.defaultBranch <name>
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6962836Z hint:
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6964213Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6965845Z hint: 'development'. The just-created branch can be renamed via this command:
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6967110Z hint:
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6967833Z hint: 	git branch -m <name>
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6968585Z hint:
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6969549Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6971219Z Initialized empty Git repository in /home/runner/work/hackathon/hackathon/.git/
+build	Run actions/checkout@v4	2026-03-08T05:33:44.6974711Z [command]/usr/bin/git remote add origin https://github.com/soumik2441139/hackathon
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7010038Z ##[endgroup]
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7011218Z ##[group]Disabling automatic garbage collection
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7015509Z [command]/usr/bin/git config --local gc.auto 0
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7045485Z ##[endgroup]
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7046647Z ##[group]Setting up auth
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7053166Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7085330Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7447551Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7478682Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7711226Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7743493Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build	Run actions/checkout@v4	2026-03-08T05:33:44.7990053Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build	Run actions/checkout@v4	2026-03-08T05:33:44.8025952Z ##[endgroup]
+build	Run actions/checkout@v4	2026-03-08T05:33:44.8027186Z ##[group]Fetching the repository
+build	Run actions/checkout@v4	2026-03-08T05:33:44.8035974Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +8b9626716e0e02cf05acb8dd690feda760c79010:refs/remotes/origin/soumik
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0141700Z From https://github.com/soumik2441139/hackathon
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0143907Z  * [new ref]         8b9626716e0e02cf05acb8dd690feda760c79010 -> origin/soumik
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0181485Z ##[endgroup]
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0182979Z ##[group]Determining the checkout info
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0184998Z ##[endgroup]
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0190569Z [command]/usr/bin/git sparse-checkout disable
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0239854Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0269222Z ##[group]Checking out the ref
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0274439Z [command]/usr/bin/git checkout --progress --force -B soumik refs/remotes/origin/soumik
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0441780Z Switched to a new branch 'soumik'
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0444417Z branch 'soumik' set up to track 'origin/soumik'.
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0452215Z ##[endgroup]
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0488877Z [command]/usr/bin/git log -1 --format=%H
+build	Run actions/checkout@v4	2026-03-08T05:33:45.0512129Z 8b9626716e0e02cf05acb8dd690feda760c79010
+build	Set up Node.js version	﻿2026-03-08T05:33:45.0819573Z ##[group]Run actions/setup-node@v3
+build	Set up Node.js version	2026-03-08T05:33:45.0820816Z with:
+build	Set up Node.js version	2026-03-08T05:33:45.0821466Z   node-version: 20.x
+build	Set up Node.js version	2026-03-08T05:33:45.0822233Z   always-auth: false
+build	Set up Node.js version	2026-03-08T05:33:45.0822992Z   check-latest: false
+build	Set up Node.js version	2026-03-08T05:33:45.0824227Z   token: ***
+build	Set up Node.js version	2026-03-08T05:33:45.0824900Z ##[endgroup]
+build	Set up Node.js version	2026-03-08T05:33:45.3231609Z Found in cache @ /opt/hostedtoolcache/node/20.20.0/x64
+build	Set up Node.js version	2026-03-08T05:33:45.3237366Z ##[group]Environment details
+build	Set up Node.js version	2026-03-08T05:33:47.3483128Z node: v20.20.0
+build	Set up Node.js version	2026-03-08T05:33:47.3483988Z npm: 10.8.2
+build	Set up Node.js version	2026-03-08T05:33:47.3484374Z yarn: 1.22.22
+build	Set up Node.js version	2026-03-08T05:33:47.3486132Z ##[endgroup]
+build	npm install, build, and zip standalone	﻿2026-03-08T05:33:47.3599875Z ##[group]Run set -e
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3600245Z [36;1mset -e[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3600502Z [36;1mnpm install[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3601017Z [36;1mecho "NEXT_PUBLIC_API_URL=https://opushire-backend.azurewebsites.net/api" > .env.production[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3601563Z [36;1mnpm run build --if-present[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3601906Z [36;1mecho "--- Verifying standalone output ---"[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3602380Z [36;1mls -la .next/standalone/ || (echo "ERROR: .next/standalone not found!" && exit 1)[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3602957Z [36;1m# Next.js may nest standalone in a subdir (e.g., .next/standalone/opushire/)[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3603632Z [36;1m# We search for the directory containing the main server.js[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3604177Z [36;1mSTANDALONE_DIR=$(find .next/standalone -name "server.js" -exec dirname {} \; | head -1)[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3604749Z [36;1mecho "Found standalone server.js in: $STANDALONE_DIR"[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3605115Z [36;1m[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3605443Z [36;1m# Next.js hoists node_modules to the root of .next/standalone/[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3605916Z [36;1m# We move it into $STANDALONE_DIR so it's included in the app zip[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3606342Z [36;1mif [ -d ".next/standalone/node_modules" ]; then[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3606749Z [36;1m  mv ".next/standalone/node_modules" "$STANDALONE_DIR/"[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3607089Z [36;1mfi[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3607291Z [36;1m[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3607619Z [36;1m# Copy static and public assets into the app-specific standalone dir[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3608040Z [36;1mmkdir -p "${STANDALONE_DIR}/.next"[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3608402Z [36;1mcp -r .next/static "${STANDALONE_DIR}/.next/"[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3608805Z [36;1mcp -r public "${STANDALONE_DIR}/public" 2>/dev/null || true[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3609167Z [36;1m[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3609494Z [36;1m# Now zip the CONTENTS of STANDALONE_DIR so they are at the root of the zip[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3609908Z [36;1mcd "$STANDALONE_DIR"[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3610216Z [36;1mzip -r "$GITHUB_WORKSPACE/frontend.zip" .[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3610592Z [36;1mecho "--- Verifying zip contains server.js ---"[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3611188Z [36;1munzip -l "$GITHUB_WORKSPACE/frontend.zip" | grep "server.js" || echo "WARNING: server.js not found in zip!"[0m
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3672193Z shell: /usr/bin/bash -e {0}
+build	npm install, build, and zip standalone	2026-03-08T05:33:47.3672527Z ##[endgroup]
+build	npm install, build, and zip standalone	2026-03-08T05:34:01.4861203Z 
+build	npm install, build, and zip standalone	2026-03-08T05:34:01.4868552Z added 394 packages, and audited 396 packages in 14s
+build	npm install, build, and zip standalone	2026-03-08T05:34:01.4869462Z 
+build	npm install, build, and zip standalone	2026-03-08T05:34:01.4869998Z 151 packages are looking for funding
+build	npm install, build, and zip standalone	2026-03-08T05:34:01.4870839Z   run `npm fund` for details
+build	npm install, build, and zip standalone	2026-03-08T05:34:01.4875815Z 
+build	npm install, build, and zip standalone	2026-03-08T05:34:01.4877886Z found 0 vulnerabilities
+build	npm install, build, and zip standalone	2026-03-08T05:34:01.6733830Z 
+build	npm install, build, and zip standalone	2026-03-08T05:34:01.6735070Z > opushire@0.1.0 build
+build	npm install, build, and zip standalone	2026-03-08T05:34:01.6736139Z > next build
+build	npm install, build, and zip standalone	2026-03-08T05:34:01.6736664Z 
+build	npm install, build, and zip standalone	2026-03-08T05:34:02.2545316Z ⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+build	npm install, build, and zip standalone	2026-03-08T05:34:02.2657676Z Attention: Next.js now collects completely anonymous telemetry regarding usage.
+build	npm install, build, and zip standalone	2026-03-08T05:34:02.2658934Z This information is used to shape Next.js' roadmap and prioritize features.
+build	npm install, build, and zip standalone	2026-03-08T05:34:02.2660458Z You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+build	npm install, build, and zip standalone	2026-03-08T05:34:02.2661510Z https://nextjs.org/telemetry
+build	npm install, build, and zip standalone	2026-03-08T05:34:02.2661797Z 
+build	npm install, build, and zip standalone	2026-03-08T05:34:02.2845106Z ▲ Next.js 16.1.6 (Turbopack)
+build	npm install, build, and zip standalone	2026-03-08T05:34:02.2845903Z - Environments: .env.production
+build	npm install, build, and zip standalone	2026-03-08T05:34:02.2851744Z 
+build	npm install, build, and zip standalone	2026-03-08T05:34:02.3553957Z   Creating an optimized production build ...
+build	npm install, build, and zip standalone	2026-03-08T05:34:11.0315485Z ✓ Compiled successfully in 8.3s
+build	npm install, build, and zip standalone	2026-03-08T05:34:11.0380011Z   Running TypeScript ...
+build	npm install, build, and zip standalone	2026-03-08T05:34:16.4993071Z   Collecting page data using 3 workers ...
+build	npm install, build, and zip standalone	2026-03-08T05:34:16.9602704Z   Generating static pages using 3 workers (0/18) ...
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.2695944Z   Generating static pages using 3 workers (4/18) 
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.2766823Z   Generating static pages using 3 workers (8/18) 
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.4317340Z   Generating static pages using 3 workers (13/18) 
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.4965580Z ✓ Generating static pages using 3 workers (18/18) in 536.2ms
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.5027863Z   Finalizing page optimization ...
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7900622Z 
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7920527Z Route (app)
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7921179Z ┌ ○ /
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7921540Z ├ ○ /_not-found
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7921924Z ├ ○ /companies
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7922333Z ├ ○ /dashboard/admin
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7922765Z ├ ○ /dashboard/admin/bots
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7923395Z ├ ○ /dashboard/admin/cleaner
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7923866Z ├ ○ /dashboard/admin/jobs
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7924202Z ├ ƒ /dashboard/admin/jobs/edit/[id]
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7924509Z ├ ○ /dashboard/messages
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7924770Z ├ ○ /dashboard/recruiter
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7925071Z ├ ○ /dashboard/recruiter/post-job
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7925409Z ├ ○ /dashboard/student
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7925628Z ├ ○ /jobs
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7925811Z ├ ƒ /jobs/[id]
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7926028Z ├ ○ /jobs/create
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7926217Z ├ ○ /login
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7926397Z ├ ○ /register
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7926747Z └ ○ /salaries
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7926901Z 
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7926930Z 
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7927139Z ○  (Static)   prerendered as static content
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7927578Z ƒ  (Dynamic)  server-rendered on demand
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.7927855Z 
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.8440482Z --- Verifying standalone output ---
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.8456813Z total 16
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.8457389Z drwxr-xr-x  4 runner runner 4096 Mar  8 05:34 .
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.8457990Z drwxr-xr-x  9 runner runner 4096 Mar  8 05:34 ..
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.8458770Z drwxr-xr-x 13 runner runner 4096 Mar  8 05:34 node_modules
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.8459497Z drwxr-xr-x  3 runner runner 4096 Mar  8 05:34 opushire
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.8528008Z dirname: write error: Broken pipe
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.8577380Z dirname: write error: Broken pipe
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.8606169Z Found standalone server.js in: .next/standalone/node_modules/next/dist/experimental/testmode
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.8621494Z mv: cannot move '.next/standalone/node_modules' to a subdirectory of itself, '.next/standalone/node_modules/next/dist/experimental/testmode/node_modules'
+build	npm install, build, and zip standalone	2026-03-08T05:34:17.8641546Z ##[error]Process completed with exit code 1.
+build	Post Run actions/checkout@v4	﻿2026-03-08T05:34:17.8755258Z Post job cleanup.
+build	Post Run actions/checkout@v4	2026-03-08T05:34:17.9716001Z [command]/usr/bin/git version
+build	Post Run actions/checkout@v4	2026-03-08T05:34:17.9753372Z git version 2.53.0
+build	Post Run actions/checkout@v4	2026-03-08T05:34:17.9797070Z Temporarily overriding HOME='/home/runner/work/_temp/b4d1d369-dd46-4350-9c81-6dfc6a9f22d8' before making global git config changes
+build	Post Run actions/checkout@v4	2026-03-08T05:34:17.9798140Z Adding repository directory to the temporary git global config as a safe directory
+build	Post Run actions/checkout@v4	2026-03-08T05:34:17.9810010Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/hackathon/hackathon
+build	Post Run actions/checkout@v4	2026-03-08T05:34:17.9845252Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build	Post Run actions/checkout@v4	2026-03-08T05:34:17.9878907Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build	Post Run actions/checkout@v4	2026-03-08T05:34:18.0120118Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build	Post Run actions/checkout@v4	2026-03-08T05:34:18.0141239Z http.https://github.com/.extraheader
+build	Post Run actions/checkout@v4	2026-03-08T05:34:18.0154291Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+build	Post Run actions/checkout@v4	2026-03-08T05:34:18.0187318Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build	Post Run actions/checkout@v4	2026-03-08T05:34:18.0421797Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build	Post Run actions/checkout@v4	2026-03-08T05:34:18.0453726Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build	Complete job	﻿2026-03-08T05:34:18.0795239Z Cleaning up orphan processes

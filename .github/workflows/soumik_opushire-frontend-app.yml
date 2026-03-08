@@ -33,13 +33,23 @@ jobs:
           echo "--- Verifying standalone output ---"
           ls -la .next/standalone/ || (echo "ERROR: .next/standalone not found!" && exit 1)
           # Next.js may nest standalone in a subdir (e.g., .next/standalone/opushire/)
-          # We search for the directory containing the main server.js
-          STANDALONE_DIR=$(find .next/standalone -name "server.js" -exec dirname {} \; | head -1)
-          echo "Found standalone server.js in: $STANDALONE_DIR"
+          # We search for the directory that is NOT node_modules and contains server.js
+          STANDALONE_DIR=$(ls -d .next/standalone/*/ | grep -v "node_modules" | head -1)
+          
+          # If no subdirectory found, check if server.js is at the root
+          if [ -z "$STANDALONE_DIR" ] || [ ! -f "${STANDALONE_DIR}server.js" ]; then
+            if [ -f ".next/standalone/server.js" ]; then
+              STANDALONE_DIR=".next/standalone/"
+            else
+              echo "ERROR: Could not find server.js in .next/standalone/"
+              exit 1
+            fi
+          fi
+          echo "Using standalone dir: $STANDALONE_DIR"
           
           # Next.js hoists node_modules to the root of .next/standalone/
           # We move it into $STANDALONE_DIR so it's included in the app zip
-          if [ -d ".next/standalone/node_modules" ]; then
+          if [ -d ".next/standalone/node_modules" ] && [ "$STANDALONE_DIR" != ".next/standalone/" ]; then
             mv ".next/standalone/node_modules" "$STANDALONE_DIR/"
           fi
           
