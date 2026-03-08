@@ -35,18 +35,17 @@ jobs:
           # Next.js nests standalone in a subdir matching the app folder name
           STANDALONE_DIR=$(ls -d .next/standalone/*/ | head -1)
           echo "Using standalone dir: $STANDALONE_DIR"
-          ls -la "$STANDALONE_DIR"
           
           # We must copy static assets so they are served by the standalone server
           mkdir -p "${STANDALONE_DIR}.next"
           cp -r .next/static "${STANDALONE_DIR}.next/"
           cp -r public "${STANDALONE_DIR}public" 2>/dev/null || true
           
-          # Since Next.js traces to the git root, server.js is inside STANDALONE_DIR, 
-          # but node_modules is hoisted to the root of .next/standalone/
-          # We must move node_modules INTO STANDALONE_DIR so we can zip everything together
+          # Move node_modules FROM .next/standalone/ INTO the app-specific standalone dir
+          # so that $STANDALONE_DIR contains everything needed to run.
           mv .next/standalone/node_modules "$STANDALONE_DIR" || true
           
+          # Now zip the CONTENTS of STANDALONE_DIR so they are at the root of the zip
           cd "$STANDALONE_DIR"
           zip -r "$GITHUB_WORKSPACE/frontend.zip" .
           echo "--- Verifying zip contains server.js ---"

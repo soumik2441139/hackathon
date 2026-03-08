@@ -77,6 +77,16 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D7222125D0DB42B6A3AC525FC6C31A46 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_302D087BC7084C759DEC19A3DA526C08 }}
 
+      - name: Configure Azure Web App settings
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: 'opushire-backend'
+          app-settings-json: |
+            [
+              { "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "false" }
+            ]
+          general-settings-json: '{"appCommandLine": "node dist/server.js"}'
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
