@@ -31,19 +31,22 @@ jobs:
           npm install
           npm run build --if-present
           
+          # Remove dev dependencies and reinstall production deps standalone
+          # This ensures node_modules is populated locally and not symlinked to root
+          rm -rf node_modules
+          npm install --omit=dev --no-workspaces
+          
           # Install dependencies for each bot directory so they work on Azure
           for botdir in recruiter-bot bots/scanner bots/fixer bots/supervisor bots/cleanup bots/archiver; do
             if [ -d "../$botdir" ]; then
               echo "Installing deps for $botdir..."
-              (cd "../$botdir" && npm install --production)
+              (cd "../$botdir" && npm install --production --no-workspaces)
             fi
           done
 
           # Bundle backend + all bot dirs into one zip
-          # Zip the backend contents at root
           zip -r ../backend.zip .
           
-          # Add bot directories at root level of zip
           cd ..
           for botdir in recruiter-bot bots/scanner bots/fixer bots/supervisor bots/cleanup bots/archiver; do
             if [ -d "$botdir" ]; then

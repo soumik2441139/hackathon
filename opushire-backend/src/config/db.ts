@@ -38,7 +38,9 @@ const connectWithRetry = async (): Promise<void> => {
 
         isConnected = true;
     } catch (error: any) {
+        const maskedUri = env.MONGODB_URI.replace(/\/\/.*@/, '//***:***@');
         console.error('❌ MongoDB connection failed:', error?.message || error);
+        console.error('📍 URI attempted:', maskedUri);
         console.log('🔄 Retrying MongoDB connection in 5 seconds...');
         setTimeout(connectWithRetry, 5000);
     }

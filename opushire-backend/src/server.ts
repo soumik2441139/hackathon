@@ -28,7 +28,15 @@ if (env.NODE_ENV !== 'test') {
 }
 
 // Health check
+app.get('/', (_req, res) => {
+    res.json({ status: 'alive', message: 'Opushire Backend API' });
+});
+
 app.get('/health', (_req, res) => {
+    res.json({ status: 'ok', env: env.NODE_ENV, timestamp: new Date().toISOString() });
+});
+
+app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', env: env.NODE_ENV, timestamp: new Date().toISOString() });
 });
 
