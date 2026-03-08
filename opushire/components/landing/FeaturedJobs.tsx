@@ -6,6 +6,7 @@ import { JobCard } from '@/components/jobs/JobCard';
 import { Button } from '../ui/Button';
 import { ScrollReveal } from '../animations/ScrollReveal';
 import Link from 'next/link';
+import AnimatedLoadingSkeleton from '../ui/AnimatedLoadingSkeleton';
 
 export const FeaturedJobs = () => {
     const [jobs, setJobs] = useState<Job[]>([]);
@@ -37,17 +38,19 @@ export const FeaturedJobs = () => {
                 </ScrollReveal>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+            <div className="grid grid-cols-1 gap-6 items-stretch">
                 {loading ? (
-                    [...Array(4)].map((_, i) => (
-                        <div key={i} className="glass-card h-[400px] animate-pulse bg-white/5 rounded-3xl" />
-                    ))
+                    <div className="col-span-full">
+                        <AnimatedLoadingSkeleton />
+                    </div>
                 ) : (
-                    jobs.map((job, index) => (
-                        <ScrollReveal key={job._id} delay={index * 0.1} direction="up" duration={0.6} width="100%">
-                            <JobCard job={job} />
-                        </ScrollReveal>
-                    ))
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                        {jobs.map((job, index) => (
+                            <ScrollReveal key={job._id} delay={index * 0.1} direction="up" duration={0.6} width="100%">
+                                <JobCard job={job} />
+                            </ScrollReveal>
+                        ))}
+                    </div>
                 )}
             </div>
         </section>
