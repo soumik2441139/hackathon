@@ -1,0 +1,14 @@
+<step title="Incoming Request" date="2026-03-02T15:25:27.506" instance="23cdad" url="/api/publish?async=true&amp;deployer=GITHUB_ONE_DEPLOY&amp;type=zip&amp;message=%7B%22type%22%3A%22deployment%22%2C%22sha%22%3A%22afae515a250c876b5f63ab696699dd1d181a52da%22%2C%22repoName%22%3A%22soumik2441139%2Fhackathon%22%2C%22actor%22%3A%22soumik2441139%22%2C%22slotName%22%3A%22Production%22%2C%22commitMessage%22%3A%22Fix%3A%20consolidate%20databases%20to%20%27test%27%3B%20remove%20premium%20upgrade%20card%3B%20clean%20up%20recruiter%20dashboard%20UI%22%7D" method="POST" type="request" pid="839,1,27" Host="opushire-backend.scm.azurewebsites.net" User-Agent="GITHUBACTIONS_DeployWebAppToAzure_f07779e5ffdad6ee0803e7da02989008fa2200f245bf1783eccf4eb4a7b74d58_v3.0.7" Authorization="Bea..." Content-Type="application/octet-stream" Cookie="ARRAffinity=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109; ARRAffinitySameSite=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109" Transfer-Encoding="chunked" X-ARR-LOG-ID="c33cf3c0-e8eb-4535-b281-ad5e4f63e1a8" CLIENT-IP="172.183.131.198:31792" X-SITE-DEPLOYMENT-ID="opushire-backend" WAS-DEFAULT-HOSTNAME="opushire-backend.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/publish?async=true&amp;deployer=GITHUB_ONE_DEPLOY&amp;type=zip&amp;message=%7B%22type%22%3A%22deployment%22%2C%22sha%22%3A%22afae515a250c876b5f63ab696699dd1d181a52da%22%2C%22repoName%22%3A%22soumik2441139%2Fhackathon%22%2C%22actor%22%3A%22soumik2441139%22%2C%22slotName%22%3A%22Production%22%2C%22commitMessage%22%3A%22Fix%3A%20consolidate%20databases%20to%20%27test%27%3B%20remove%20premium%20upgrade%20card%3B%20clean%20up%20recruiter%20dashboard%20UI%22%7D" X-Client-IP="172.183.131.198" X-Client-Port="31792" >
+  <step title="OneDeploy" date="2026-03-02T15:25:27.549" >
+    <step title="Starting PushDeployAsync" date="2026-03-02T15:25:27.569" /><!-- duration: 9ms -->
+    <step title="Removing _del_node_modules symlink" date="2026-03-02T15:25:27.633" >
+      <step title="Writing artifact to /tmp/zipdeploy/d3bfd850-f5b4-4fc7-8a50-c49d448be281.zip" date="2026-03-02T15:25:27.742" >
+        <step title="Writing multipart request body to /tmp/zipdeploy/d3bfd850-f5b4-4fc7-8a50-c49d448be281.zip" date="2026-03-02T15:25:27.750" /><!-- duration: 11ms -->
+      </step><!-- duration: 1814ms -->
+      <step title="Start deployment in the background" date="2026-03-02T15:25:29.577" >
+        <step title="Acquiring Deployment Lock" date="2026-03-02T15:25:29.654" /><!-- duration: 5ms -->
+        <step title="Acquired Deployment Lock" date="2026-03-02T15:25:29.720" /><!-- duration: 5ms -->
+      </step><!-- duration: 239ms -->
+    </step><!-- duration: 2196ms -->
+    <step title="Outgoing response" date="2026-03-02T15:25:29.835" type="response" statusCode="202" statusText="Accepted" /><!-- duration: 4ms -->
+  </step><!-- duration: 2294ms -->

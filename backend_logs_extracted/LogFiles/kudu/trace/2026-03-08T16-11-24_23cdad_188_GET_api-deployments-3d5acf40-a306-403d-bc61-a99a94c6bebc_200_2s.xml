@@ -1,0 +1,7 @@
+<step title="Incoming Request" date="2026-03-08T16:11:24.368" instance="23cdad" url="/api/deployments/3d5acf40-a306-403d-bc61-a99a94c6bebc" method="GET" type="request" pid="841,1,39" Host="opushire-backend.scm.azurewebsites.net" User-Agent="GITHUBACTIONS_DeployWebAppToAzure_f07779e5ffdad6ee0803e7da02989008fa2200f245bf1783eccf4eb4a7b74d58_v3.0.7" Authorization="Bea..." Content-Type="application/json; charset=utf-8" Cookie="ARRAffinity=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109; ARRAffinitySameSite=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109" Content-Length="0" X-ARR-LOG-ID="e47455d2-7125-4a26-aaac-0d1ff2d47e3b" CLIENT-IP="40.116.72.210:17409" X-SITE-DEPLOYMENT-ID="opushire-backend" WAS-DEFAULT-HOSTNAME="opushire-backend.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/deployments/3d5acf40-a306-403d-bc61-a99a94c6bebc" X-Client-IP="40.116.72.210" X-Client-Port="17409" >
+  <step title="Cleanup Xml Logs" date="2026-03-08T16:11:24.414" >
+    <step title="Cleanup Infos" date="2026-03-08T16:11:24.657" totalFiles="1460" totalCleanup="1300" /><!-- duration: 218ms -->
+  </step><!-- duration: 584ms -->
+  <step title="DeploymentService.GetResult" date="2026-03-08T16:11:25.067" /><!-- duration: 784ms -->
+  <step title="Outgoing response" date="2026-03-08T16:11:26.020" type="response" statusCode="200" statusText="OK" /><!-- duration: 69ms -->
+</step><!-- duration: 1772ms -->

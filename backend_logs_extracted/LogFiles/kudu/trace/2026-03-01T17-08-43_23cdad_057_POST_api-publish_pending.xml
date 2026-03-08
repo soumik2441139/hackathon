@@ -1,0 +1,14 @@
+<step title="Incoming Request" date="2026-03-01T17:08:43.147" instance="23cdad" url="/api/publish?async=true&amp;deployer=GITHUB_ONE_DEPLOY&amp;type=zip&amp;message=%7B%22type%22%3A%22deployment%22%2C%22sha%22%3A%22541b2afde062f8dc5f68e2450acd3e9c2c3600d2%22%2C%22repoName%22%3A%22soumik2441139%2Fhackathon%22%2C%22actor%22%3A%22soumik2441139%22%2C%22slotName%22%3A%22Production%22%2C%22commitMessage%22%3A%22docs%3A%20expand%20feature%20and%20architecture%20documentation%22%7D" method="POST" type="request" pid="839,1,89" Host="opushire-backend.scm.azurewebsites.net" User-Agent="GITHUBACTIONS_DeployWebAppToAzure_f07779e5ffdad6ee0803e7da02989008fa2200f245bf1783eccf4eb4a7b74d58_v3.0.7" Authorization="Bea..." Content-Type="application/octet-stream" Cookie="ARRAffinity=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109; ARRAffinitySameSite=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109" Transfer-Encoding="chunked" X-ARR-LOG-ID="59f51a6c-e564-4934-b7dc-53e6523df2e3" CLIENT-IP="52.176.139.90:31776" X-SITE-DEPLOYMENT-ID="opushire-backend" WAS-DEFAULT-HOSTNAME="opushire-backend.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/publish?async=true&amp;deployer=GITHUB_ONE_DEPLOY&amp;type=zip&amp;message=%7B%22type%22%3A%22deployment%22%2C%22sha%22%3A%22541b2afde062f8dc5f68e2450acd3e9c2c3600d2%22%2C%22repoName%22%3A%22soumik2441139%2Fhackathon%22%2C%22actor%22%3A%22soumik2441139%22%2C%22slotName%22%3A%22Production%22%2C%22commitMessage%22%3A%22docs%3A%20expand%20feature%20and%20architecture%20documentation%22%7D" X-Client-IP="52.176.139.90" X-Client-Port="31776" >
+  <step title="OneDeploy" date="2026-03-01T17:08:43.170" >
+    <step title="Starting PushDeployAsync" date="2026-03-01T17:08:43.277" /><!-- duration: 5ms -->
+    <step title="Removing _del_node_modules symlink" date="2026-03-01T17:08:43.305" >
+      <step title="Writing artifact to /tmp/zipdeploy/bffed224-6077-41fc-86b8-6e001bbabe3a.zip" date="2026-03-01T17:08:43.432" >
+        <step title="Writing multipart request body to /tmp/zipdeploy/bffed224-6077-41fc-86b8-6e001bbabe3a.zip" date="2026-03-01T17:08:43.437" /><!-- duration: 6ms -->
+      </step><!-- duration: 2390ms -->
+      <step title="Start deployment in the background" date="2026-03-01T17:08:45.850" >
+        <step title="Acquiring Deployment Lock" date="2026-03-01T17:08:46.094" /><!-- duration: 4ms -->
+        <step title="Acquired Deployment Lock" date="2026-03-01T17:08:46.475" /><!-- duration: 10ms -->
+      </step><!-- duration: 849ms -->
+    </step><!-- duration: 3411ms -->
+    <step title="Outgoing response" date="2026-03-01T17:08:46.936" type="response" statusCode="202" statusText="Accepted" /><!-- duration: 60ms -->
+  </step><!-- duration: 3858ms -->

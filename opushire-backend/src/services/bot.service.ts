@@ -23,9 +23,16 @@ const activeBots = new Map<string, BotProcess>();
 const MAX_LOG_LINES = 100;
 
 // Centralized physical logs directory
-const LOG_DIR = path.resolve(process.cwd(), 'logs');
+const LOG_DIR = process.env.NODE_ENV === 'production'
+    ? path.join(os.tmpdir(), 'opushire-logs')
+    : path.resolve(process.cwd(), 'logs');
+
 if (!fs.existsSync(LOG_DIR)) {
-    fs.mkdirSync(LOG_DIR, { recursive: true });
+    try {
+        fs.mkdirSync(LOG_DIR, { recursive: true });
+    } catch (err) {
+        console.warn(`⚠️ Failed to create log directory at ${LOG_DIR}:`, err);
+    }
 }
 
 function getLogFilePath(botId: string): string {

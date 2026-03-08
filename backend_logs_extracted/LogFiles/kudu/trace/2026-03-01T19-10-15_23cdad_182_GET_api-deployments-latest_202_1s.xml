@@ -1,0 +1,8 @@
+<step title="Incoming Request" date="2026-03-01T19:10:15.251" instance="23cdad" url="/api/deployments/latest?deployer=OneDeploy&amp;time=2026-03-01_19-10-14Z" method="GET" type="request" pid="839,1,21" Host="opushire-backend.scm.azurewebsites.net" User-Agent="GITHUBACTIONS_DeployWebAppToAzure_f07779e5ffdad6ee0803e7da02989008fa2200f245bf1783eccf4eb4a7b74d58_v3.0.7" Authorization="Bea..." Content-Type="application/json; charset=utf-8" Cookie="ARRAffinity=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109; ARRAffinitySameSite=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109" Content-Length="0" X-ARR-LOG-ID="2dd6f03e-7111-497c-8220-e15aea25ac73" CLIENT-IP="64.236.193.17:63496" X-SITE-DEPLOYMENT-ID="opushire-backend" WAS-DEFAULT-HOSTNAME="opushire-backend.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/deployments/latest?deployer=OneDeploy&amp;time=2026-03-01_19-10-14Z" X-Client-IP="64.236.193.17" X-Client-Port="63496" >
+  <step title="DeploymentService.GetResult" date="2026-03-01T19:10:15.258" >
+    <step title="DeploymentService.GetLatestDeployment" date="2026-03-01T19:10:15.261" >
+      <step title="DeploymentManager.GetResults" date="2026-03-01T19:10:15.270" /><!-- duration: 652ms -->
+    </step><!-- duration: 668ms -->
+  </step><!-- duration: 675ms -->
+  <step title="Outgoing response" date="2026-03-01T19:10:15.949" type="response" statusCode="202" statusText="Accepted" /><!-- duration: 4ms -->
+</step><!-- duration: 706ms -->

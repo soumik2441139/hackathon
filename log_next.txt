@@ -1,0 +1,100 @@
+build	UNKNOWN STEP	2026-03-08T06:25:36.8046440Z ┌ ○ /
+build	UNKNOWN STEP	2026-03-08T06:25:36.8046808Z ├ ○ /_not-found
+build	UNKNOWN STEP	2026-03-08T06:25:36.8047188Z ├ ○ /companies
+build	UNKNOWN STEP	2026-03-08T06:25:36.8047598Z ├ ○ /dashboard/admin
+build	UNKNOWN STEP	2026-03-08T06:25:36.8048068Z ├ ○ /dashboard/admin/bots
+build	UNKNOWN STEP	2026-03-08T06:25:36.8048552Z ├ ○ /dashboard/admin/cleaner
+build	UNKNOWN STEP	2026-03-08T06:25:36.8049056Z ├ ○ /dashboard/admin/jobs
+build	UNKNOWN STEP	2026-03-08T06:25:36.8049593Z ├ ƒ /dashboard/admin/jobs/edit/[id]
+build	UNKNOWN STEP	2026-03-08T06:25:36.8050111Z ├ ○ /dashboard/messages
+build	UNKNOWN STEP	2026-03-08T06:25:36.8050560Z ├ ○ /dashboard/recruiter
+build	UNKNOWN STEP	2026-03-08T06:25:36.8051084Z ├ ○ /dashboard/recruiter/post-job
+build	UNKNOWN STEP	2026-03-08T06:25:36.8051712Z ├ ○ /dashboard/student
+build	UNKNOWN STEP	2026-03-08T06:25:36.8052140Z ├ ○ /jobs
+build	UNKNOWN STEP	2026-03-08T06:25:36.8052524Z ├ ƒ /jobs/[id]
+build	UNKNOWN STEP	2026-03-08T06:25:36.8052917Z ├ ○ /jobs/create
+build	UNKNOWN STEP	2026-03-08T06:25:36.8053300Z ├ ○ /login
+build	UNKNOWN STEP	2026-03-08T06:25:36.8053638Z ├ ○ /register
+build	UNKNOWN STEP	2026-03-08T06:25:36.8054048Z └ ○ /salaries
+build	UNKNOWN STEP	2026-03-08T06:25:36.8054228Z 
+build	UNKNOWN STEP	2026-03-08T06:25:36.8054239Z 
+build	UNKNOWN STEP	2026-03-08T06:25:36.8054617Z ○  (Static)   prerendered as static content
+build	UNKNOWN STEP	2026-03-08T06:25:36.8055486Z ƒ  (Dynamic)  server-rendered on demand
+build	UNKNOWN STEP	2026-03-08T06:25:36.8055810Z 
+build	UNKNOWN STEP	2026-03-08T06:25:36.8576555Z --- Verifying standalone output ---
+build	UNKNOWN STEP	2026-03-08T06:25:36.8598387Z total 16
+build	UNKNOWN STEP	2026-03-08T06:25:36.8598914Z drwxr-xr-x  4 runner runner 4096 Mar  8 06:25 .
+build	UNKNOWN STEP	2026-03-08T06:25:36.8599576Z drwxr-xr-x  9 runner runner 4096 Mar  8 06:25 ..
+build	UNKNOWN STEP	2026-03-08T06:25:36.8600116Z drwxr-xr-x 13 runner runner 4096 Mar  8 06:25 node_modules
+build	UNKNOWN STEP	2026-03-08T06:25:36.8600534Z drwxr-xr-x  3 runner runner 4096 Mar  8 06:25 opushire
+build	UNKNOWN STEP	2026-03-08T06:25:36.8625420Z Using standalone dir: .next/standalone/opushire/
+build	UNKNOWN STEP	2026-03-08T06:25:36.9406543Z   adding: package.json (deflated 59%)
+build	UNKNOWN STEP	2026-03-08T06:25:36.9408346Z   adding: server.js (deflated 57%)
+build	UNKNOWN STEP	2026-03-08T06:25:36.9408927Z   adding: node_modules/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:36.9409482Z   adding: node_modules/@img/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:36.9410131Z   adding: node_modules/@img/sharp-linux-x64/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:36.9410853Z   adding: node_modules/@img/sharp-linux-x64/lib/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:36.9641534Z   adding: node_modules/@img/sharp-linux-x64/lib/sharp-linux-x64.node (deflated 58%)
+build	UNKNOWN STEP	2026-03-08T06:25:36.9642766Z   adding: node_modules/@img/sharp-linux-x64/package.json (deflated 51%)
+build	UNKNOWN STEP	2026-03-08T06:25:36.9643962Z   adding: node_modules/@img/sharp-libvips-linuxmusl-x64/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:36.9645537Z   adding: node_modules/@img/sharp-libvips-linuxmusl-x64/README.md (deflated 80%)
+build	UNKNOWN STEP	2026-03-08T06:25:36.9646769Z   adding: node_modules/@img/sharp-libvips-linuxmusl-x64/lib/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7798657Z   adding: node_modules/@img/sharp-libvips-linuxmusl-x64/lib/libvips-cpp.so.8.17.3 (deflated 56%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7800242Z   adding: node_modules/@img/sharp-libvips-linuxmusl-x64/lib/glib-2.0/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7802246Z   adding: node_modules/@img/sharp-libvips-linuxmusl-x64/lib/glib-2.0/include/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7803926Z   adding: node_modules/@img/sharp-libvips-linuxmusl-x64/lib/glib-2.0/include/glibconfig.h (deflated 69%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7806200Z   adding: node_modules/@img/sharp-libvips-linuxmusl-x64/lib/index.js (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7807106Z   adding: node_modules/@img/sharp-libvips-linuxmusl-x64/package.json (deflated 51%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7807807Z   adding: node_modules/@img/sharp-libvips-linuxmusl-x64/versions.json (deflated 53%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7808407Z   adding: node_modules/@img/sharp-linuxmusl-x64/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7808914Z   adding: node_modules/@img/sharp-linuxmusl-x64/lib/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7954337Z   adding: node_modules/@img/sharp-linuxmusl-x64/lib/sharp-linuxmusl-x64.node (deflated 60%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7956089Z   adding: node_modules/@img/sharp-linuxmusl-x64/package.json (deflated 52%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7957052Z   adding: node_modules/@img/colour/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7957732Z   adding: node_modules/@img/colour/index.cjs (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7958503Z   adding: node_modules/@img/colour/package.json (deflated 55%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7971034Z   adding: node_modules/@img/colour/color.cjs (deflated 74%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7971837Z   adding: node_modules/@img/sharp-libvips-linux-x64/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7972714Z   adding: node_modules/@img/sharp-libvips-linux-x64/README.md (deflated 80%)
+build	UNKNOWN STEP	2026-03-08T06:25:37.7973589Z   adding: node_modules/@img/sharp-libvips-linux-x64/lib/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.5937181Z   adding: node_modules/@img/sharp-libvips-linux-x64/lib/libvips-cpp.so.8.17.3 (deflated 56%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.5938329Z   adding: node_modules/@img/sharp-libvips-linux-x64/lib/glib-2.0/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.5939493Z   adding: node_modules/@img/sharp-libvips-linux-x64/lib/glib-2.0/include/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.5940930Z   adding: node_modules/@img/sharp-libvips-linux-x64/lib/glib-2.0/include/glibconfig.h (deflated 69%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.5942320Z   adding: node_modules/@img/sharp-libvips-linux-x64/lib/index.js (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.5945314Z   adding: node_modules/@img/sharp-libvips-linux-x64/package.json (deflated 51%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.5946321Z   adding: node_modules/@img/sharp-libvips-linux-x64/versions.json (deflated 53%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.5947109Z   adding: node_modules/react-dom/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.5947679Z   adding: node_modules/react-dom/cjs/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.5948404Z   adding: node_modules/react-dom/cjs/react-dom.production.js (deflated 73%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6011717Z   adding: node_modules/react-dom/cjs/react-dom-server-legacy.node.production.js (deflated 81%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6087076Z   adding: node_modules/react-dom/cjs/react-dom-server.edge.production.js (deflated 82%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6159510Z   adding: node_modules/react-dom/cjs/react-dom-server.browser.production.js (deflated 82%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6224941Z   adding: node_modules/react-dom/cjs/react-dom-server-legacy.browser.production.js (deflated 82%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6299810Z   adding: node_modules/react-dom/cjs/react-dom-server.node.production.js (deflated 82%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6300781Z   adding: node_modules/react-dom/static.node.js (deflated 58%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6301550Z   adding: node_modules/react-dom/server.node.js (deflated 65%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6304060Z   adding: node_modules/react-dom/package.json (deflated 79%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6305190Z   adding: node_modules/react-dom/server.edge.js (deflated 59%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6306128Z   adding: node_modules/react-dom/server.browser.js (deflated 60%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6307010Z   adding: node_modules/react-dom/index.js (deflated 53%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6307763Z   adding: node_modules/typescript/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6308504Z   adding: node_modules/typescript/lib/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6309172Z   adding: node_modules/typescript/lib/zh-cn/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6401488Z   adding: node_modules/typescript/lib/zh-cn/diagnosticMessages.generated.json (deflated 73%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6402736Z   adding: node_modules/typescript/lib/tsserver.js (deflated 38%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6403612Z   adding: node_modules/typescript/lib/ja/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6523358Z   adding: node_modules/typescript/lib/ja/diagnosticMessages.generated.json (deflated 77%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6525490Z   adding: node_modules/typescript/lib/_typingsInstaller.js (deflated 70%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6526280Z   adding: node_modules/typescript/lib/tr/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6633188Z   adding: node_modules/typescript/lib/tr/diagnosticMessages.generated.json (deflated 75%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6634220Z   adding: node_modules/typescript/lib/de/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6754192Z   adding: node_modules/typescript/lib/de/diagnosticMessages.generated.json (deflated 75%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6754889Z   adding: node_modules/typescript/lib/zh-tw/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.6849161Z   adding: node_modules/typescript/lib/zh-tw/diagnosticMessages.generated.json (deflated 72%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.8660463Z   adding: node_modules/typescript/lib/_tsc.js (deflated 82%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.8661077Z   adding: node_modules/typescript/lib/fr/ (stored 0%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.8778044Z   adding: node_modules/typescript/lib/fr/diagnosticMessages.generated.json (deflated 76%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.8786113Z   adding: node_modules/typescript/lib/_tsserver.js (deflated 73%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.8786865Z   adding: node_modules/typescript/lib/tsserverlibrary.js (deflated 46%)
+build	UNKNOWN STEP	2026-03-08T06:25:38.8787515Z   adding: node_modules/typescript/lib/typingsInstaller.js (deflated 38%)

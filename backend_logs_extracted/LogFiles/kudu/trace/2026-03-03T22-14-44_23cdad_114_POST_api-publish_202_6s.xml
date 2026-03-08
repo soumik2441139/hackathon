@@ -1,0 +1,16 @@
+<step title="Incoming Request" date="2026-03-03T22:14:44.045" instance="23cdad" url="/api/publish?async=true&amp;deployer=GITHUB_ONE_DEPLOY&amp;type=zip&amp;clean=true&amp;restart=true&amp;message=%7B%22type%22%3A%22deployment%22%2C%22sha%22%3A%2207240a44842ce920565c21ba4133b38d49227610%22%2C%22repoName%22%3A%22soumik2441139%2Fhackathon%22%2C%22actor%22%3A%22soumik2441139%22%2C%22slotName%22%3A%22Production%22%2C%22commitMessage%22%3A%22fix(pipeline)%3A%20move%20node_modules%20into%20standalone%20opushire%20dir%20to%20resolve%20500%20Server%20missing%20module%20errors%22%7D" method="POST" type="request" pid="832,1,33" Host="opushire-backend.scm.azurewebsites.net" User-Agent="GITHUBACTIONS_DeployWebAppToAzure_f07779e5ffdad6ee0803e7da02989008fa2200f245bf1783eccf4eb4a7b74d58_v3.0.7" Authorization="Bea..." Content-Type="application/octet-stream" Cookie="ARRAffinity=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109; ARRAffinitySameSite=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109" Transfer-Encoding="chunked" X-ARR-LOG-ID="cf97508a-f7fc-424e-960a-f280722fc39c" CLIENT-IP="172.182.226.71:8192" X-SITE-DEPLOYMENT-ID="opushire-backend" WAS-DEFAULT-HOSTNAME="opushire-backend.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/publish?async=true&amp;deployer=GITHUB_ONE_DEPLOY&amp;type=zip&amp;clean=true&amp;restart=true&amp;message=%7B%22type%22%3A%22deployment%22%2C%22sha%22%3A%2207240a44842ce920565c21ba4133b38d49227610%22%2C%22repoName%22%3A%22soumik2441139%2Fhackathon%22%2C%22actor%22%3A%22soumik2441139%22%2C%22slotName%22%3A%22Production%22%2C%22commitMessage%22%3A%22fix(pipeline)%3A%20move%20node_modules%20into%20standalone%20opushire%20dir%20to%20resolve%20500%20Server%20missing%20module%20errors%22%7D" X-Client-IP="172.182.226.71" X-Client-Port="8192" >
+  <step title="Cleanup Xml Logs" date="2026-03-03T22:14:44.066" >
+    <step title="Cleanup Infos" date="2026-03-03T22:14:44.375" totalFiles="939" totalCleanup="779" /><!-- duration: 43ms -->
+  </step><!-- duration: 399ms -->
+  <step title="OneDeploy" date="2026-03-03T22:14:44.657" >
+    <step title="Starting PushDeployAsync" date="2026-03-03T22:14:44.859" /><!-- duration: 20ms -->
+    <step title="Writing artifact to /tmp/zipdeploy/8fc1feab-685a-4013-8380-286f7b33721c.zip" date="2026-03-03T22:14:45.401" >
+      <step title="Writing multipart request body to /tmp/zipdeploy/8fc1feab-685a-4013-8380-286f7b33721c.zip" date="2026-03-03T22:14:45.622" /><!-- duration: 60ms -->
+    </step><!-- duration: 3425ms -->
+    <step title="Start deployment in the background" date="2026-03-03T22:14:48.947" >
+      <step title="Acquiring Deployment Lock" date="2026-03-03T22:14:49.417" /><!-- duration: 20ms -->
+      <step title="Acquired Deployment Lock" date="2026-03-03T22:14:49.617" /><!-- duration: 12ms -->
+    </step><!-- duration: 1223ms -->
+  </step><!-- duration: 5741ms -->
+  <step title="Outgoing response" date="2026-03-03T22:14:50.429" type="response" statusCode="202" statusText="Accepted" /><!-- duration: 11ms -->
+</step><!-- duration: 6435ms -->

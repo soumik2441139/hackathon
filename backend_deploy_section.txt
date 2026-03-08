@@ -1,0 +1,102 @@
+
+> backend_success_log.txt:608:deploy	UNKNOWN STEP	2026-03-08T06:25:43.0821506Z   repository: soumik2441139/hackathon
+> backend_success_log.txt:609:deploy	UNKNOWN STEP	2026-03-08T06:25:43.0822528Z   run-id: 22815558548
+> backend_success_log.txt:610:deploy	UNKNOWN STEP	2026-03-08T06:25:43.0823530Z ##[endgroup]
+> backend_success_log.txt:611:deploy	UNKNOWN STEP	2026-03-08T06:25:43.2940705Z Downloading single artifact
+> backend_success_log.txt:612:deploy	UNKNOWN STEP	2026-03-08T06:25:43.3854358Z Preparing to download the following artifacts:
+> backend_success_log.txt:613:deploy	UNKNOWN STEP	2026-03-08T06:25:43.3858819Z - backend-app (ID: 5816145860, Size: 197913, Expected Digest: sha256:506e8ff82265a763b22d6102d191ebf9cd0eee9167e11af7f571104b3461c95a)
+> backend_success_log.txt:614:deploy	UNKNOWN STEP	2026-03-08T06:25:43.4345324Z Redirecting to blob download url: https://productionresultssa7.blob.core.windows.net/actions-results/a6d08c63-e984-41f1-8340-1a2e484e7f1f/workflow-job-run-c207c8c4-d298-5322-bf7a-4fbe55dacff1/artifacts/f5b9b56565deb809c98d16f1b14865a860a6a0e0f956ca27bd7a0b68a596b31f.zip
+> backend_success_log.txt:615:deploy	UNKNOWN STEP	2026-03-08T06:25:43.4353564Z Starting download of artifact to: /home/runner/work/hackathon/hackathon
+> backend_success_log.txt:616:deploy	UNKNOWN STEP	2026-03-08T06:25:43.4858678Z (node:2232) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+> backend_success_log.txt:617:deploy	UNKNOWN STEP	2026-03-08T06:25:43.4862762Z (Use `node --trace-deprecation ...` to show where the warning was created)
+> backend_success_log.txt:618:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5033575Z SHA256 digest of downloaded artifact is 506e8ff82265a763b22d6102d191ebf9cd0eee9167e11af7f571104b3461c95a
+> backend_success_log.txt:619:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5036911Z Artifact download completed successfully.
+> backend_success_log.txt:620:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5038856Z Total of 1 artifact(s) downloaded
+> backend_success_log.txt:621:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5040996Z Download artifact has finished successfully
+> backend_success_log.txt:622:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5300254Z ##[group]Run azure/login@v2
+> backend_success_log.txt:623:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5301231Z with:
+> backend_success_log.txt:624:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5302348Z   client-id: ***
+> backend_success_log.txt:625:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5303323Z   tenant-id: ***
+> backend_success_log.txt:626:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5304611Z   subscription-id: ***
+> backend_success_log.txt:627:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5305534Z   enable-AzPSSession: false
+> backend_success_log.txt:628:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5306493Z   environment: azurecloud
+> backend_success_log.txt:629:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5307611Z   allow-no-subscriptions: false
+> backend_success_log.txt:630:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5308694Z   audience: api://AzureADTokenExchange
+> backend_success_log.txt:631:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5309832Z   auth-type: SERVICE_PRINCIPAL
+> backend_success_log.txt:632:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5310803Z ##[endgroup]
+> backend_success_log.txt:633:deploy	UNKNOWN STEP	2026-03-08T06:25:43.5699047Z Running Azure CLI Login.
+> backend_success_log.txt:634:deploy	UNKNOWN STEP	2026-03-08T06:25:57.9135579Z [command]/usr/bin/az cloud set -n azurecloud
+> backend_success_log.txt:635:deploy	UNKNOWN STEP	2026-03-08T06:25:58.1511921Z Done setting cloud: "azurecloud"
+> backend_success_log.txt:636:deploy	UNKNOWN STEP	2026-03-08T06:25:58.2606715Z Federated token details:
+> backend_success_log.txt:637:deploy	UNKNOWN STEP	2026-03-08T06:25:58.2608107Z  issuer - https://token.actions.githubusercontent.com
+> backend_success_log.txt:638:deploy	UNKNOWN STEP	2026-03-08T06:25:58.2608930Z  subject claim - repo:soumik2441139/hackathon:ref:refs/heads/soumik
+> backend_success_log.txt:639:deploy	UNKNOWN STEP	2026-03-08T06:25:58.2609450Z  audience - api://AzureADTokenExchange
+> backend_success_log.txt:640:deploy	UNKNOWN STEP	2026-03-08T06:25:58.2610055Z  job_workflow_ref - soumik2441139/hackathon/.github/workflows/soumik_opushire-backend.yml@refs/heads/soumik
+> backend_success_log.txt:641:deploy	UNKNOWN STEP	2026-03-08T06:25:58.2610664Z Attempting Azure CLI login by using OIDC...
+> backend_success_log.txt:642:deploy	UNKNOWN STEP	2026-03-08T06:25:59.6301425Z Subscription is set successfully.
+> backend_success_log.txt:643:deploy	UNKNOWN STEP	2026-03-08T06:25:59.6302175Z Azure CLI login succeeds by using OIDC.
+> backend_success_log.txt:644:deploy	UNKNOWN STEP	2026-03-08T06:25:59.6417488Z ##[group]Run azure/appservice-settings@v1
+> backend_success_log.txt:645:deploy	UNKNOWN STEP	2026-03-08T06:25:59.6417832Z with:
+> backend_success_log.txt:646:deploy	UNKNOWN STEP	2026-03-08T06:25:59.6418044Z   app-name: opushire-backend
+> backend_success_log.txt:647:deploy	UNKNOWN STEP	2026-03-08T06:25:59.6418597Z   app-settings-json: [
+> backend_success_log.txt:648:deploy	UNKNOWN STEP	  { "name": "WEBSITE_RUN_FROM_PACKAGE", "value": "1" },
+> backend_success_log.txt:649:deploy	UNKNOWN STEP	  { "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "false" }
+> backend_success_log.txt:650:deploy	UNKNOWN STEP	]
+> backend_success_log.txt:651:deploy	UNKNOWN STEP	
+> backend_success_log.txt:652:deploy	UNKNOWN STEP	2026-03-08T06:25:59.6419257Z   general-settings-json: {"appCommandLine": "node dist/server.js"}
+> backend_success_log.txt:653:deploy	UNKNOWN STEP	2026-03-08T06:25:59.6419633Z   mask-inputs: true
+> backend_success_log.txt:654:deploy	UNKNOWN STEP	2026-03-08T06:25:59.6419832Z ##[endgroup]
+> backend_success_log.txt:655:deploy	UNKNOWN STEP	2026-03-08T06:26:00.3675163Z Got service connection details for Azure App Service: opushire-backend
+> backend_success_log.txt:656:deploy	UNKNOWN STEP	2026-03-08T06:26:01.5693157Z Resource Group : opushire-rg
+> backend_success_log.txt:657:deploy	UNKNOWN STEP	2026-03-08T06:26:01.5697707Z Updating App Service Application settings. Data: {"WEBSITE_RUN_FROM_PACKAGE":"***","SCM_DO_BUILD_DURING_DEPLOYMENT":"***"}
+> backend_success_log.txt:658:deploy	UNKNOWN STEP	2026-03-08T06:26:03.2793166Z Updating App Service Configuration settings. Data: {"appCommandLine":"node dist/server.js"}
+> backend_success_log.txt:659:deploy	UNKNOWN STEP	2026-03-08T06:26:25.5304876Z Updated App Service Configuration settings.
+> backend_success_log.txt:660:deploy	UNKNOWN STEP	2026-03-08T06:26:26.9637494Z ##[warning]The `set-output` command is deprecated and will be disabled soon. Please upgrade to using Environment Files. For more information see: https://github.blog/changelog/2022-***0-***-github-actions-deprecating-save-state-and-set-output-commands/
+> backend_success_log.txt:661:deploy	UNKNOWN STEP	2026-03-08T06:26:26.9748110Z ##[group]Run azure/webapps-deploy@v3
+> backend_success_log.txt:662:deploy	UNKNOWN STEP	2026-03-08T06:26:26.9748409Z with:
+> backend_success_log.txt:663:deploy	UNKNOWN STEP	2026-03-08T06:26:26.9748612Z   app-name: opushire-backend
+> backend_success_log.txt:664:deploy	UNKNOWN STEP	2026-03-08T06:26:26.9748851Z   slot-name: Production
+> backend_success_log.txt:665:deploy	UNKNOWN STEP	2026-03-08T06:26:26.9749069Z   package: backend.zip
+> backend_success_log.txt:666:deploy	UNKNOWN STEP	2026-03-08T06:26:26.9749283Z   clean: true
+> backend_success_log.txt:667:deploy	UNKNOWN STEP	2026-03-08T06:26:26.9749491Z   restart: true
+> backend_success_log.txt:668:deploy	UNKNOWN STEP	2026-03-08T06:26:26.9749709Z env:
+> backend_success_log.txt:669:deploy	UNKNOWN STEP	2026-03-08T06:26:26.9749892Z   AZURE_HTTP_USER_AGENT: 
+> backend_success_log.txt:670:deploy	UNKNOWN STEP	2026-03-08T06:26:26.9750108Z ##[endgroup]
+> backend_success_log.txt:671:deploy	UNKNOWN STEP	2026-03-08T06:26:27.1626322Z (node:2435) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+> backend_success_log.txt:672:deploy	UNKNOWN STEP	2026-03-08T06:26:27.1627849Z (Use `node --trace-deprecation ...` to show where the warning was created)
+> backend_success_log.txt:673:deploy	UNKNOWN STEP	2026-03-08T06:26:28.9749701Z Validating SPN Linux Web App inputs...
+> backend_success_log.txt:674:deploy	UNKNOWN STEP	2026-03-08T06:26:28.9838717Z Predeployment Step Started
+> backend_success_log.txt:675:deploy	UNKNOWN STEP	2026-03-08T06:26:32.8390095Z Deployment Step Started
+> backend_success_log.txt:676:deploy	UNKNOWN STEP	2026-03-08T06:26:32.8391580Z Starting deployment for web app...
+> backend_success_log.txt:677:deploy	UNKNOWN STEP	2026-03-08T06:26:34.7760353Z Package deployment using OneDeploy initiated.
+> backend_success_log.txt:678:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5956834Z {
+> backend_success_log.txt:679:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5957484Z   id: '***9***bf5a0-3da5-450***-a39c-63380e***3e96d',
+> backend_success_log.txt:680:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5957973Z   status: 4,
+> backend_success_log.txt:681:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5958276Z   status_text: '',
+> backend_success_log.txt:682:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5958632Z   author_email: 'N/A',
+> backend_success_log.txt:683:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5958964Z   author: 'N/A',
+> backend_success_log.txt:684:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5959292Z   deployer: 'OneDeploy',
+> backend_success_log.txt:685:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5959646Z   message: 'OneDeploy',
+> backend_success_log.txt:686:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5959999Z   progress: '',
+> backend_success_log.txt:687:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5961157Z   received_time: '2026-03-08T06:26:39.3***69789Z',
+> backend_success_log.txt:688:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5961693Z   start_time: '2026-03-08T06:26:40.784563Z',
+> backend_success_log.txt:689:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5962165Z   end_time: '2026-03-08T06:26:42.4289383Z',
+> backend_success_log.txt:690:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5962727Z   last_success_end_time: '2026-03-08T06:26:42.4289383Z',
+> backend_success_log.txt:691:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5963054Z   complete: true,
+> backend_success_log.txt:692:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5963259Z   active: true,
+> backend_success_log.txt:693:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5963470Z   is_temp: ***,
+> backend_success_log.txt:694:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5963689Z   is_readonly: true,
+> backend_success_log.txt:695:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5964192Z   url: 'https://opushire-backend.scm.azurewebsites.net/api/deployments/***9***bf5a0-3da5-450***-a39c-63380e***3e96d',
+> backend_success_log.txt:696:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5965013Z   log_url: 'https://opushire-backend.scm.azurewebsites.net/api/deployments/***9***bf5a0-3da5-450***-a39c-63380e***3e96d/log',
+> backend_success_log.txt:697:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5965588Z   site_name: 'opushire-backend',
+> backend_success_log.txt:698:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5965862Z   build_summary: { errors: [], warnings: [] }
+> backend_success_log.txt:699:deploy	UNKNOWN STEP	2026-03-08T06:26:44.5966132Z }
+> backend_success_log.txt:700:deploy	UNKNOWN STEP	2026-03-08T06:26:45.1748282Z Deploy logs can be viewed at https://opushire-backend.scm.azurewebsites.net/api/deployments/***9***bf5a0-3da5-450***-a39c-63380e***3e96d/log
+> backend_success_log.txt:701:deploy	UNKNOWN STEP	2026-03-08T06:26:45.1749174Z Successfully deployed web package to App Service.
+> backend_success_log.txt:702:deploy	UNKNOWN STEP	2026-03-08T06:26:46.5234403Z App Service Application URL: https://opushire-backend.azurewebsites.net
+> backend_success_log.txt:703:deploy	UNKNOWN STEP	2026-03-08T06:26:46.5389218Z Post job cleanup.
+> backend_success_log.txt:704:deploy	UNKNOWN STEP	2026-03-08T06:26:46.5790211Z Clearing azure cli accounts from the local cache.
+> backend_success_log.txt:705:deploy	UNKNOWN STEP	2026-03-08T06:26:46.5799844Z [command]/usr/bin/az account clear
+> backend_success_log.txt:706:deploy	UNKNOWN STEP	2026-03-08T06:26:47.0914073Z Cleaning up orphan processes
+> backend_success_log.txt:707:deploy	UNKNOWN STEP	2026-03-08T06:26:47.1419488Z Terminate orphan process: pid (2552) (python3)
+

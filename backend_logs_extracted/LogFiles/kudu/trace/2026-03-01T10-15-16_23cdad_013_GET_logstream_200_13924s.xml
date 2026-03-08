@@ -1,0 +1,8 @@
+<step title="Incoming Request" date="2026-03-01T10:15:16.424" instance="23cdad" url="/logstream" method="GET" type="request" pid="839,1,29" Host="opushire-backend.scm.azurewebsites.net" User-Agent="AZURECLI/2.83.0 (MSI)" Accept-Encoding="identity" Authorization="Bea..." x-ms-client-request-id="82ae21dc-1557-11f1-88d5-005056c00008" X-ARR-LOG-ID="82ae21dc-1557-11f1-88d5-005056c00008" CLIENT-IP="103.161.223.11:60089" X-SITE-DEPLOYMENT-ID="opushire-backend" WAS-DEFAULT-HOSTNAME="opushire-backend.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/logstream" X-Client-IP="103.161.223.11" X-Client-Port="60089" >
+  <step title="Cleanup Xml Logs" date="2026-03-01T10:15:16.430" /><!-- duration: 10ms -->
+  <step title="LogStreamHandlerMiddleware.Invoke" date="2026-03-01T10:15:16.470" /><!-- duration: 103ms -->
+  <step title="Error occurred" date="2026-03-01T12:15:16.584" type="error" text="LogStreamManager: Inside TerminateClient" /><!-- duration: 12ms -->
+  <step title="Error occurred" date="2026-03-01T12:15:16.611" type="error" text="LogStreamManager: Inside Reset" /><!-- duration: 4ms -->
+  <step title="Error occurred" date="2026-03-01T14:07:19.623" type="error" text="LogStreamManager: ProcessRequest end due to timeout" /><!-- duration: 41ms -->
+  <step title="Outgoing response" date="2026-03-01T14:07:19.963" type="response" statusCode="200" statusText="OK" /><!-- duration: 31ms -->
+</step><!-- duration: 13923609ms -->

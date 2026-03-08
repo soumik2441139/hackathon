@@ -1,0 +1,17 @@
+<step title="Incoming Request" date="2026-03-02T19:45:29.632" instance="23cdad" url="/api/publish?async=true&amp;deployer=GITHUB_ONE_DEPLOY&amp;type=zip&amp;message=%7B%22type%22%3A%22deployment%22%2C%22sha%22%3A%22e142a9c9a49b1946768fc7bf55175cf53f8cbb42%22%2C%22repoName%22%3A%22soumik2441139%2Fhackathon%22%2C%22actor%22%3A%22soumik2441139%22%2C%22slotName%22%3A%22Production%22%2C%22commitMessage%22%3A%22feat%3A%20implement%20full%20Adzuna%20provider%20(Phase%202)%20with%20multi-country%20search%22%7D" method="POST" type="request" pid="839,1,27" Host="opushire-backend.scm.azurewebsites.net" User-Agent="GITHUBACTIONS_DeployWebAppToAzure_f07779e5ffdad6ee0803e7da02989008fa2200f245bf1783eccf4eb4a7b74d58_v3.0.7" Authorization="Bea..." Content-Type="application/octet-stream" Cookie="ARRAffinity=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109; ARRAffinitySameSite=23cdad61420c5889fda209616dbf4be0de0ce3094160b7e407865b327d30e109" Transfer-Encoding="chunked" X-ARR-LOG-ID="46bbe8e6-2a5c-4cd4-84e2-11c2c85daaaa" CLIENT-IP="172.208.125.197:29760" X-SITE-DEPLOYMENT-ID="opushire-backend" WAS-DEFAULT-HOSTNAME="opushire-backend.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/publish?async=true&amp;deployer=GITHUB_ONE_DEPLOY&amp;type=zip&amp;message=%7B%22type%22%3A%22deployment%22%2C%22sha%22%3A%22e142a9c9a49b1946768fc7bf55175cf53f8cbb42%22%2C%22repoName%22%3A%22soumik2441139%2Fhackathon%22%2C%22actor%22%3A%22soumik2441139%22%2C%22slotName%22%3A%22Production%22%2C%22commitMessage%22%3A%22feat%3A%20implement%20full%20Adzuna%20provider%20(Phase%202)%20with%20multi-country%20search%22%7D" X-Client-IP="172.208.125.197" X-Client-Port="29760" >
+  <step title="Cleanup Xml Logs" date="2026-03-02T19:45:29.643" >
+    <step title="Cleanup Infos" date="2026-03-02T19:45:29.762" totalFiles="434" totalCleanup="274" /><!-- duration: 40ms -->
+  </step><!-- duration: 170ms -->
+  <step title="OneDeploy" date="2026-03-02T19:45:29.902" >
+    <step title="Starting PushDeployAsync" date="2026-03-02T19:45:29.954" /><!-- duration: 48ms -->
+    <step title="Writing artifact to /tmp/zipdeploy/f99e616a-6664-4ca7-a97a-020d5c2901be.zip" date="2026-03-02T19:45:30.040" >
+      <step title="Writing multipart request body to /tmp/zipdeploy/f99e616a-6664-4ca7-a97a-020d5c2901be.zip" date="2026-03-02T19:45:30.049" /><!-- duration: 25ms -->
+    </step><!-- duration: 1650ms -->
+    <step title="Start deployment in the background" date="2026-03-02T19:45:31.750" >
+      <step title="Acquiring Deployment Lock" date="2026-03-02T19:45:31.800" /><!-- duration: 20ms -->
+      <step title="Cannot Acquire Deployment Lock already held" date="2026-03-02T19:45:31.871" /><!-- duration: 21ms -->
+    </step><!-- duration: 329ms -->
+    <step title="There is a deployment currently in progress. Please try again when it completes." date="2026-03-02T19:45:32.120" /><!-- duration: 21ms -->
+  </step><!-- duration: 2268ms -->
+  <step title="Outgoing response" date="2026-03-02T19:45:32.252" type="response" statusCode="409" statusText="Conflict" /><!-- duration: 28ms -->
+</step><!-- duration: 2697ms -->
