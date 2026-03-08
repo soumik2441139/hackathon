@@ -66,8 +66,8 @@ export const startBot = (botId: string, args: string[] = []) => {
         let childArgs = [botConfig.script, ...args];
 
         if ((botConfig as any).isTsNode) {
-            childUrl = 'npx';
-            childArgs = ['ts-node', 'src/cli.ts', ...args];
+            childUrl = 'node';
+            childArgs = ['-r', 'ts-node/register', 'src/cli.ts', ...args];
         }
 
         const child = spawn(childUrl, childArgs, {
