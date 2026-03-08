@@ -1,0 +1,404 @@
+build-backend	Set up job	﻿2026-03-08T04:59:19.6400129Z Current runner version: '2.332.0'
+build-backend	Set up job	2026-03-08T04:59:19.6424184Z ##[group]Runner Image Provisioner
+build-backend	Set up job	2026-03-08T04:59:19.6425181Z Hosted Compute Agent
+build-backend	Set up job	2026-03-08T04:59:19.6425730Z Version: 20260213.493
+build-backend	Set up job	2026-03-08T04:59:19.6426337Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+build-backend	Set up job	2026-03-08T04:59:19.6427084Z Build Date: 2026-02-13T00:28:41Z
+build-backend	Set up job	2026-03-08T04:59:19.6427759Z Worker ID: {73f96a38-6653-482e-8d53-0aa1068d0653}
+build-backend	Set up job	2026-03-08T04:59:19.6428465Z Azure Region: westus
+build-backend	Set up job	2026-03-08T04:59:19.6429120Z ##[endgroup]
+build-backend	Set up job	2026-03-08T04:59:19.6430494Z ##[group]Operating System
+build-backend	Set up job	2026-03-08T04:59:19.6431129Z Ubuntu
+build-backend	Set up job	2026-03-08T04:59:19.6431712Z 24.04.3
+build-backend	Set up job	2026-03-08T04:59:19.6432152Z LTS
+build-backend	Set up job	2026-03-08T04:59:19.6432641Z ##[endgroup]
+build-backend	Set up job	2026-03-08T04:59:19.6433166Z ##[group]Runner Image
+build-backend	Set up job	2026-03-08T04:59:19.6434119Z Image: ubuntu-24.04
+build-backend	Set up job	2026-03-08T04:59:19.6434641Z Version: 20260302.42.1
+build-backend	Set up job	2026-03-08T04:59:19.6435711Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260302.42/images/ubuntu/Ubuntu2404-Readme.md
+build-backend	Set up job	2026-03-08T04:59:19.6437324Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260302.42
+build-backend	Set up job	2026-03-08T04:59:19.6438329Z ##[endgroup]
+build-backend	Set up job	2026-03-08T04:59:19.6441008Z ##[group]GITHUB_TOKEN Permissions
+build-backend	Set up job	2026-03-08T04:59:19.6442984Z Actions: write
+build-backend	Set up job	2026-03-08T04:59:19.6443773Z ArtifactMetadata: write
+build-backend	Set up job	2026-03-08T04:59:19.6444478Z Attestations: write
+build-backend	Set up job	2026-03-08T04:59:19.6444997Z Checks: write
+build-backend	Set up job	2026-03-08T04:59:19.6445611Z Contents: write
+build-backend	Set up job	2026-03-08T04:59:19.6446108Z Deployments: write
+build-backend	Set up job	2026-03-08T04:59:19.6446638Z Discussions: write
+build-backend	Set up job	2026-03-08T04:59:19.6447269Z Issues: write
+build-backend	Set up job	2026-03-08T04:59:19.6447758Z Metadata: read
+build-backend	Set up job	2026-03-08T04:59:19.6448296Z Models: read
+build-backend	Set up job	2026-03-08T04:59:19.6448835Z Packages: write
+build-backend	Set up job	2026-03-08T04:59:19.6449373Z Pages: write
+build-backend	Set up job	2026-03-08T04:59:19.6449949Z PullRequests: write
+build-backend	Set up job	2026-03-08T04:59:19.6450577Z RepositoryProjects: write
+build-backend	Set up job	2026-03-08T04:59:19.6451168Z SecurityEvents: write
+build-backend	Set up job	2026-03-08T04:59:19.6451723Z Statuses: write
+build-backend	Set up job	2026-03-08T04:59:19.6452286Z ##[endgroup]
+build-backend	Set up job	2026-03-08T04:59:19.6454487Z Secret source: Actions
+build-backend	Set up job	2026-03-08T04:59:19.6455235Z Prepare workflow directory
+build-backend	Set up job	2026-03-08T04:59:19.6848579Z Prepare all required actions
+build-backend	Set up job	2026-03-08T04:59:19.6887197Z Getting action download info
+build-backend	Set up job	2026-03-08T04:59:20.1139886Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+build-backend	Set up job	2026-03-08T04:59:20.2683926Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+build-backend	Set up job	2026-03-08T04:59:20.5180813Z Complete job name: build-backend
+build-backend	Run actions/checkout@v4	﻿2026-03-08T04:59:20.5883060Z ##[group]Run actions/checkout@v4
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5884091Z with:
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5884509Z   repository: soumik2441139/hackathon
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5885175Z   token: ***
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5885558Z   ssh-strict: true
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5885958Z   ssh-user: git
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5886359Z   persist-credentials: true
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5886848Z   clean: true
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5887248Z   sparse-checkout-cone-mode: true
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5887732Z   fetch-depth: 1
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5888146Z   fetch-tags: false
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5888548Z   show-progress: true
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5888953Z   lfs: false
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5889308Z   submodules: false
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5889716Z   set-safe-directory: true
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.5890367Z ##[endgroup]
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.6985267Z Syncing repository: soumik2441139/hackathon
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.6987916Z ##[group]Getting Git version info
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.6989316Z Working directory is '/home/runner/work/hackathon/hackathon'
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.6991010Z [command]/usr/bin/git version
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7074071Z git version 2.53.0
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7101488Z ##[endgroup]
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7119427Z Temporarily overriding HOME='/home/runner/work/_temp/6ebba63c-88d7-4130-8ee3-1e2d031176a3' before making global git config changes
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7121853Z Adding repository directory to the temporary git global config as a safe directory
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7135702Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/hackathon/hackathon
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7188588Z Deleting the contents of '/home/runner/work/hackathon/hackathon'
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7192453Z ##[group]Initializing the repository
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7199148Z [command]/usr/bin/git init /home/runner/work/hackathon/hackathon
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7342229Z hint: Using 'master' as the name for the initial branch. This default branch name
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7344192Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7346046Z hint: to use in all of your new repositories, which will suppress this warning,
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7347299Z hint: call:
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7347908Z hint:
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7348677Z hint: 	git config --global init.defaultBranch <name>
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7349687Z hint:
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7350656Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7352254Z hint: 'development'. The just-created branch can be renamed via this command:
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7353921Z hint:
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7354643Z hint: 	git branch -m <name>
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7355435Z hint:
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7356456Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7358281Z Initialized empty Git repository in /home/runner/work/hackathon/hackathon/.git/
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7362067Z [command]/usr/bin/git remote add origin https://github.com/soumik2441139/hackathon
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7407301Z ##[endgroup]
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7408605Z ##[group]Disabling automatic garbage collection
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7411358Z [command]/usr/bin/git config --local gc.auto 0
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7446077Z ##[endgroup]
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7447287Z ##[group]Setting up auth
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7452947Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7488310Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7906038Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.7939209Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.8169782Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.8202331Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.8451068Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.8487063Z ##[endgroup]
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.8488385Z ##[group]Fetching the repository
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:20.8497260Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +6b83c26b4e488b67c56f77f3a78739a66b6cc1ac:refs/remotes/origin/soumik
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3360278Z From https://github.com/soumik2441139/hackathon
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3361656Z  * [new ref]         6b83c26b4e488b67c56f77f3a78739a66b6cc1ac -> origin/soumik
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3393824Z ##[endgroup]
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3394986Z ##[group]Determining the checkout info
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3396498Z ##[endgroup]
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3479132Z [command]/usr/bin/git sparse-checkout disable
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3482341Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3485617Z ##[group]Checking out the ref
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3489853Z [command]/usr/bin/git checkout --progress --force -B soumik refs/remotes/origin/soumik
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3646734Z Switched to a new branch 'soumik'
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3649561Z branch 'soumik' set up to track 'origin/soumik'.
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3657830Z ##[endgroup]
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3697720Z [command]/usr/bin/git log -1 --format=%H
+build-backend	Run actions/checkout@v4	2026-03-08T04:59:21.3722868Z 6b83c26b4e488b67c56f77f3a78739a66b6cc1ac
+build-backend	Use Node.js 20.x	﻿2026-03-08T04:59:21.4021611Z ##[group]Run actions/setup-node@v4
+build-backend	Use Node.js 20.x	2026-03-08T04:59:21.4022713Z with:
+build-backend	Use Node.js 20.x	2026-03-08T04:59:21.4023405Z   node-version: 20.x
+build-backend	Use Node.js 20.x	2026-03-08T04:59:21.4024470Z   cache: npm
+build-backend	Use Node.js 20.x	2026-03-08T04:59:21.4025316Z   cache-dependency-path: package-lock.json
+build-backend	Use Node.js 20.x	2026-03-08T04:59:21.4026440Z   always-auth: false
+build-backend	Use Node.js 20.x	2026-03-08T04:59:21.4027270Z   check-latest: false
+build-backend	Use Node.js 20.x	2026-03-08T04:59:21.4028350Z   token: ***
+build-backend	Use Node.js 20.x	2026-03-08T04:59:21.4029064Z ##[endgroup]
+build-backend	Use Node.js 20.x	2026-03-08T04:59:21.6140443Z Found in cache @ /opt/hostedtoolcache/node/20.20.0/x64
+build-backend	Use Node.js 20.x	2026-03-08T04:59:21.6147853Z ##[group]Environment details
+build-backend	Use Node.js 20.x	2026-03-08T04:59:24.0693563Z node: v20.20.0
+build-backend	Use Node.js 20.x	2026-03-08T04:59:24.0694614Z npm: 10.8.2
+build-backend	Use Node.js 20.x	2026-03-08T04:59:24.0695210Z yarn: 1.22.22
+build-backend	Use Node.js 20.x	2026-03-08T04:59:24.0696222Z ##[endgroup]
+build-backend	Use Node.js 20.x	2026-03-08T04:59:24.0724534Z [command]/opt/hostedtoolcache/node/20.20.0/x64/bin/npm config get cache
+build-backend	Use Node.js 20.x	2026-03-08T04:59:24.3973247Z /home/runner/.npm
+build-backend	Use Node.js 20.x	2026-03-08T04:59:24.6816775Z Cache hit for: node-cache-Linux-x64-npm-acd67a32db2c6324fcdf8b9e1ad1b7cca180ea5e6bb1da26d5520c7251266307
+build-backend	Use Node.js 20.x	2026-03-08T04:59:25.9863903Z Received 8388608 of 24643198 (34.0%), 8.0 MBs/sec
+build-backend	Use Node.js 20.x	2026-03-08T04:59:26.2341388Z Received 24643198 of 24643198 (100.0%), 18.8 MBs/sec
+build-backend	Use Node.js 20.x	2026-03-08T04:59:26.2342084Z Cache Size: ~24 MB (24643198 B)
+build-backend	Use Node.js 20.x	2026-03-08T04:59:26.2404744Z [command]/usr/bin/tar -xf /home/runner/work/_temp/f281dbba-6d96-4883-89be-3d3d7bda1923/cache.tzst -P -C /home/runner/work/hackathon/hackathon --use-compress-program unzstd
+build-backend	Use Node.js 20.x	2026-03-08T04:59:26.3413816Z Cache restored successfully
+build-backend	Use Node.js 20.x	2026-03-08T04:59:26.3470169Z Cache restored from key: node-cache-Linux-x64-npm-acd67a32db2c6324fcdf8b9e1ad1b7cca180ea5e6bb1da26d5520c7251266307
+build-backend	Install dependencies	﻿2026-03-08T04:59:26.3619514Z ##[group]Run npm install
+build-backend	Install dependencies	2026-03-08T04:59:26.3619851Z [36;1mnpm install[0m
+build-backend	Install dependencies	2026-03-08T04:59:26.3679965Z shell: /usr/bin/bash -e {0}
+build-backend	Install dependencies	2026-03-08T04:59:26.3680338Z ##[endgroup]
+build-backend	Install dependencies	2026-03-08T04:59:31.4659637Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+build-backend	Install dependencies	2026-03-08T04:59:31.5209622Z npm warn deprecated rimraf@2.7.1: Rimraf versions prior to v4 are no longer supported
+build-backend	Install dependencies	2026-03-08T04:59:31.5235099Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+build-backend	Install dependencies	2026-03-08T04:59:31.5998868Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+build-backend	Install dependencies	2026-03-08T04:59:31.7936576Z npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+build-backend	Install dependencies	2026-03-08T04:59:31.9748573Z npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+build-backend	Install dependencies	2026-03-08T04:59:38.6275379Z 
+build-backend	Install dependencies	2026-03-08T04:59:38.6276124Z added 403 packages, and audited 405 packages in 12s
+build-backend	Install dependencies	2026-03-08T04:59:38.6278070Z 
+build-backend	Install dependencies	2026-03-08T04:59:38.6278660Z 78 packages are looking for funding
+build-backend	Install dependencies	2026-03-08T04:59:38.6279208Z   run `npm fund` for details
+build-backend	Install dependencies	2026-03-08T04:59:38.6290670Z 
+build-backend	Install dependencies	2026-03-08T04:59:38.6291166Z found 0 vulnerabilities
+build-backend	Build Express.js App	﻿2026-03-08T04:59:38.6619419Z ##[group]Run npm run build
+build-backend	Build Express.js App	2026-03-08T04:59:38.6619712Z [36;1mnpm run build[0m
+build-backend	Build Express.js App	2026-03-08T04:59:38.6672198Z shell: /usr/bin/bash -e {0}
+build-backend	Build Express.js App	2026-03-08T04:59:38.6672458Z ##[endgroup]
+build-backend	Build Express.js App	2026-03-08T04:59:38.8211522Z 
+build-backend	Build Express.js App	2026-03-08T04:59:38.8212260Z > opushire-backend@1.0.0 build
+build-backend	Build Express.js App	2026-03-08T04:59:38.8212794Z > npx tsc
+build-backend	Build Express.js App	2026-03-08T04:59:38.8212996Z 
+build-backend	Post Use Node.js 20.x	﻿2026-03-08T04:59:43.7996897Z Post job cleanup.
+build-backend	Post Use Node.js 20.x	2026-03-08T04:59:43.9553113Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-acd67a32db2c6324fcdf8b9e1ad1b7cca180ea5e6bb1da26d5520c7251266307, not saving cache.
+build-backend	Post Run actions/checkout@v4	﻿2026-03-08T04:59:43.9681611Z Post job cleanup.
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.0639588Z [command]/usr/bin/git version
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.0677118Z git version 2.53.0
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.0722023Z Temporarily overriding HOME='/home/runner/work/_temp/0cade577-0919-4914-9ab1-c56ddfee8000' before making global git config changes
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.0723794Z Adding repository directory to the temporary git global config as a safe directory
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.0729125Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/hackathon/hackathon
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.0768461Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.0807102Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.1054303Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.1079381Z http.https://github.com/.extraheader
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.1093125Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.1126263Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.1357728Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-backend	Post Run actions/checkout@v4	2026-03-08T04:59:44.1389084Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-backend	Complete job	﻿2026-03-08T04:59:44.1735402Z Cleaning up orphan processes
+build-frontend	Set up job	﻿2026-03-08T04:59:19.1608076Z Current runner version: '2.332.0'
+build-frontend	Set up job	2026-03-08T04:59:19.1635853Z ##[group]Runner Image Provisioner
+build-frontend	Set up job	2026-03-08T04:59:19.1636928Z Hosted Compute Agent
+build-frontend	Set up job	2026-03-08T04:59:19.1637531Z Version: 20260213.493
+build-frontend	Set up job	2026-03-08T04:59:19.1638298Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+build-frontend	Set up job	2026-03-08T04:59:19.1638984Z Build Date: 2026-02-13T00:28:41Z
+build-frontend	Set up job	2026-03-08T04:59:19.1639588Z Worker ID: {c093011d-c29c-4f3d-9cf1-2205ce0be13f}
+build-frontend	Set up job	2026-03-08T04:59:19.1640340Z Azure Region: northcentralus
+build-frontend	Set up job	2026-03-08T04:59:19.1640887Z ##[endgroup]
+build-frontend	Set up job	2026-03-08T04:59:19.1642888Z ##[group]Operating System
+build-frontend	Set up job	2026-03-08T04:59:19.1643653Z Ubuntu
+build-frontend	Set up job	2026-03-08T04:59:19.1644088Z 24.04.3
+build-frontend	Set up job	2026-03-08T04:59:19.1644540Z LTS
+build-frontend	Set up job	2026-03-08T04:59:19.1644997Z ##[endgroup]
+build-frontend	Set up job	2026-03-08T04:59:19.1645532Z ##[group]Runner Image
+build-frontend	Set up job	2026-03-08T04:59:19.1646050Z Image: ubuntu-24.04
+build-frontend	Set up job	2026-03-08T04:59:19.1646671Z Version: 20260302.42.1
+build-frontend	Set up job	2026-03-08T04:59:19.1647991Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260302.42/images/ubuntu/Ubuntu2404-Readme.md
+build-frontend	Set up job	2026-03-08T04:59:19.1649825Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260302.42
+build-frontend	Set up job	2026-03-08T04:59:19.1650690Z ##[endgroup]
+build-frontend	Set up job	2026-03-08T04:59:19.1653476Z ##[group]GITHUB_TOKEN Permissions
+build-frontend	Set up job	2026-03-08T04:59:19.1655912Z Actions: write
+build-frontend	Set up job	2026-03-08T04:59:19.1656494Z ArtifactMetadata: write
+build-frontend	Set up job	2026-03-08T04:59:19.1656986Z Attestations: write
+build-frontend	Set up job	2026-03-08T04:59:19.1657612Z Checks: write
+build-frontend	Set up job	2026-03-08T04:59:19.1658063Z Contents: write
+build-frontend	Set up job	2026-03-08T04:59:19.1658579Z Deployments: write
+build-frontend	Set up job	2026-03-08T04:59:19.1659127Z Discussions: write
+build-frontend	Set up job	2026-03-08T04:59:19.1659640Z Issues: write
+build-frontend	Set up job	2026-03-08T04:59:19.1660109Z Metadata: read
+build-frontend	Set up job	2026-03-08T04:59:19.1660621Z Models: read
+build-frontend	Set up job	2026-03-08T04:59:19.1661148Z Packages: write
+build-frontend	Set up job	2026-03-08T04:59:19.1661969Z Pages: write
+build-frontend	Set up job	2026-03-08T04:59:19.1662670Z PullRequests: write
+build-frontend	Set up job	2026-03-08T04:59:19.1663180Z RepositoryProjects: write
+build-frontend	Set up job	2026-03-08T04:59:19.1663755Z SecurityEvents: write
+build-frontend	Set up job	2026-03-08T04:59:19.1664341Z Statuses: write
+build-frontend	Set up job	2026-03-08T04:59:19.1664800Z ##[endgroup]
+build-frontend	Set up job	2026-03-08T04:59:19.1667087Z Secret source: Actions
+build-frontend	Set up job	2026-03-08T04:59:19.1667836Z Prepare workflow directory
+build-frontend	Set up job	2026-03-08T04:59:19.2106028Z Prepare all required actions
+build-frontend	Set up job	2026-03-08T04:59:19.2146572Z Getting action download info
+build-frontend	Set up job	2026-03-08T04:59:19.5227002Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+build-frontend	Set up job	2026-03-08T04:59:19.6452773Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+build-frontend	Set up job	2026-03-08T04:59:19.8503826Z Complete job name: build-frontend
+build-frontend	Run actions/checkout@v4	﻿2026-03-08T04:59:19.9257675Z ##[group]Run actions/checkout@v4
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9258532Z with:
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9258937Z   repository: soumik2441139/hackathon
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9259678Z   token: ***
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9260061Z   ssh-strict: true
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9260449Z   ssh-user: git
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9260844Z   persist-credentials: true
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9261275Z   clean: true
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9261927Z   sparse-checkout-cone-mode: true
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9262389Z   fetch-depth: 1
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9262785Z   fetch-tags: false
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9263169Z   show-progress: true
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9263549Z   lfs: false
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9263905Z   submodules: false
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9264280Z   set-safe-directory: true
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:19.9264956Z ##[endgroup]
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0463899Z Syncing repository: soumik2441139/hackathon
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0467141Z ##[group]Getting Git version info
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0468429Z Working directory is '/home/runner/work/hackathon/hackathon'
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0470359Z [command]/usr/bin/git version
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0529870Z git version 2.53.0
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0559872Z ##[endgroup]
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0579143Z Temporarily overriding HOME='/home/runner/work/_temp/8b867ada-2598-49d4-b1a7-f164932969c4' before making global git config changes
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0581727Z Adding repository directory to the temporary git global config as a safe directory
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0596326Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/hackathon/hackathon
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0644673Z Deleting the contents of '/home/runner/work/hackathon/hackathon'
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0649479Z ##[group]Initializing the repository
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0655120Z [command]/usr/bin/git init /home/runner/work/hackathon/hackathon
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0761138Z hint: Using 'master' as the name for the initial branch. This default branch name
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0763098Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0764634Z hint: to use in all of your new repositories, which will suppress this warning,
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0765534Z hint: call:
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0766138Z hint:
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0766972Z hint: 	git config --global init.defaultBranch <name>
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0768002Z hint:
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0768977Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0770579Z hint: 'development'. The just-created branch can be renamed via this command:
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0772162Z hint:
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0772880Z hint: 	git branch -m <name>
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0773627Z hint:
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0774580Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0776215Z Initialized empty Git repository in /home/runner/work/hackathon/hackathon/.git/
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0782297Z [command]/usr/bin/git remote add origin https://github.com/soumik2441139/hackathon
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0824473Z ##[endgroup]
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0825690Z ##[group]Disabling automatic garbage collection
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0830491Z [command]/usr/bin/git config --local gc.auto 0
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0865919Z ##[endgroup]
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0867120Z ##[group]Setting up auth
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0875290Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.0914012Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.1273109Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.1319757Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.1591655Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.1642961Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.1929534Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.1975615Z ##[endgroup]
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.1976976Z ##[group]Fetching the repository
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.1986579Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +6b83c26b4e488b67c56f77f3a78739a66b6cc1ac:refs/remotes/origin/soumik
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.4930209Z From https://github.com/soumik2441139/hackathon
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.4931657Z  * [new ref]         6b83c26b4e488b67c56f77f3a78739a66b6cc1ac -> origin/soumik
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.4968586Z ##[endgroup]
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.4969343Z ##[group]Determining the checkout info
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.4970932Z ##[endgroup]
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.4976873Z [command]/usr/bin/git sparse-checkout disable
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.5027583Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.5060315Z ##[group]Checking out the ref
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.5066004Z [command]/usr/bin/git checkout --progress --force -B soumik refs/remotes/origin/soumik
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.5308015Z Switched to a new branch 'soumik'
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.5310492Z branch 'soumik' set up to track 'origin/soumik'.
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.5313882Z ##[endgroup]
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.5318489Z [command]/usr/bin/git log -1 --format=%H
+build-frontend	Run actions/checkout@v4	2026-03-08T04:59:20.5351095Z 6b83c26b4e488b67c56f77f3a78739a66b6cc1ac
+build-frontend	Use Node.js 20.x	﻿2026-03-08T04:59:20.5661592Z ##[group]Run actions/setup-node@v4
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:20.5662583Z with:
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:20.5663225Z   node-version: 20.x
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:20.5663902Z   cache: npm
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:20.5664615Z   cache-dependency-path: package-lock.json
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:20.5665487Z   always-auth: false
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:20.5666185Z   check-latest: false
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:20.5667114Z   token: ***
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:20.5667768Z ##[endgroup]
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:20.7646026Z Found in cache @ /opt/hostedtoolcache/node/20.20.0/x64
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:20.7657255Z ##[group]Environment details
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:21.1022194Z node: v20.20.0
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:21.1024265Z npm: 10.8.2
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:21.1025012Z yarn: 1.22.22
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:21.1026635Z ##[endgroup]
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:21.1047540Z [command]/opt/hostedtoolcache/node/20.20.0/x64/bin/npm config get cache
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:21.2270040Z /home/runner/.npm
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:21.3587373Z Cache hit for: node-cache-Linux-x64-npm-acd67a32db2c6324fcdf8b9e1ad1b7cca180ea5e6bb1da26d5520c7251266307
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:21.9325408Z Received 24643198 of 24643198 (100.0%), 51.2 MBs/sec
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:21.9326448Z Cache Size: ~24 MB (24643198 B)
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:21.9391771Z [command]/usr/bin/tar -xf /home/runner/work/_temp/a9d10498-3f09-4038-b147-3b0bb3ef180a/cache.tzst -P -C /home/runner/work/hackathon/hackathon --use-compress-program unzstd
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:22.0408667Z Cache restored successfully
+build-frontend	Use Node.js 20.x	2026-03-08T04:59:22.0465575Z Cache restored from key: node-cache-Linux-x64-npm-acd67a32db2c6324fcdf8b9e1ad1b7cca180ea5e6bb1da26d5520c7251266307
+build-frontend	Install dependencies	﻿2026-03-08T04:59:22.0627608Z ##[group]Run npm install
+build-frontend	Install dependencies	2026-03-08T04:59:22.0628234Z [36;1mnpm install[0m
+build-frontend	Install dependencies	2026-03-08T04:59:22.0693715Z shell: /usr/bin/bash -e {0}
+build-frontend	Install dependencies	2026-03-08T04:59:22.0694073Z ##[endgroup]
+build-frontend	Install dependencies	2026-03-08T04:59:35.5399250Z 
+build-frontend	Install dependencies	2026-03-08T04:59:35.5409205Z added 394 packages, and audited 396 packages in 13s
+build-frontend	Install dependencies	2026-03-08T04:59:35.5409849Z 
+build-frontend	Install dependencies	2026-03-08T04:59:35.5410275Z 151 packages are looking for funding
+build-frontend	Install dependencies	2026-03-08T04:59:35.5410879Z   run `npm fund` for details
+build-frontend	Install dependencies	2026-03-08T04:59:35.5416115Z 
+build-frontend	Install dependencies	2026-03-08T04:59:35.5416501Z found 0 vulnerabilities
+build-frontend	Build Next.js	﻿2026-03-08T04:59:35.5825783Z ##[group]Run npm run build
+build-frontend	Build Next.js	2026-03-08T04:59:35.5826113Z [36;1mnpm run build[0m
+build-frontend	Build Next.js	2026-03-08T04:59:35.5878349Z shell: /usr/bin/bash -e {0}
+build-frontend	Build Next.js	2026-03-08T04:59:35.5878632Z env:
+build-frontend	Build Next.js	2026-03-08T04:59:35.5878883Z   NEXT_PUBLIC_API_URL: http://localhost:5000/api
+build-frontend	Build Next.js	2026-03-08T04:59:35.5879201Z ##[endgroup]
+build-frontend	Build Next.js	2026-03-08T04:59:35.7394366Z 
+build-frontend	Build Next.js	2026-03-08T04:59:35.7395000Z > opushire@0.1.0 build
+build-frontend	Build Next.js	2026-03-08T04:59:35.7395369Z > next build
+build-frontend	Build Next.js	2026-03-08T04:59:35.7395516Z 
+build-frontend	Build Next.js	2026-03-08T04:59:36.3162375Z ⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+build-frontend	Build Next.js	2026-03-08T04:59:36.3295116Z Attention: Next.js now collects completely anonymous telemetry regarding usage.
+build-frontend	Build Next.js	2026-03-08T04:59:36.3296512Z This information is used to shape Next.js' roadmap and prioritize features.
+build-frontend	Build Next.js	2026-03-08T04:59:36.3298176Z You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+build-frontend	Build Next.js	2026-03-08T04:59:36.3299325Z https://nextjs.org/telemetry
+build-frontend	Build Next.js	2026-03-08T04:59:36.3299772Z 
+build-frontend	Build Next.js	2026-03-08T04:59:36.3457063Z ▲ Next.js 16.1.6 (Turbopack)
+build-frontend	Build Next.js	2026-03-08T04:59:36.3457697Z 
+build-frontend	Build Next.js	2026-03-08T04:59:36.4298408Z   Creating an optimized production build ...
+build-frontend	Build Next.js	2026-03-08T04:59:46.4958458Z 
+build-frontend	Build Next.js	2026-03-08T04:59:46.4961933Z > Build error occurred
+build-frontend	Build Next.js	2026-03-08T04:59:46.5000999Z Error: Turbopack build failed with 1 errors:
+build-frontend	Build Next.js	2026-03-08T04:59:46.5002057Z ./opushire/components/landing/HeroSection.tsx:8:25
+build-frontend	Build Next.js	2026-03-08T04:59:46.5002522Z Ecmascript file had an error
+build-frontend	Build Next.js	2026-03-08T04:59:46.5003427Z [0m [90m  6 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m
+build-frontend	Build Next.js	2026-03-08T04:59:46.5003969Z  [90m  7 |[39m
+build-frontend	Build Next.js	2026-03-08T04:59:46.5005919Z [31m[1m>[22m[39m[90m  8 |[39m [36mconst[39m [33mShaderAnimation[39m [33m=[39m dynamic(() [33m=>[39m [36mimport[39m([32m'@/components/ui/ShaderAnimation'[39m)[33m.[39mthen(mod [33m=>[39m mod[33m.[39m[33mShaderAnimation[39m)[33m,[39m {
+build-frontend	Build Next.js	2026-03-08T04:59:46.5019078Z  [90m    |[39m                         [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+build-frontend	Build Next.js	2026-03-08T04:59:46.5027087Z [31m[1m>[22m[39m[90m  9 |[39m     ssr[33m:[39m [36mfalse[39m[33m,[39m
+build-frontend	Build Next.js	2026-03-08T04:59:46.5029440Z  [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+build-frontend	Build Next.js	2026-03-08T04:59:46.5032891Z [31m[1m>[22m[39m[90m 10 |[39m     loading[33m:[39m () [33m=>[39m [33m<[39m[33mdiv[39m className[33m=[39m[32m"absolute inset-0 bg-black"[39m [33m/[39m[33m>[39m
+build-frontend	Build Next.js	2026-03-08T04:59:46.5035875Z  [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+build-frontend	Build Next.js	2026-03-08T04:59:46.5037682Z [31m[1m>[22m[39m[90m 11 |[39m })[33m;[39m
+build-frontend	Build Next.js	2026-03-08T04:59:46.5038569Z  [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+build-frontend	Build Next.js	2026-03-08T04:59:46.5039314Z  [90m 12 |[39m
+build-frontend	Build Next.js	2026-03-08T04:59:46.5040230Z  [90m 13 |[39m [36mexport[39m [36mconst[39m [33mHeroSection[39m [33m=[39m () [33m=>[39m {
+build-frontend	Build Next.js	2026-03-08T04:59:46.5041152Z  [90m 14 |[39m     [36mreturn[39m ([0m
+build-frontend	Build Next.js	2026-03-08T04:59:46.5041702Z 
+build-frontend	Build Next.js	2026-03-08T04:59:46.5042505Z `ssr: false` is not allowed with `next/dynamic` in Server Components. Please move it into a Client Component.
+build-frontend	Build Next.js	2026-03-08T04:59:46.5043244Z 
+build-frontend	Build Next.js	2026-03-08T04:59:46.5043414Z Import trace:
+build-frontend	Build Next.js	2026-03-08T04:59:46.5043789Z   Server Component:
+build-frontend	Build Next.js	2026-03-08T04:59:46.5044351Z     ./opushire/components/landing/HeroSection.tsx
+build-frontend	Build Next.js	2026-03-08T04:59:46.5044896Z     ./opushire/app/page.tsx
+build-frontend	Build Next.js	2026-03-08T04:59:46.5045188Z 
+build-frontend	Build Next.js	2026-03-08T04:59:46.5045215Z 
+build-frontend	Build Next.js	2026-03-08T04:59:46.5045687Z     at <unknown> (./opushire/components/landing/HeroSection.tsx:8:25)
+build-frontend	Build Next.js	2026-03-08T04:59:46.5693617Z npm error Lifecycle script `build` failed with error:
+build-frontend	Build Next.js	2026-03-08T04:59:46.5699513Z npm error code 1
+build-frontend	Build Next.js	2026-03-08T04:59:46.5700898Z npm error path /home/runner/work/hackathon/hackathon/opushire
+build-frontend	Build Next.js	2026-03-08T04:59:46.5702327Z npm error workspace opushire@0.1.0
+build-frontend	Build Next.js	2026-03-08T04:59:46.5703250Z npm error location /home/runner/work/hackathon/hackathon/opushire
+build-frontend	Build Next.js	2026-03-08T04:59:46.5703946Z npm error command failed
+build-frontend	Build Next.js	2026-03-08T04:59:46.5704533Z npm error command sh -c next build
+build-frontend	Build Next.js	2026-03-08T04:59:46.5779269Z ##[error]Process completed with exit code 1.
+build-frontend	Post Run actions/checkout@v4	﻿2026-03-08T04:59:46.5896735Z Post job cleanup.
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.6938578Z [command]/usr/bin/git version
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.6987946Z git version 2.53.0
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.7058240Z Temporarily overriding HOME='/home/runner/work/_temp/218c2423-c328-451e-9eb4-05fdb78312c6' before making global git config changes
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.7059696Z Adding repository directory to the temporary git global config as a safe directory
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.7077052Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/hackathon/hackathon
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.7129629Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.7178349Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.7466306Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.7491199Z http.https://github.com/.extraheader
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.7507494Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.7543017Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.7803180Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-frontend	Post Run actions/checkout@v4	2026-03-08T04:59:46.7840904Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-frontend	Complete job	﻿2026-03-08T04:59:46.8209390Z Cleaning up orphan processes

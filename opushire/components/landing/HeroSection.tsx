@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from '@/components/ui/Button';
 import dynamic from 'next/dynamic';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
