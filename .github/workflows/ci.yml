@@ -2,7 +2,7 @@ name: Opushire CI/CD
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "soumik" ]
   pull_request:
     branches: [ "master", "soumik" ]
 
