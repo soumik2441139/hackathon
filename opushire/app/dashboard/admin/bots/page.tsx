@@ -435,7 +435,7 @@ export default function AdminBotsDashboard() {
                                 </div>
                             </div>
 
-                            <div className="flex-1 p-6 overflow-y-auto font-mono text-xs md:text-sm bg-black text-white/80 leading-relaxed scrollbar-hide flex flex-col justify-end">
+                            <div className="flex-1 p-6 overflow-y-auto font-mono text-xs md:text-sm bg-black text-white/80 leading-relaxed flex flex-col justify-end custom-scrollbar">
                                 {logs.length === 0 ? (
                                     <p className="text-white/20 italic">No logs available. Bot might be starting or has not emitted any output yet.</p>
                                 ) : (
