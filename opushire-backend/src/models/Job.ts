@@ -20,7 +20,6 @@ export interface IJob extends Document {
     featured: boolean;
     posted: string;
     postedBy?: Types.ObjectId;
-    postedByModel?: 'Recruiter' | 'Admin';
     // Bot-sourced fields
     source?: 'manual' | 'remotive' | 'arbeitnow' | 'adzuna' | 'telegram';
     externalId?: string;
@@ -61,8 +60,7 @@ const JobSchema = new Schema<IJob>(
         deadline: { type: Date },
         featured: { type: Boolean, default: false },
         posted: { type: String },
-        postedBy: { type: Schema.Types.ObjectId, refPath: 'postedByModel' },
-        postedByModel: { type: String, enum: ['Recruiter', 'Admin'] },
+        postedBy: { type: Schema.Types.ObjectId }, // Removed refPath as postedByModel is removed
         // Bot-sourced fields
         source: {
             type: String,

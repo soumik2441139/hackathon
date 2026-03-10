@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { IUser, UserSchema } from '../models/User';
 import { Student } from '../models/Student';
-import { Recruiter } from '../models/Recruiter';
 import { Admin } from '../models/Admin';
 import { env } from '../config/env';
 import { createError } from '../middleware/errorHandler';
@@ -11,16 +10,12 @@ import { createError } from '../middleware/errorHandler';
 const findUserByEmail = async (email: string) => {
     let user = await Student.findOne({ email }).select('+passwordHash');
     if (user) return user;
-    user = await Recruiter.findOne({ email }).select('+passwordHash');
-    if (user) return user;
     user = await Admin.findOne({ email }).select('+passwordHash');
     return user;
 };
 
 const findUserById = async (id: string) => {
     let user = await Student.findById(id).populate('savedJobs');
-    if (user) return user;
-    user = await Recruiter.findById(id).populate('savedJobs');
     if (user) return user;
     user = await Admin.findById(id).populate('savedJobs');
     return user;
@@ -30,7 +25,7 @@ export const registerSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
-    role: z.enum(['student', 'admin', 'recruiter']).default('student'),
+    role: z.enum(['student', 'admin']).default('student'),
     college: z.string().optional(),
     degree: z.string().optional(),
     year: z.string().optional(),
@@ -59,9 +54,7 @@ export const registerUser = async (data: z.infer<typeof registerSchema>) => {
     const passwordHash = await bcrypt.hash(data.password, 12);
 
     let user;
-    if (data.role === 'recruiter') {
-        user = await Recruiter.create({ ...data, passwordHash });
-    } else if (data.role === 'admin') {
+    if (data.role === 'admin') {
         user = await Admin.create({ ...data, passwordHash });
     } else {
         user = await Student.create({ ...data, passwordHash });
@@ -108,7 +101,6 @@ export const updateProfile = async (userId: string, rawData: unknown) => {
 
     // Attempt update in all collections
     let user = await Student.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
-    if (!user) user = await Recruiter.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
     if (!user) user = await Admin.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
 
     if (!user) throw createError('User not found', 404);

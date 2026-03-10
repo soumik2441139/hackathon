@@ -1,12 +1,10 @@
 import { Request, Response } from 'express';
 import { FreeApiAuthService } from './auth.service';
 import { Student } from '../models/Student';
-import { Recruiter } from '../models/Recruiter';
 import { Admin } from '../models/Admin';
 
 async function findUserAnywhere(userId: string) {
     let user = await Student.findById(userId);
-    if (!user) user = await Recruiter.findById(userId);
     if (!user) user = await Admin.findById(userId);
     return user;
 }
@@ -44,7 +42,6 @@ export const uploadAvatar = async (req: Request, res: Response): Promise<void> =
         // 3. Save URL to local OpusHire DB
         // Determine the collection to update
         if ((user as any).role === 'student') await Student.findByIdAndUpdate(userId, { avatar: avatarUrl });
-        else if ((user as any).role === 'recruiter') await Recruiter.findByIdAndUpdate(userId, { avatar: avatarUrl });
         else if ((user as any).role === 'admin') await Admin.findByIdAndUpdate(userId, { avatar: avatarUrl });
 
         res.json({
@@ -87,7 +84,6 @@ export const uploadCoverImage = async (req: Request, res: Response): Promise<voi
         );
 
         if ((user as any).role === 'student') await Student.findByIdAndUpdate(userId, { avatar: coverUrl }); // You probably want coverImage field, but mapping to avatar for now if missing
-        else if ((user as any).role === 'recruiter') await Recruiter.findByIdAndUpdate(userId, { companyLogo: coverUrl });
         else if ((user as any).role === 'admin') await Admin.findByIdAndUpdate(userId, { avatar: coverUrl });
 
         res.json({
@@ -160,7 +156,7 @@ export const getAllChats = async (req: Request, res: Response): Promise<void> =>
 
 export const createOrGetChat = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { receiverId } = req.params; // This is the OpusHire Recruiter/Student ID
+        const { receiverId } = req.params; // This is the OpusHire Student/Admin ID
         const userId = (req as any).user?.id; // Current user
 
         const currentUser = await findUserAnywhere(userId);

@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import { Student } from '../models/Student';
-import { Recruiter } from '../models/Recruiter';
 import { Admin } from '../models/Admin';
 import { Job } from '../models/Job';
 import { Application } from '../models/Application';
@@ -8,16 +7,14 @@ import { createError } from '../middleware/errorHandler';
 
 export const getAllUsers = async (role?: string) => {
     if (role === 'student') return Student.find().sort({ createdAt: -1 });
-    if (role === 'recruiter') return Recruiter.find().sort({ createdAt: -1 });
     if (role === 'admin') return Admin.find().sort({ createdAt: -1 });
 
     // If no role, aggregate all (simple approach)
-    const [students, recruiters, admins] = await Promise.all([
+    const [students, admins] = await Promise.all([
         Student.find(),
-        Recruiter.find(),
         Admin.find()
     ]);
-    return [...students, ...recruiters, ...admins].sort((a: any, b: any) =>
+    return [...students, ...admins].sort((a: any, b: any) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 };
@@ -25,13 +22,12 @@ export const getAllUsers = async (role?: string) => {
 export const deleteUser = async (userId: string) => {
     // Attempt deletion from all collections
     let user = await Student.findByIdAndDelete(userId);
-    if (!user) user = await Recruiter.findByIdAndDelete(userId);
     if (!user) user = await Admin.findByIdAndDelete(userId);
 
     if (!user) throw createError('User not found', 404);
 
-    // Cleanup: Delete jobs posted by recruiter
-    if (user.role === 'recruiter') {
+    // Cleanup: Delete jobs posted by Admin
+    if (user.role === 'admin') {
         await Job.deleteMany({ postedBy: userId });
     }
 
@@ -44,19 +40,17 @@ export const deleteUser = async (userId: string) => {
 };
 
 export const getSystemStats = async () => {
-    const [totalJobs, totalApplicants, totalStudents, totalRecruiters] = await Promise.all([
+    const [totalJobs, totalApplicants, totalStudents] = await Promise.all([
         Job.countDocuments(),
         Application.countDocuments(),
-        Student.countDocuments(),
-        Recruiter.countDocuments()
+        Student.countDocuments()
     ]);
 
     return {
         totalJobs,
         totalApplicants,
         totalStudents,
-        totalRecruiters,
-        activeUsers: totalStudents + totalRecruiters // Simple sum for now
+        activeUsers: totalStudents
     };
 };
 
@@ -115,8 +109,7 @@ export const debugDatabase = async (forceMigrate: boolean = false) => {
             if (localUsers.length > 0) {
                 console.log(`🚀 [Manual-Migration] Found ${localUsers.length} users to split...`);
                 for (const user of localUsers) {
-                    const target = user.role === 'recruiter' ? 'recruiters' :
-                        user.role === 'admin' ? 'admins' : 'students';
+                    const target = user.role === 'admin' ? 'admins' : 'students';
                     await db.collection(target).updateOne({ _id: user._id }, { $set: user }, { upsert: true });
                 }
                 results.reorgStatus = `Successfully reorganized ${localUsers.length} local users into split collections.`;

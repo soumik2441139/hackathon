@@ -51,14 +51,6 @@ export const deleteJob = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
-export const getRecruiterStats = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-        const stats = await JobService.getRecruiterStats(req.user!.id);
-        res.json({ success: true, data: stats });
-    } catch (err) {
-        next(err);
-    }
-};
 
 export const autoApply = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {

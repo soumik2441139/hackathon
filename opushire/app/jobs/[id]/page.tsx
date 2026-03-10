@@ -26,7 +26,6 @@ export default function JobDetailPage() {
     // FreeAPI Social State
     const [isSaved, setIsSaved] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [messaging, setMessaging] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -97,26 +96,6 @@ export default function JobDetailPage() {
         }
     };
 
-    const handleMessageRecruiter = async () => {
-        if (!user) { router.push('/login'); return; }
-        if (!job.postedBy) return;
-
-        try {
-            setMessaging(true);
-            const { freeapi } = await import('@/lib/api');
-            const receiverId = (typeof job.postedBy === 'string' ? job.postedBy : job.postedBy._id) as string;
-            if (!receiverId) throw new Error("No receiver ID found");
-
-            const res = await freeapi.chat.createOrGetChat(receiverId);
-            if (res.success) {
-                router.push('/dashboard/messages');
-            }
-        } catch (err) {
-            console.error('Failed to start chat', err);
-        } finally {
-            setMessaging(false);
-        }
-    };
 
     const handleSaveJob = async () => {
         if (!user) { router.push('/login'); return; }
@@ -288,17 +267,6 @@ export default function JobDetailPage() {
                                         <Button variant="outline" className="w-14 items-center justify-center p-0 border-white/10"><Share2 size={18} /></Button>
                                     </div>
 
-                                    {user?.role === 'student' && job.postedByModel === 'Recruiter' && (
-                                        <Button
-                                            variant="outline"
-                                            className="w-full gap-2 border-brand-cyan/30 text-brand-cyan hover:bg-brand-cyan/10"
-                                            onClick={handleMessageRecruiter}
-                                            disabled={messaging}
-                                        >
-                                            {messaging ? <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" /> : <MessageSquare size={18} />}
-                                            Message Recruiter
-                                        </Button>
-                                    )}
 
                                     <div className="pt-6 border-t border-white/10 space-y-4">
                                         <div className="flex justify-between text-sm">

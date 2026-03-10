@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 import { Student } from '../models/Student';
-import { Recruiter } from '../models/Recruiter';
 import { Admin } from '../models/Admin';
 
 export interface AuthRequest extends Request {
@@ -31,7 +30,6 @@ export const authenticate = async (
 
         // Find user by ID in any of the collections
         let user = await Student.findById(decoded.id).select('_id role');
-        if (!user) user = await Recruiter.findById(decoded.id).select('_id role');
         if (!user) user = await Admin.findById(decoded.id).select('_id role');
 
         if (!user) {

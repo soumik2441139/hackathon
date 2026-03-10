@@ -18,6 +18,9 @@ export interface IUser extends Document {
     savedJobs: mongoose.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
+    refreshToken?: string;
+    resetToken?: string;
+    resetTokenExpiry?: Date;
     comparePassword(password: string): Promise<boolean>;
 }
 
@@ -32,7 +35,7 @@ export const UserSchema = new Schema<IUser>(
             trim: true,
         },
         passwordHash: { type: String, required: true, select: false },
-        role: { type: String, enum: ['student', 'admin', 'recruiter'], default: 'student' },
+        role: { type: String, enum: ['student', 'admin'], default: 'student' },
         college: { type: String, trim: true },
         degree: { type: String, trim: true },
         year: { type: String, trim: true },
@@ -43,6 +46,9 @@ export const UserSchema = new Schema<IUser>(
         companyLogo: { type: String, trim: true, default: '🏢' },
         avatar: { type: String },
         savedJobs: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
+        refreshToken: { type: String, select: false },
+        resetToken: { type: String },
+        resetTokenExpiry: { type: Date }
     },
     { timestamps: true }
 );

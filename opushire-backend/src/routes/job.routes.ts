@@ -9,11 +9,10 @@ const router = Router();
 router.get('/', JobController.getJobs);
 router.get('/:id', JobController.getJobById);
 
-// Admin and Recruiter
-router.get('/stats/me', authenticate, requireRole('admin', 'recruiter'), JobController.getRecruiterStats);
-router.post('/', authenticate, requireRole('admin', 'recruiter'), JobController.createJob);
-router.put('/:id', authenticate, requireRole('admin', 'recruiter'), JobController.updateJob);
-router.delete('/:id', authenticate, requireRole('admin', 'recruiter'), JobController.deleteJob);
+// Admin
+router.post('/', authenticate, requireRole('admin'), JobController.createJob);
+router.put('/:id', authenticate, requireRole('admin'), JobController.updateJob);
+router.delete('/:id', authenticate, requireRole('admin'), JobController.deleteJob);
 
 router.post('/:id/auto-apply', authenticate, requireRole('student', 'admin'), JobController.autoApply);
 

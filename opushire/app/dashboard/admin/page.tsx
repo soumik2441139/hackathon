@@ -16,7 +16,7 @@ export default function AdminDashboard() {
     const [users, setUsers] = useState<User[]>([]);
     const [stats, setStats] = useState<Record<string, number> | null>(null);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState<'student' | 'recruiter' | 'all'>('all');
+    const [filter, setFilter] = useState<'student' | 'all'>('all');
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
@@ -40,21 +40,6 @@ export default function AdminDashboard() {
         }
     }, [currentUser, filter]);
 
-    const handleReSync = async () => {
-        if (!confirm('This will attempt to reorganize your existing data into students and recruiters collections. Proceed?')) return;
-        setLoading(true);
-        try {
-            await adminApi.reSync();
-            alert('Re-Sync completed. Refreshing data...');
-            window.location.reload();
-        } catch (err: unknown) {
-            console.error('Re-Sync failed:', err);
-            const message = err instanceof Error ? err.message : 'Unknown error';
-            alert(`Re-Sync failed: ${message}. Check system logs.`);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleDeleteUser = async (id: string) => {
         if (!confirm('Are you absolutely sure? This will delete all associated data (jobs/applications). This action cannot be undone.')) return;
@@ -113,13 +98,6 @@ export default function AdminDashboard() {
                                     <Activity size={12} className="animate-bounce" /> OPUS_ONLINE_01
                                 </p>
                             </div>
-                            <button
-                                onClick={handleReSync}
-                                disabled={loading}
-                                className="mr-2 px-4 py-2 bg-brand-cyan/20 border border-brand-cyan/40 rounded-xl text-[10px] font-black uppercase tracking-wider text-brand-cyan hover:bg-brand-cyan/30 transition-all disabled:opacity-50"
-                            >
-                                Trigger Data Re-Sync
-                            </button>
                         </div>
                         <Button
                             className="bg-brand-violet hover:bg-brand-violet/80 text-white w-full border border-brand-violet/20 shadow-[0_0_20px_rgba(138,43,226,0.3)] gap-2 h-12 rounded-2xl"
@@ -142,13 +120,12 @@ export default function AdminDashboard() {
                         { id: 'all', label: 'Total Jobs', val: stats?.totalJobs, icon: <Briefcase />, color: 'text-brand-violet', bg: 'bg-brand-violet/10', role: 'all' },
                         { id: 'all', label: 'Total Apps', val: stats?.totalApplicants, icon: <Zap />, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10', role: 'all' },
                         { id: 'student', label: 'Students', val: stats?.totalStudents, icon: <Users />, color: 'text-[#A1FFCE]', bg: 'bg-[#A1FFCE]/10', role: 'student' },
-                        { id: 'recruiter', label: 'Recruiters', val: stats?.totalRecruiters, icon: <Shield />, color: 'text-[#FF9A9E]', bg: 'bg-[#FF9A9E]/10', role: 'recruiter' },
                     ].map((s, i) => (
                         <motion.button
                             key={i}
                             whileHover={{ y: -5 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => setFilter(s.role as 'all' | 'recruiter' | 'student')}
+                            onClick={() => setFilter(s.role as 'all' | 'student')}
                             className={`glass-card p-8 border-white/5 transition-all group overflow-hidden relative text-left w-full ${filter === s.role ? 'ring-2 ring-brand-cyan bg-white/[0.05]' : 'hover:border-white/10'}`}
                         >
                             <div className={`absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity scale-[3]`}>{s.icon}</div>
@@ -180,7 +157,7 @@ export default function AdminDashboard() {
                                     </div>
                                     <div className="space-y-2">
                                         <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">Priority Segment</p>
-                                        <p className="text-sm font-medium">{filter === 'student' ? 'Engineering graduates are most active.' : 'Tech startups represent 60% of openings.'}</p>
+                                        <p className="text-sm font-medium">Engineering graduates are most active.</p>
                                     </div>
                                     <div className="space-y-2">
                                         <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">Admin Note</p>
@@ -197,7 +174,6 @@ export default function AdminDashboard() {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/[0.02] p-6 rounded-3xl border border-white/5 backdrop-blur-md">
                         <div className="flex flex-wrap items-center gap-4 text-sm font-bold">
                             <button onClick={() => setFilter('all')} className={`px-4 py-2 rounded-xl transition-all ${filter === 'all' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}>All Entities</button>
-                            <button onClick={() => setFilter('recruiter')} className={`px-4 py-2 rounded-xl transition-all ${filter === 'recruiter' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}>Recruiters</button>
                             <button onClick={() => setFilter('student')} className={`px-4 py-2 rounded-xl transition-all ${filter === 'student' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}>Students</button>
                         </div>
                         <div className="relative group">

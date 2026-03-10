@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { Job } from '../models/Job';
 import { Student } from '../models/Student';
-import { Recruiter } from '../models/Recruiter';
 import { Admin } from '../models/Admin';
 import { Application } from '../models/Application';
 import { createError } from '../middleware/errorHandler';
@@ -83,17 +82,11 @@ export const createJob = async (data: z.infer<typeof createJobSchema>, userId: s
         logo = await imageToBase64(logo);
     }
 
-    // Determine the poster's model
-    let posterModel: 'Recruiter' | 'Admin' = 'Recruiter';
-    const isAdmin = await Admin.exists({ _id: userId });
-    if (isAdmin) posterModel = 'Admin';
-
     const job = await Job.create({
         ...data,
         companyLogo: logo,
         posted: 'Just now',
         postedBy: userId,
-        postedByModel: posterModel,
         deadline: data.deadline ? new Date(data.deadline) : undefined,
     });
     return job;
@@ -117,17 +110,3 @@ export const deleteJob = async (id: string) => {
     return { message: 'Job deleted' };
 };
 
-export const getRecruiterStats = async (recruiterId: string) => {
-    const [activeJobs, totalApplicants] = await Promise.all([
-        Job.countDocuments({ postedBy: recruiterId }),
-        Application.countDocuments({
-            job: { $in: await Job.find({ postedBy: recruiterId }).distinct('_id') }
-        })
-    ]);
-
-    return {
-        activeJobs,
-        totalApplicants,
-        profileViews: "2.4k" // Placeholder for now as we don't track views yet
-    };
-};

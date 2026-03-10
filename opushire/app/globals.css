@@ -19,15 +19,6 @@
   --brand-secondary: #22D3EE;
 }
 
-.theme-recruiter {
-  --background: #020817;
-  /* Deep Navy Starry Night */
-  --foreground: #F8FAFC;
-  --brand-primary: #BEF264;
-  /* Neon Lime Accent */
-  --brand-secondary: #84CC16;
-}
-
 .theme-student {
   /* Warm Dark Data-Driven — from Power BI reference */
   --background: #1C1C1E;

@@ -8,8 +8,8 @@ export const register = async (req: AuthRequest, res: Response, next: NextFuncti
     try {
         const data = registerSchema.parse(req.body);
 
-        // If recruiter, convert logo URL to Base64 to ensure it's stored in DB
-        if (data.role === 'recruiter' && data.companyLogo) {
+        // If company logo is provided, convert URL to Base64
+        if (data.companyLogo && !data.companyLogo.startsWith('data:')) {
             data.companyLogo = await imageToBase64(data.companyLogo);
         }
 
