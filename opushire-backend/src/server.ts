@@ -2,6 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
+const xss = require('xss-clean');
+const hpp = require('hpp');
 import { connectDB } from './config/db';
 import { corsOptions } from './config/cors';
 import { env } from './config/env';
@@ -21,8 +25,26 @@ const app = express();
 // Security & parsing
 app.use(helmet());
 app.use(cors(corsOptions));
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: true }));
+
+// Rate Limiting (Global)
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again after 15 minutes',
+});
+app.use('/api', limiter);
+
+app.use(express.json({ limit: '10kb' })); // Limit body payload to 10kb against DOS
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// Data sanitization against NoSQL query injection
+app.use(mongoSanitize());
+
+// Data sanitization against XSS
+app.use(xss());
+
+// Prevent HTTP Parameter Pollution
+app.use(hpp());
 
 // Logging
 if (env.NODE_ENV !== 'test') {
