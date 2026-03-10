@@ -2,6 +2,7 @@ import { spawn, ChildProcess } from 'child_process';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+import BotReport from '../models/BotReport';
 
 export const BOTS = [
     { id: 'bot0-recruiter', name: 'Recruiter', description: 'Scrapes jobs from integrated sources.', dir: 'recruiter-bot', script: os.platform() === 'win32' ? 'npx.cmd ts-node src/cli.ts' : 'npx ts-node src/cli.ts', isTsNode: true, color: '#ff4b4b' },
@@ -84,6 +85,8 @@ export const startBot = (botId: string, args: string[] = []) => {
         activeBots.set(botId, botState);
 
         writeLog(botId, [`[SYSTEM] Starting ${botConfig.name} from ${scriptPath} with args [${args.join(',')}]...`]);
+        // Log to daily report
+        (BotReport as any).logAction(botId, botConfig.name, `🚀 Started (args: ${args.join(',') || 'none'})`, 0).catch(() => { });
 
         const appendChildLog = (data: Buffer) => {
             const lines = data.toString().trim().split('\n').filter(Boolean);
@@ -104,6 +107,13 @@ export const startBot = (botId: string, args: string[] = []) => {
             const state = activeBots.get(botId);
             if (state) state.status = code === 0 ? 'stopped' : 'error';
             writeLog(botId, [`[SYSTEM] Process exited with code ${code}`]);
+
+            // Log completion to daily report
+            if (code === 0) {
+                (BotReport as any).logAction(botId, botConfig.name, `✅ Completed successfully`, 1).catch(() => { });
+            } else {
+                (BotReport as any).logError(botId, botConfig.name, `Process exited with code ${code}`).catch(() => { });
+            }
 
             setTimeout(() => {
                 activeBots.delete(botId);
@@ -127,9 +137,10 @@ export const startPipeline = async () => {
         console.log(`[PIPELINE] Trigerring -> ${bot.id}`);
         try {
             await startBot(bot.id, ['--single-run']);
-        } catch (e) {
+        } catch (e: any) {
             console.error(`[PIPELINE] Fatal failure executing ${bot.id}`, e);
-            throw e;
+            await (BotReport as any).logError(bot.id, bot.name, `Pipeline execution failed: ${e.message}`).catch(() => { });
+            // Don't throw — continue with other bots
         }
     }
 

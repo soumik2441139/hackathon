@@ -235,5 +235,10 @@ export const admin = {
 
     botStats: {
         getToday: () => request<{ success: boolean; data: any }>('/admin/bot-stats/today')
+    },
+
+    reports: {
+        getAll: () => request<{ success: boolean; data: Record<string, any[]> }>('/admin/reports'),
+        getByDate: (date: string) => request<{ success: boolean; data: any[] }>(`/admin/reports/${date}`),
     }
 };

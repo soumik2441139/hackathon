@@ -1,0 +1,10 @@
+{
+    "name": "bot2-fixer",
+    "version": "1.0.0",
+    "description": "Takes flagged tags and generates keywords via Gemini LLM",
+    "main": "fix.js",
+    "dependencies": {
+        "dotenv": "^17.3.1",
+        "mongodb": "^7.1.0"
+    }
+}

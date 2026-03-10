@@ -13,6 +13,8 @@ import adminRoutes from './routes/admin.routes';
 import freeapiRoutes from './freeapi/freeapi.routes';
 import botRoutes from './routes/bot.routes';
 import botStatRoutes from './routes/botStat.routes';
+import reportRoutes from './routes/report.routes';
+import { initScheduler } from './services/scheduler.service';
 
 const app = express();
 
@@ -47,6 +49,7 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/bots', botRoutes);
 app.use('/api/admin/bot-stats', botStatRoutes);
+app.use('/api/admin/reports', reportRoutes);
 app.use('/api/freeapi', freeapiRoutes);
 
 // 404
@@ -66,6 +69,8 @@ const start = async () => {
     });
     // Connect to DB in background (auto-retries)
     connectDB();
+    // Start the autonomous bot scheduler
+    initScheduler();
 };
 
 start().catch(console.error);

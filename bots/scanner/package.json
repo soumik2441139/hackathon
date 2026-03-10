@@ -1,0 +1,10 @@
+{
+    "name": "bot1-scanner",
+    "version": "1.0.0",
+    "description": "Scans new jobs and flags broken tag tiles",
+    "main": "scan.js",
+    "dependencies": {
+        "dotenv": "^17.3.1",
+        "mongodb": "^7.1.0"
+    }
+}

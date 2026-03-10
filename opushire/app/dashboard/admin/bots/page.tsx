@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Activity, ShieldAlert, Terminal as TerminalIcon,
-    Play, Square, RefreshCcw, X, Cpu, CheckCircle2, XCircle
+    Play, Square, RefreshCcw, X, Cpu, CheckCircle2, XCircle,
+    FileText, ChevronDown, ChevronRight, Clock
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { admin as adminApi } from '@/lib/api';
@@ -43,10 +44,16 @@ export default function AdminBotsDashboard() {
     const [logs, setLogs] = useState<string[]>([]);
     const [isPollingLogs, setIsPollingLogs] = useState(false);
 
+    // Reports state
+    const [reports, setReports] = useState<Record<string, any[]>>({});
+    const [expandedDay, setExpandedDay] = useState<string | null>(null);
+    const [reportsLoading, setReportsLoading] = useState(false);
+
     useEffect(() => {
         if (currentUser?.role === 'admin') {
             fetchBotStatuses();
             fetchPendingJobs();
+            fetchReports();
         }
     }, [currentUser]);
 
@@ -105,6 +112,18 @@ export default function AdminBotsDashboard() {
             setLogs(res.data);
         } catch (err) {
             console.error('Failed to fetch logs', err);
+        }
+    };
+
+    const fetchReports = async () => {
+        setReportsLoading(true);
+        try {
+            const res = await adminApi.reports.getAll();
+            if (res.success) setReports(res.data || {});
+        } catch (err) {
+            console.error('Failed to fetch reports', err);
+        } finally {
+            setReportsLoading(false);
         }
     };
 
@@ -396,6 +415,126 @@ export default function AdminBotsDashboard() {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Weekly Bot Report */}
+                <div className="mb-20">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-3xl font-black uppercase tracking-tighter mb-2 flex items-center gap-3">
+                                <FileText size={28} className="text-brand-cyan" /> Weekly Report
+                            </h2>
+                            <p className="text-white/40">Rolling 7-day activity log. Each day shows what every bot accomplished automatically.</p>
+                        </div>
+                        <motion.button
+                            onClick={fetchReports}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/30 text-sm font-bold"
+                        >
+                            <RefreshCcw size={14} className={reportsLoading ? 'animate-spin' : ''} /> Refresh
+                        </motion.button>
+                    </div>
+
+                    {Object.keys(reports).length === 0 ? (
+                        <div className="p-12 glass-card border-white/5 text-center flex flex-col items-center justify-center">
+                            <Clock size={40} className="text-white/20 mb-4" />
+                            <h3 className="text-xl font-bold text-white/60">No Reports Yet</h3>
+                            <p className="text-white/40 text-sm">Reports will appear here after bots run automatically.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {Object.entries(reports).sort(([a], [b]) => b.localeCompare(a)).map(([date, dayReports]) => {
+                                const isExpanded = expandedDay === date;
+                                const totalActions = dayReports.reduce((sum: number, r: any) => sum + (r.summary?.totalActions || 0), 0);
+                                const totalErrors = dayReports.reduce((sum: number, r: any) => sum + (r.summary?.errors || 0), 0);
+                                const totalProcessed = dayReports.reduce((sum: number, r: any) => sum + (r.summary?.jobsProcessed || 0), 0);
+                                const isToday = date === new Date().toISOString().split('T')[0];
+
+                                return (
+                                    <div key={date} className="glass-card border-white/5 overflow-hidden">
+                                        <button
+                                            onClick={() => setExpandedDay(isExpanded ? null : date)}
+                                            className="w-full flex items-center justify-between p-5 hover:bg-white/[0.02] transition-colors text-left"
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                {isExpanded ? <ChevronDown size={18} className="text-white/40" /> : <ChevronRight size={18} className="text-white/40" />}
+                                                <div>
+                                                    <p className="font-bold text-lg">
+                                                        {isToday && <span className="text-brand-cyan mr-2">●</span>}
+                                                        {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                                                        {isToday && <span className="ml-2 text-[10px] bg-brand-cyan/20 text-brand-cyan px-2 py-0.5 rounded-full font-black uppercase tracking-wider">Today</span>}
+                                                    </p>
+                                                    <p className="text-xs text-white/30 mt-1">{dayReports.length} bot(s) active</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-4 text-xs">
+                                                <span className="bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                                                    <span className="text-white/40">Actions:</span> <span className="text-white font-bold">{totalActions}</span>
+                                                </span>
+                                                <span className="bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                                                    <span className="text-emerald-400/60">Processed:</span> <span className="text-emerald-400 font-bold">{totalProcessed}</span>
+                                                </span>
+                                                {totalErrors > 0 && (
+                                                    <span className="bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">
+                                                        <span className="text-red-400/60">Errors:</span> <span className="text-red-400 font-bold">{totalErrors}</span>
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </button>
+
+                                        <AnimatePresence>
+                                            {isExpanded && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.2 }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <div className="border-t border-white/5 p-5 space-y-4">
+                                                        {dayReports.map((report: any) => {
+                                                            const botColor = bots.find(b => b.id === report.botId)?.color || '#a78bfa';
+                                                            return (
+                                                                <div key={report.botId} className="bg-white/[0.02] rounded-xl p-4 border border-white/5">
+                                                                    <div className="flex items-center justify-between mb-3">
+                                                                        <h4 className="font-bold text-sm uppercase tracking-wider" style={{ color: botColor }}>{report.botName}</h4>
+                                                                        <div className="flex gap-3 text-[10px]">
+                                                                            <span className="text-white/40">Actions: <span className="text-white font-bold">{report.summary?.totalActions || 0}</span></span>
+                                                                            <span className="text-white/40">Processed: <span className="text-emerald-400 font-bold">{report.summary?.jobsProcessed || 0}</span></span>
+                                                                            {(report.summary?.errors || 0) > 0 && (
+                                                                                <span className="text-red-400">Errors: <span className="font-bold">{report.summary.errors}</span></span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar">
+                                                                        {(report.actions || []).map((action: any, idx: number) => (
+                                                                            <div key={idx} className="flex items-start gap-3 text-xs py-1">
+                                                                                <span className="text-white/20 font-mono shrink-0 mt-0.5">
+                                                                                    {new Date(action.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                                                                </span>
+                                                                                <span className={action.action.includes('ERROR') || action.action.includes('❌') ? 'text-red-400' : action.action.includes('✅') ? 'text-emerald-400' : 'text-white/60'}>
+                                                                                    {action.action}
+                                                                                    {action.count > 0 && <span className="ml-1 text-white/30">({action.count})</span>}
+                                                                                </span>
+                                                                            </div>
+                                                                        ))}
+                                                                        {(!report.actions || report.actions.length === 0) && (
+                                                                            <p className="text-white/20 text-xs italic">No detailed actions recorded.</p>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
