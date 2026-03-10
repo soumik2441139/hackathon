@@ -43,6 +43,17 @@ desktop.ini
 *.tmp
 build_output*.txt
 debug_output*.txt
+*_log*.txt
+*_fail*.txt
+*_deploy*.txt
+*_verify*.txt
+*_runs*.json
+*_success*.txt
+full_settings.json
+run_log_final.json
+null
+*.zip
+backend_logs_extracted/
 
 # ─── Nested node_modules (explicit) ─────────────────────────────
 opushire/node_modules/

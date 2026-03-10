@@ -29,8 +29,6 @@ export const Navbar = () => {
                 {/* Desktop Nav */}
                 <div className="hidden md:flex items-center gap-8">
                     <Link href="/jobs" className="text-brand-text/70 hover:text-brand-text transition-colors">Jobs</Link>
-                    <Link href="/companies" className="text-brand-text/70 hover:text-brand-text transition-colors">Companies</Link>
-                    <Link href="/salaries" className="text-brand-text/70 hover:text-brand-text transition-colors">Salaries</Link>
                     {(user?.role === 'recruiter' || user?.role === 'admin') && (
                         <Link
                             href="/dashboard/recruiter/post-job"

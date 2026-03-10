@@ -29,12 +29,6 @@ export const Footer = () => {
                             <li className="hover:text-brand-text transition-colors cursor-pointer">
                                 <Link href="/jobs">Find Jobs</Link>
                             </li>
-                            <li className="hover:text-brand-text transition-colors cursor-pointer">
-                                <Link href="/companies">Company Search</Link>
-                            </li>
-                            <li className="hover:text-brand-text transition-colors cursor-pointer">
-                                <Link href="/salaries">Salaries</Link>
-                            </li>
                         </ul>
                     </div>
 

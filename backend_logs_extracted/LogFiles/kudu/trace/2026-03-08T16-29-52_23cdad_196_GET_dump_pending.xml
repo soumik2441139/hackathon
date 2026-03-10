@@ -1,4 +1,0 @@
-<step title="Incoming Request" date="2026-03-08T16:29:52.051" instance="23cdad" url="/dump" method="GET" type="request" pid="841,1,29" Host="opushire-backend.scm.azurewebsites.net" User-Agent="AZURECLI/2.83.0 (MSI)" Accept-Encoding="identity" Authorization="Bea..." x-ms-client-request-id="03159b93-1b0c-11f1-83d2-581cf82b6082" X-ARR-LOG-ID="03159b93-1b0c-11f1-83d2-581cf82b6082" CLIENT-IP="103.161.223.11:28194" X-SITE-DEPLOYMENT-ID="opushire-backend" WAS-DEFAULT-HOSTNAME="opushire-backend.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/dump" X-Client-IP="103.161.223.11" X-Client-Port="28194" >
-  <step title="Cleanup Xml Logs" date="2026-03-08T16:29:52.062" >
-    <step title="Cleanup Infos" date="2026-03-08T16:29:52.115" totalFiles="1466" totalCleanup="1306" /><!-- duration: 6ms -->
-  </step><!-- duration: 64ms -->
