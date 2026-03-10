@@ -12,8 +12,7 @@ import { deepScrapeJob } from './page-scraper';
  */
 
 const DEFAULT_CHANNELS = [
-    'getjobss', 'jobwithmayra', 'switzerlanddevjobs', 'germantechjobs',
-    'cryptojobslist', 'jobs_and_internships_updates', 'thinkcareers',
+    'getjobss', 'jobwithmayra', 'cryptojobslist', 'jobs_and_internships_updates', 'thinkcareers',
     'jobhuntcamp', 'internfreak', 'offcampusjobsandinternships', 'gocareers',
     'internshala_jobs', 'freshabordjobs', 'jobs_and_internships',
     'remote_jobs_feed', 'workintech',
@@ -310,7 +309,7 @@ export async function fetchTelegramJobs(): Promise<NormalizedJob[]> {
             allJobs.push({
                 title: enrichedTitle,
                 company: enrichedCompany,
-                companyLogo: `https://logo.clearbit.com/${companyClean}.com`,
+                companyLogo: `https://unavatar.io/${companyClean}.com`,
                 location: enrichedLocation,
                 city,
                 type: enrichedTitle.toLowerCase().includes('intern') ? 'Internship' : 'Full-time',

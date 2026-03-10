@@ -94,7 +94,7 @@ export async function fetchRemotiveJobs(): Promise<NormalizedJob[]> {
         return juniorJobs.map(job => ({
             title: job.title,
             company: job.company_name,
-            companyLogo: job.company_logo || `https://logo.clearbit.com/${job.company_name.toLowerCase().replace(/\s+/g, '')}.com`,
+            companyLogo: job.company_logo || `https://unavatar.io/${job.company_name.toLowerCase().replace(/\s+/g, '')}.com`,
             location: job.candidate_required_location || 'Remote',
             city: 'Remote',
             type: mapJobType(job.job_type),

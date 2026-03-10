@@ -157,7 +157,7 @@ export default function JobDetailPage() {
                                     <div className="flex gap-5">
                                         <div className="w-20 h-20 rounded-2xl bg-white border border-white/10 flex items-center justify-center text-4xl overflow-hidden shrink-0 relative shadow-lg">
                                             <img
-                                                src={job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? job.companyLogo : `https://logo.clearbit.com/${job.company.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`}
+                                                src={job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? job.companyLogo : `https://unavatar.io/${job.company.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`}
                                                 alt={`${job.company} logo`}
                                                 className="w-full h-full object-contain p-2 z-10 bg-white"
                                                 onError={(e) => {

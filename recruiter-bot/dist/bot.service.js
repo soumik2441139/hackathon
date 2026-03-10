@@ -15,6 +15,14 @@ let lastStatus = {
     totalNew: 0,
     totalDuplicates: 0,
 };
+const BLOCKED_LOCATIONS = [
+    'germany', 'switzerland', 'berlin', 'munich', 'frankfurt', 'zurich', 'geneva', 'basel', 'hamburg', 'cologne', 'stuttgart', 'dusseldorf', 'bern', 'lausanne'
+];
+function isBlockedJob(job) {
+    const textToCheck = `${job.location} ${job.city} ${job.title}`.toLowerCase();
+    const regex = new RegExp(`\\b(${BLOCKED_LOCATIONS.join('|')})\\b`, 'i');
+    return regex.test(textToCheck);
+}
 async function storeJobs(jobs, sourceName) {
     const result = {
         source: sourceName,
@@ -22,15 +30,20 @@ async function storeJobs(jobs, sourceName) {
         newJobs: 0,
         duplicates: 0,
         errors: [],
+        insertedIds: []
     };
     for (const job of jobs) {
+        if (isBlockedJob(job)) {
+            result.errors.push(`Excluded location: ${job.location || job.city || job.title}`);
+            continue;
+        }
         try {
             const exists = await Job_1.BotJob.findOne({ externalId: job.externalId });
             if (exists) {
                 result.duplicates++;
                 continue;
             }
-            await Job_1.BotJob.create({
+            const created = await Job_1.BotJob.create({
                 title: job.title,
                 company: job.company,
                 companyLogo: job.companyLogo,
@@ -51,6 +64,8 @@ async function storeJobs(jobs, sourceName) {
                 requirements: job.requirements || [],
             });
             result.newJobs++;
+            if (result.insertedIds)
+                result.insertedIds.push(created._id.toString());
         }
         catch (err) {
             if (err.code === 11000) {

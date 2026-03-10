@@ -1,0 +1,63 @@
+[
+  {
+    "_id": "69b047c8f9e0d2df847d40ea",
+    "date": "2026-03-10",
+    "botId": "scheduler",
+    "__v": 0,
+    "actions": [
+      {
+        "timestamp": "2026-03-10T16:33:13.169Z",
+        "action": "🚀 Initial startup pipeline triggered",
+        "count": 0,
+        "_id": "69b047c9e4af4a70ed6d0adc"
+      },
+      {
+        "timestamp": "2026-03-10T16:41:13.237Z",
+        "action": "🚀 Initial startup pipeline triggered",
+        "count": 0,
+        "_id": "69b049a95fccf03c978b5522"
+      },
+      {
+        "timestamp": "2026-03-10T16:42:47.829Z",
+        "action": "✅ Startup pipeline completed",
+        "count": 0,
+        "_id": "69b04a07e4af4a70ed6d0adf"
+      }
+    ],
+    "botName": "Scheduler",
+    "createdAt": "2026-03-10T16:33:13.172Z",
+    "summary": {
+      "errors": 0,
+      "jobsProcessed": 0,
+      "totalActions": 3
+    },
+    "updatedAt": "2026-03-10T16:42:47.830Z"
+  },
+  {
+    "_id": "69b049b5f9e0d2df847d40f5",
+    "botId": "bot0-recruiter",
+    "date": "2026-03-10",
+    "__v": 0,
+    "actions": [
+      {
+        "timestamp": "2026-03-10T16:41:25.734Z",
+        "action": "❌ ERROR: ❌ Process exited with code 1",
+        "count": 0,
+        "_id": "69b049b55fccf03c978b5526"
+      },
+      {
+        "timestamp": "2026-03-10T16:41:51.410Z",
+        "action": "⚡ Scraped 4 new jobs from telegram. IDs: 69b049cee864b0f27fdbacb0, 69b049cee864b0f27fdbacb3, 69b049cee864b0f27fdbacb6, 69b049cfe864b0f27fdbacb9",
+        "count": 4
+      }
+    ],
+    "botName": "Recruiter",
+    "createdAt": "2026-03-10T16:41:25.763Z",
+    "summary": {
+      "errors": 1,
+      "jobsProcessed": 4,
+      "totalActions": 2
+    },
+    "updatedAt": "2026-03-10T16:41:51.411Z"
+  }
+]

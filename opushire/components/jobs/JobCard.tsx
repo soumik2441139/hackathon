@@ -28,7 +28,7 @@ export const JobCard = ({ job }: JobCardProps) => {
                         <div className="flex gap-4">
                             <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-xl transition-transform group-hover:scale-110 overflow-hidden shrink-0 shadow-sm border border-white/10 relative">
                                 <img
-                                    src={job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? job.companyLogo : `https://logo.clearbit.com/${job.company.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`}
+                                    src={job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? job.companyLogo : `https://unavatar.io/${job.company.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`}
                                     alt={`${job.company} logo`}
                                     className="w-full h-full object-contain p-1.5 z-10 bg-white"
                                     onError={(e) => {

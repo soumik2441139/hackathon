@@ -20,9 +20,33 @@ async function main() {
     const status = await (0, bot_service_1.fetchAllJobs)();
     console.log('\n📊 Summary:');
     for (const r of status.results) {
-        console.log(`  ${r.source}: ${r.newJobs} new, ${r.duplicates} duplicates, ${r.errors.length} errors`);
+        console.log(`  [${r.source.toUpperCase()}] ${r.newJobs} new, ${r.duplicates} duplicates, ${r.errors.length} errors`);
     }
     console.log(`\n  TOTAL: ${status.totalNew} new jobs stored\n`);
+    if (status.totalNew > 0) {
+        const today = new Date().toISOString().split('T')[0];
+        try {
+            await mongoose_1.default.connection.db.collection('botstats').updateOne({ date: today }, { $inc: { jobsAdded: status.totalNew } }, { upsert: true });
+            // Detailed insights for the new UI
+            for (const r of status.results) {
+                if (r.newJobs > 0) {
+                    const idList = (r.insertedIds || []).join(', ');
+                    const actionInsight = `⚡ Scraped ${r.newJobs} new jobs from ${r.source}. IDs: ${idList}`;
+                    await mongoose_1.default.connection.db.collection('botreports').findOneAndUpdate({ date: today, botId: 'bot0-recruiter' }, {
+                        $setOnInsert: { botName: 'Recruiter', createdAt: new Date() },
+                        $push: {
+                            actions: { timestamp: new Date(), action: actionInsight, count: r.newJobs }
+                        },
+                        $inc: { 'summary.totalActions': 1, 'summary.jobsProcessed': r.newJobs },
+                        $set: { updatedAt: new Date() }
+                    }, { upsert: true });
+                }
+            }
+        }
+        catch (e) {
+            console.error('Failed to update stats or reports:', e.message);
+        }
+    }
     await mongoose_1.default.disconnect();
     process.exit(0);
 }

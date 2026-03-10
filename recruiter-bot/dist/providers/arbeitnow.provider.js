@@ -70,7 +70,7 @@ async function fetchArbeitnowJobs() {
                 allJobs.push({
                     title: job.title,
                     company: job.company_name,
-                    companyLogo: job.company_logo || `https://logo.clearbit.com/${job.company_name.toLowerCase().replace(/\s+/g, '')}.com`,
+                    companyLogo: job.company_logo || `https://unavatar.io/${job.company_name.toLowerCase().replace(/\s+/g, '')}.com`,
                     location: job.location || (job.remote ? 'Remote' : 'Unknown'),
                     city: job.remote ? 'Remote' : extractCity(job.location),
                     type: mapJobType(job.job_types),

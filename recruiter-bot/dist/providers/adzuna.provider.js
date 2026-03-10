@@ -104,7 +104,7 @@ async function fetchAdzunaJobs() {
                     allJobs.push({
                         title: job.title || 'Untitled',
                         company: companyName,
-                        companyLogo: `https://logo.clearbit.com/${companyName.toLowerCase().replace(/\s+/g, '')}.com`,
+                        companyLogo: `https://unavatar.io/${companyName.toLowerCase().replace(/\s+/g, '')}.com`,
                         location,
                         city,
                         type: mapJobType(job.contract_type, job.title || ''),

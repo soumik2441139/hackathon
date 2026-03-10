@@ -15,8 +15,7 @@ const page_scraper_1 = require("./page-scraper");
  * Extracts: Company Name, Role Title, Location, Graduation Year, Apply Link
  */
 const DEFAULT_CHANNELS = [
-    'getjobss', 'jobwithmayra', 'switzerlanddevjobs', 'germantechjobs',
-    'cryptojobslist', 'jobs_and_internships_updates', 'thinkcareers',
+    'getjobss', 'jobwithmayra', 'cryptojobslist', 'jobs_and_internships_updates', 'thinkcareers',
     'jobhuntcamp', 'internfreak', 'offcampusjobsandinternships', 'gocareers',
     'internshala_jobs', 'freshabordjobs', 'jobs_and_internships',
     'remote_jobs_feed', 'workintech',
@@ -261,8 +260,11 @@ async function fetchTelegramJobs() {
             if (applyLink && !applyLink.includes('t.me')) {
                 try {
                     const scraped = await (0, page_scraper_1.deepScrapeJob)(applyLink);
-                    if (scraped.description)
+                    if (scraped.description) {
                         enrichedDesc = scraped.description;
+                        if (gradYear)
+                            enrichedDesc += `\n\nEligible graduation years: ${gradYear}`;
+                    }
                     if (scraped.responsibilities.length > 0)
                         responsibilities = scraped.responsibilities;
                     if (scraped.requirements.length > 0)
@@ -270,7 +272,7 @@ async function fetchTelegramJobs() {
                     if (scraped.tags.length > 0)
                         tags = scraped.tags;
                     if (scraped.title && scraped.title.length > 3)
-                        enrichedTitle = scraped.title;
+                        enrichedTitle = scraped.title.replace(/Job Application for/i, '').replace(/at\s+.*$/, '').trim();
                     if (scraped.company && scraped.company.length > 1)
                         enrichedCompany = scraped.company;
                     if (scraped.salary)
@@ -286,7 +288,7 @@ async function fetchTelegramJobs() {
             allJobs.push({
                 title: enrichedTitle,
                 company: enrichedCompany,
-                companyLogo: `https://logo.clearbit.com/${companyClean}.com`,
+                companyLogo: `https://unavatar.io/${companyClean}.com`,
                 location: enrichedLocation,
                 city,
                 type: enrichedTitle.toLowerCase().includes('intern') ? 'Internship' : 'Full-time',
