@@ -1,0 +1,24 @@
+[
+  {
+    "_id": "69b047c8f9e0d2df847d40ea",
+    "date": "2026-03-10",
+    "botId": "scheduler",
+    "__v": 0,
+    "actions": [
+      {
+        "timestamp": "2026-03-10T16:33:13.169Z",
+        "action": "🚀 Initial startup pipeline triggered",
+        "count": 0,
+        "_id": "69b047c9e4af4a70ed6d0adc"
+      }
+    ],
+    "botName": "Scheduler",
+    "createdAt": "2026-03-10T16:33:13.172Z",
+    "summary": {
+      "errors": 0,
+      "jobsProcessed": 0,
+      "totalActions": 1
+    },
+    "updatedAt": "2026-03-10T16:33:13.172Z"
+  }
+]

@@ -17,6 +17,22 @@ async function incrementStat(db, metric, amount = 1) {
     );
 }
 
+async function logInsight(db, botId, botName, insight, count = 1) {
+    const today = new Date().toISOString().split('T')[0];
+    await db.collection('botreports').findOneAndUpdate(
+        { date: today, botId },
+        {
+            $setOnInsert: { botName, createdAt: new Date() },
+            $push: {
+                actions: { timestamp: new Date(), action: insight, count }
+            },
+            $inc: { 'summary.totalActions': 1, 'summary.jobsProcessed': count },
+            $set: { updatedAt: new Date() }
+        },
+        { upsert: true }
+    );
+}
+
 async function evaluateKeywords(originalTags, proposedTags, apiKey) {
     const prompt = `You are a strict QA bot. The original job requirements were:\n`
         + originalTags.join('\n')
@@ -111,8 +127,14 @@ async function runSupervisor() {
                 }
             }
 
-            if (approvals > 0) await incrementStat(db, 'approvals', approvals);
-            if (hallucinations > 0) await incrementStat(db, 'hallucinationsCaught', hallucinations);
+            if (approvals > 0) {
+                await incrementStat(db, 'approvals', approvals);
+                await logInsight(db, 'bot3-supervisor', 'Supervisor', `✅ QA Approved tags for ${approvals} jobs`, approvals);
+            }
+            if (hallucinations > 0) {
+                await incrementStat(db, 'hallucinationsCaught', hallucinations);
+                await logInsight(db, 'bot3-supervisor', 'Supervisor', `❌ QA Rejected ${hallucinations} jobs (Hallucination caught)`, hallucinations);
+            }
 
         } catch (err) {
             console.error('Supervisor Error:', err);

@@ -17,6 +17,22 @@ async function incrementStat(db, metric, amount = 1) {
     );
 }
 
+async function logInsight(db, botId, botName, insight, count = 1) {
+    const today = new Date().toISOString().split('T')[0];
+    await db.collection('botreports').findOneAndUpdate(
+        { date: today, botId },
+        {
+            $setOnInsert: { botName, createdAt: new Date() },
+            $push: {
+                actions: { timestamp: new Date(), action: insight, count }
+            },
+            $inc: { 'summary.totalActions': 1, 'summary.jobsProcessed': count },
+            $set: { updatedAt: new Date() }
+        },
+        { upsert: true }
+    );
+}
+
 async function generateKeywords(longTags, apiKey) {
     const prompt = `Extract exactly 3 concise keywords (maximum 2 words each) from these required skills lines:\n`
         + longTags.join('\n')
@@ -98,6 +114,7 @@ async function runFixer() {
 
             if (fixedCount > 0) {
                 await incrementStat(db, 'fixesMade', fixedCount);
+                await logInsight(db, 'bot2-fixer', 'Fixer', `🤖 Generated new tags for ${fixedCount} jobs (AI Review Pending)`, fixedCount);
             }
         } catch (err) {
             console.error('Fixer Error:', err);

@@ -11,6 +11,7 @@ export interface FetchResult {
     newJobs: number;
     duplicates: number;
     errors: string[];
+    insertedIds?: string[];
 }
 
 export interface BotStatus {
@@ -44,6 +45,7 @@ async function storeJobs(jobs: NormalizedJob[], sourceName: string): Promise<Fet
         newJobs: 0,
         duplicates: 0,
         errors: [],
+        insertedIds: []
     };
 
     for (const job of jobs) {
@@ -59,7 +61,7 @@ async function storeJobs(jobs: NormalizedJob[], sourceName: string): Promise<Fet
                 continue;
             }
 
-            await BotJob.create({
+            const created = await BotJob.create({
                 title: job.title,
                 company: job.company,
                 companyLogo: job.companyLogo,
@@ -81,6 +83,7 @@ async function storeJobs(jobs: NormalizedJob[], sourceName: string): Promise<Fet
             });
 
             result.newJobs++;
+            if (result.insertedIds) result.insertedIds.push(created._id.toString());
         } catch (err: any) {
             if (err.code === 11000) {
                 result.duplicates++;

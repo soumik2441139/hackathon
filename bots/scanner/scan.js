@@ -15,6 +15,22 @@ async function incrementStat(db, metric, amount = 1) {
     );
 }
 
+async function logInsight(db, botId, botName, insight, count = 1) {
+    const today = new Date().toISOString().split('T')[0];
+    await db.collection('botreports').findOneAndUpdate(
+        { date: today, botId },
+        {
+            $setOnInsert: { botName, createdAt: new Date() },
+            $push: {
+                actions: { timestamp: new Date(), action: insight, count }
+            },
+            $inc: { 'summary.totalActions': 1, 'summary.jobsProcessed': count },
+            $set: { updatedAt: new Date() }
+        },
+        { upsert: true }
+    );
+}
+
 async function runScanner() {
     const uri = process.env.MONGODB_URI;
     if (!uri) throw new Error('MONGODB_URI not found');
@@ -68,6 +84,7 @@ async function runScanner() {
             if (flaggedCount > 0) {
                 console.log(`[Scan] Flagged ${flaggedCount} jobs for the Fixer bot.`);
                 await incrementStat(db, 'anomaliesFound', flaggedCount);
+                await logInsight(db, 'bot1-scanner', 'Scanner', `🔍 Flagged ${flaggedCount} jobs for AI review (Bad tags)`, flaggedCount);
             }
         } catch (err) {
             console.error('Scan Error:', err);

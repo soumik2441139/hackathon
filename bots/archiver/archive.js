@@ -18,6 +18,22 @@ async function incrementStat(db, metric, amount = 1) {
     );
 }
 
+async function logInsight(db, botId, botName, insight, count = 1) {
+    const today = new Date().toISOString().split('T')[0];
+    await db.collection('botreports').findOneAndUpdate(
+        { date: today, botId },
+        {
+            $setOnInsert: { botName, createdAt: new Date() },
+            $push: {
+                actions: { timestamp: new Date(), action: insight, count }
+            },
+            $inc: { 'summary.totalActions': 1, 'summary.jobsProcessed': count },
+            $set: { updatedAt: new Date() }
+        },
+        { upsert: true }
+    );
+}
+
 async function isJobDead(text, apiKey) {
     if (!text || text.length < 50) return true; // Empty page or barely any text = dead
 
@@ -109,6 +125,7 @@ async function checkJobs(db, browser, apiKey) {
 
         if (archivedCount > 0) {
             await incrementStat(db, 'ghostJobsArchived', archivedCount);
+            await logInsight(db, 'bot6-archiver', 'Ghost Detector', `👻 Checked URLs and archived ${archivedCount} dead/ghost jobs`, archivedCount);
         }
     } catch (err) {
         console.error('Archiver DB Error:', err);

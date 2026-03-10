@@ -18,6 +18,22 @@ async function incrementStat(db, metric, amount = 1) {
     );
 }
 
+async function logInsight(db, botId, botName, insight, count = 1) {
+    const today = new Date().toISOString().split('T')[0];
+    await db.collection('botreports').findOneAndUpdate(
+        { date: today, botId },
+        {
+            $setOnInsert: { botName, createdAt: new Date() },
+            $push: {
+                actions: { timestamp: new Date(), action: insight, count }
+            },
+            $inc: { 'summary.totalActions': 1, 'summary.jobsProcessed': count },
+            $set: { updatedAt: new Date() }
+        },
+        { upsert: true }
+    );
+}
+
 async function runCleanup() {
     const uri = process.env.MONGODB_URI;
     if (!uri) throw new Error('Missing environment variable MONGODB_URI');
@@ -50,6 +66,7 @@ async function runCleanup() {
                     await db.collection('jobs').deleteOne({ _id: job._id });
                     console.log(`     🗑️  Completely deleted expired job: ${job.title}`);
                 }
+                await logInsight(db, 'bot4-cleanup', 'Cleaner', `🧨 Hard-deleted ${jobsToHardDelete.length} expired jobs (>3 weeks old)`, jobsToHardDelete.length);
             }
 
             const jobsToArchive = await db.collection('jobs').find({
@@ -71,6 +88,7 @@ async function runCleanup() {
 
             if (archivedCount > 0) {
                 await incrementStat(db, 'jobsArchived', archivedCount);
+                await logInsight(db, 'bot4-cleanup', 'Cleaner', `🧹 Soft-archived ${archivedCount} old jobs (>1 week old)`, archivedCount);
             }
         } catch (err) {
             console.error('Cleanup Error:', err);

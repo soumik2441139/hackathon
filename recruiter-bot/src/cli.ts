@@ -32,8 +32,28 @@ async function main() {
                 { $inc: { jobsAdded: status.totalNew } },
                 { upsert: true }
             );
+
+            // Detailed insights for the new UI
+            for (const r of status.results) {
+                if (r.newJobs > 0) {
+                    const idList = (r.insertedIds || []).join(', ');
+                    const actionInsight = `⚡ Scraped ${r.newJobs} new jobs from ${r.source}. IDs: ${idList}`;
+                    await (mongoose.connection.db!.collection('botreports') as any).findOneAndUpdate(
+                        { date: today, botId: 'bot0-recruiter' },
+                        {
+                            $setOnInsert: { botName: 'Recruiter', createdAt: new Date() },
+                            $push: {
+                                actions: { timestamp: new Date(), action: actionInsight, count: r.newJobs }
+                            },
+                            $inc: { 'summary.totalActions': 1, 'summary.jobsProcessed': r.newJobs },
+                            $set: { updatedAt: new Date() }
+                        },
+                        { upsert: true }
+                    );
+                }
+            }
         } catch (e: any) {
-            console.error('Failed to increment BotStat:', e.message);
+            console.error('Failed to update stats or reports:', e.message);
         }
     }
 
