@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CanvasBackground } from './CanvasBackground';
+import { Search, Zap, ChevronsUp, Terminal, BrainCircuit, Network, DoorOpen } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -164,8 +165,8 @@ export const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="glass-card p-10 group" data-purpose="protocol-card">
-              <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center mb-10 group-hover:bg-blue-500/20 transition-colors">
-                <svg className="w-6 h-6 text-electric-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+              <div className="w-12 h-12 rounded-lg bg-[#0F111A] flex items-center justify-center mb-10 group-hover:bg-[#151822] transition-colors border border-white/5">
+                <Search className="w-5 h-5 text-blue-500" strokeWidth={2} />
               </div>
               <h3 className="text-xl font-bold mb-4 uppercase tracking-wider">Signal Isolation</h3>
               <p className="text-gray-500 font-light leading-relaxed mb-8">
@@ -175,8 +176,8 @@ export const LandingPage = () => {
             </div>
             
             <div className="glass-card p-10 group" data-purpose="protocol-card">
-              <div className="w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-10 group-hover:bg-cyan-500/20 transition-colors">
-                <svg className="w-6 h-6 text-cyan-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+              <div className="w-12 h-12 rounded-lg bg-[#0A1A1C] flex items-center justify-center mb-10 group-hover:bg-[#0D2427] transition-colors border border-white/5">
+                <Zap className="w-5 h-5 text-teal-500" strokeWidth={2} />
               </div>
               <h3 className="text-xl font-bold mb-4 uppercase tracking-wider">Neural Alignment</h3>
               <p className="text-gray-500 font-light leading-relaxed mb-8">
@@ -186,8 +187,8 @@ export const LandingPage = () => {
             </div>
             
             <div className="glass-card p-10 group" data-purpose="protocol-card">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center mb-10 group-hover:bg-purple-500/20 transition-colors">
-                <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 11l7-7 7 7M5 19l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+              <div className="w-12 h-12 rounded-lg bg-[#140C1A] flex items-center justify-center mb-10 group-hover:bg-[#1D1226] transition-colors border border-white/5">
+                <ChevronsUp className="w-5 h-5 text-purple-500" strokeWidth={2} />
               </div>
               <h3 className="text-xl font-bold mb-4 uppercase tracking-wider">Velocity Scaling</h3>
               <p className="text-gray-500 font-light leading-relaxed mb-8">
@@ -265,8 +266,8 @@ export const LandingPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="glass-card p-8 group" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded bg-blue-500/10 flex items-center justify-center mb-8 group-hover:bg-blue-500/20 transition-colors">
-                <span className="material-symbols-outlined text-electric-blue text-xl">terminal</span>
+              <div className="w-10 h-10 rounded-md bg-[#131A2A] flex items-center justify-center mb-8 group-hover:bg-[#1A2338] transition-colors border border-white/5">
+                <Terminal className="w-4 h-4 text-blue-500" strokeWidth={2} />
               </div>
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-white">Dorm Room</h3>
@@ -279,8 +280,8 @@ export const LandingPage = () => {
             </div>
             
             <div className="glass-card p-8 group" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded bg-cyan-500/10 flex items-center justify-center mb-8 group-hover:bg-cyan-500/20 transition-colors">
-                <span className="material-symbols-outlined text-cyan-accent text-xl">psychology</span>
+              <div className="w-10 h-10 rounded-md bg-[#0C1A1D] flex items-center justify-center mb-8 group-hover:bg-[#102429] transition-colors border border-white/5">
+                <BrainCircuit className="w-4 h-4 text-teal-500" strokeWidth={2} />
               </div>
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-white">Neural Mapping</h3>
@@ -293,8 +294,8 @@ export const LandingPage = () => {
             </div>
             
             <div className="glass-card p-8 group" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded bg-purple-500/10 flex items-center justify-center mb-8 group-hover:bg-purple-500/20 transition-colors">
-                <span className="material-symbols-outlined text-purple-500 text-xl">hub</span>
+              <div className="w-10 h-10 rounded-md bg-[#160D1D] flex items-center justify-center mb-8 group-hover:bg-[#20132B] transition-colors border border-white/5">
+                <Network className="w-4 h-4 text-purple-500" strokeWidth={2} />
               </div>
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-white">Network Sync</h3>
@@ -307,8 +308,8 @@ export const LandingPage = () => {
             </div>
             
             <div className="glass-card p-8 group" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded bg-green-500/10 flex items-center justify-center mb-8 group-hover:bg-green-500/20 transition-colors">
-                <span className="material-symbols-outlined text-green-500 text-xl">meeting_room</span>
+              <div className="w-10 h-10 rounded-md bg-[#0C1C13] flex items-center justify-center mb-8 group-hover:bg-[#102619] transition-colors border border-white/5">
+                <DoorOpen className="w-4 h-4 text-green-500" strokeWidth={2} />
               </div>
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-white">Boardroom</h3>
