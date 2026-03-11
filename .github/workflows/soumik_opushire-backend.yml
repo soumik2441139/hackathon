@@ -91,7 +91,10 @@ jobs:
               { "name": "WEBSITE_RUN_FROM_PACKAGE", "value": "1" },
               { "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "false" }
             ]
-          general-settings-json: '{"appCommandLine": "node dist/server.js"}'
+          general-settings-json: |
+            {
+              "appCommandLine": "node dist/server.js"
+            }
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
