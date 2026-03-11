@@ -1,0 +1,10 @@
+crewai
+langchain
+langchain-google-genai
+langchain-core
+llama-index
+openai
+pymongo
+motor
+redis
+rq

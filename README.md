@@ -2,7 +2,7 @@
   <br />
   <h1>OpusHire 🚀</h1>
   <p><strong>Elevate your Career from Campus.</strong></p>
-  <p>The premium job portal designed explicitly for high-growth students, top-tier tech startups, and autonomous AI micro-agents.</p>
+  <p>The premium <strong>Autonomous Career Protocol</strong> designed explicitly for high-growth students, top-tier tech startups, and autonomous AI micro-agents. Leveraging advanced orchestration to secure elite professional placement.</p>
   <br />
 
   [![Deploy on Azure](https://img.shields.io/badge/Deploy_on_Azure-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white)](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
@@ -17,7 +17,7 @@
 
 ## 🌟 Overview
 
-OpusHire is a modern, full-stack recruitment platform and application tracking system (ATS) crafted to seamlessly connect top-tier student talent with world-class technology companies. 
+OpusHire is a high-stakes professional protocol and autonomous career ecosystem. It connects top-tier student talent with world-class technology companies through a sophisticated, agent-driven orchestration layer.
 
 Beyond standard job portal features, OpusHire implements an **Autonomous AI Ecosystem** consisting of several micro-agents that scrape jobs, clean data using LLMs, supervise each other to prevent hallucinations, and automatically archive expired roles.
 

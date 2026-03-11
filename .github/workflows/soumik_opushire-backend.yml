@@ -37,7 +37,7 @@ jobs:
           npm install --omit=dev --no-workspaces
           
           # Install dependencies for each bot directory so they work on Azure
-          for botdir in recruiter-bot bots/scanner bots/fixer bots/supervisor bots/cleanup bots/archiver; do
+          for botdir in recruiter-bot bots/scanner bots/fixer bots/supervisor bots/cleanup bots/archiver bots/matcher bots/advisor bots/linkedin-enricher; do
             if [ -d "../$botdir" ]; then
               echo "Installing deps for $botdir..."
               (cd "../$botdir" && npm install --production --no-workspaces)
@@ -48,12 +48,17 @@ jobs:
           zip -r ../backend.zip .
           
           cd ..
-          for botdir in recruiter-bot bots/scanner bots/fixer bots/supervisor bots/cleanup bots/archiver; do
+          for botdir in recruiter-bot bots/scanner bots/fixer bots/supervisor bots/cleanup bots/archiver bots/matcher bots/advisor bots/linkedin-enricher; do
             if [ -d "$botdir" ]; then
               zip -r backend.zip "$botdir/"
               echo "Added $botdir to deployment package"
             fi
           done
+          
+          if [ -d "agents" ]; then
+            zip -r backend.zip agents/ -x "agents/venv/*" -x "agents/**/__pycache__/*"
+            echo "Added agents to deployment package"
+          fi
 
 
       - name: Upload artifact for deployment job

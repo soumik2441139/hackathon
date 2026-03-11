@@ -15,6 +15,9 @@ export interface IJob extends Document {
     responsibilities: string[];
     requirements: string[];
     tags: string[];
+    skills?: string[]; // New: Added for AI matching
+    level?: string;  // New: Added for AI matching (e.g. intern, junior)
+    domains?: string[]; // New: Added for AI matching (e.g. Web, ML, Cloud)
     openings: number;
     deadline?: Date;
     featured: boolean;
@@ -56,6 +59,9 @@ const JobSchema = new Schema<IJob>(
         responsibilities: [{ type: String }],
         requirements: [{ type: String }],
         tags: [{ type: String, trim: true }],
+        skills: [{ type: String, trim: true }],
+        level: { type: String, trim: true },
+        domains: [{ type: String, trim: true }],
         openings: { type: Number, default: 1 },
         deadline: { type: Date },
         featured: { type: Boolean, default: false },
@@ -93,5 +99,6 @@ JobSchema.index({ createdAt: -1 });
 JobSchema.index({ source: 1 });
 JobSchema.index({ externalId: 1 });
 
-export const Job = mongoose.model<IJob>('Job', JobSchema);
-
+const JobModel = mongoose.model<IJob>('Job', JobSchema);
+export { JobModel as Job };
+export default JobModel;

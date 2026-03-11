@@ -183,8 +183,8 @@ export const LandingPage = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-10 group border border-white/5 bg-white/[0.02] backdrop-blur-3xl transition-all duration-500 hover:border-[#2563eb]/20 hover:bg-white/[0.04] flex flex-col items-start" data-purpose="protocol-card">
-              <div className="w-12 h-12 rounded-lg bg-[#0F111A] flex items-center justify-center mb-10 group-hover:bg-[#151822] transition-colors border border-white/5">
+            <div className="p-10 group border border-blue-900/30 bg-blue-900/10 backdrop-blur-3xl transition-all duration-500 hover:border-blue-800/50 hover:bg-blue-900/20 flex flex-col items-start" data-purpose="protocol-card">
+              <div className="w-12 h-12 rounded-lg bg-[#0a0f1c] flex items-center justify-center mb-10">
                 <Search className="w-5 h-5 text-blue-500" strokeWidth={2} />
               </div>
               <h3 className="text-xl font-bold mb-4 uppercase tracking-wider text-white">Signal Isolation</h3>
@@ -194,8 +194,8 @@ export const LandingPage = () => {
               <span className="text-[10px] text-gray-700 font-bold uppercase tracking-widest">Module 01</span>
             </div>
             
-            <div className="p-10 group border border-white/5 bg-white/[0.02] backdrop-blur-3xl transition-all duration-500 hover:border-[#06b6d4]/20 hover:bg-white/[0.04] flex flex-col items-start" data-purpose="protocol-card">
-              <div className="w-12 h-12 rounded-lg bg-[#0A1A1C] flex items-center justify-center mb-10 group-hover:bg-[#0D2427] transition-colors border border-white/5">
+            <div className="p-10 group border border-teal-900/30 bg-teal-900/10 backdrop-blur-3xl transition-all duration-500 hover:border-teal-800/50 hover:bg-teal-900/20 flex flex-col items-start" data-purpose="protocol-card">
+              <div className="w-12 h-12 rounded-lg bg-[#051414] flex items-center justify-center mb-10">
                 <Zap className="w-5 h-5 text-teal-500" strokeWidth={2} />
               </div>
               <h3 className="text-xl font-bold mb-4 uppercase tracking-wider text-white">Neural Alignment</h3>
@@ -205,8 +205,8 @@ export const LandingPage = () => {
               <span className="text-[10px] text-gray-700 font-bold uppercase tracking-widest">Module 02</span>
             </div>
             
-            <div className="p-10 group border border-white/5 bg-white/[0.02] backdrop-blur-3xl transition-all duration-500 hover:border-[#d946ef]/20 hover:bg-white/[0.04] flex flex-col items-start" data-purpose="protocol-card">
-              <div className="w-12 h-12 rounded-lg bg-[#140C1A] flex items-center justify-center mb-10 group-hover:bg-[#1D1226] transition-colors border border-white/5">
+            <div className="p-10 group border border-purple-900/30 bg-purple-900/10 backdrop-blur-3xl transition-all duration-500 hover:border-purple-800/50 hover:bg-purple-900/20 flex flex-col items-start" data-purpose="protocol-card">
+              <div className="w-12 h-12 rounded-lg bg-[#120a1c] flex items-center justify-center mb-10">
                 <ChevronsUp className="w-5 h-5 text-purple-500" strokeWidth={2} />
               </div>
               <h3 className="text-xl font-bold mb-4 uppercase tracking-wider text-white">Velocity Scaling</h3>
@@ -284,8 +284,8 @@ export const LandingPage = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-8 group border border-white/5 bg-white/[0.01] transition-all duration-500 hover:bg-white/[0.03] flex flex-col items-start" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded-md bg-[#131A2A] flex items-center justify-center mb-8 border border-white/5">
+            <div className="p-8 group border border-blue-900/30 bg-blue-900/10 transition-all duration-500 hover:bg-blue-900/20 hover:border-blue-800/50 flex flex-col items-start" data-purpose="roadmap-card">
+              <div className="w-10 h-10 rounded-md bg-[#0a0f1c] flex items-center justify-center mb-8">
                 <Terminal className="w-4 h-4 text-blue-500" strokeWidth={2} />
               </div>
               <div className="flex justify-between items-center w-full mb-4">
@@ -298,8 +298,8 @@ export const LandingPage = () => {
               </p>
             </div>
             
-            <div className="p-8 group border border-white/5 bg-white/[0.01] transition-all duration-500 hover:bg-white/[0.03] flex flex-col items-start" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded-md bg-[#0C1A1D] flex items-center justify-center mb-8 border border-white/5">
+            <div className="p-8 group border border-teal-900/30 bg-teal-900/10 transition-all duration-500 hover:bg-teal-900/20 hover:border-teal-800/50 flex flex-col items-start" data-purpose="roadmap-card">
+              <div className="w-10 h-10 rounded-md bg-[#051414] flex items-center justify-center mb-8">
                 <BrainCircuit className="w-4 h-4 text-teal-500" strokeWidth={2} />
               </div>
               <div className="flex justify-between items-center w-full mb-4">
@@ -312,8 +312,8 @@ export const LandingPage = () => {
               </p>
             </div>
             
-            <div className="p-8 group border border-white/5 bg-white/[0.01] transition-all duration-500 hover:bg-white/[0.03] flex flex-col items-start" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded-md bg-[#160D1D] flex items-center justify-center mb-8 border border-white/5">
+            <div className="p-8 group border border-purple-900/30 bg-purple-900/10 transition-all duration-500 hover:bg-purple-900/20 hover:border-purple-800/50 flex flex-col items-start" data-purpose="roadmap-card">
+              <div className="w-10 h-10 rounded-md bg-[#120a1c] flex items-center justify-center mb-8">
                 <Network className="w-4 h-4 text-purple-500" strokeWidth={2} />
               </div>
               <div className="flex justify-between items-center w-full mb-4">
@@ -326,8 +326,8 @@ export const LandingPage = () => {
               </p>
             </div>
             
-            <div className="p-8 group border border-white/5 bg-white/[0.01] transition-all duration-500 hover:bg-white/[0.03] flex flex-col items-start" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded-md bg-[#0C1C13] flex items-center justify-center mb-8 border border-white/5">
+            <div className="p-8 group border border-green-900/30 bg-green-900/10 transition-all duration-500 hover:bg-green-900/20 hover:border-green-800/50 flex flex-col items-start" data-purpose="roadmap-card">
+              <div className="w-10 h-10 rounded-md bg-[#08140b] flex items-center justify-center mb-8">
                 <DoorOpen className="w-4 h-4 text-green-500" strokeWidth={2} />
               </div>
               <div className="flex justify-between items-center w-full mb-4">

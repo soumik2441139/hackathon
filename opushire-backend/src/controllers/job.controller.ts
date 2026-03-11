@@ -3,6 +3,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import * as JobService from '../services/job.service';
 import { jobFilterSchema, createJobSchema } from '../services/job.service';
 import { autoApplyToJob } from '../services/auto-apply.service';
+import { autoEmbedJob } from '../services/vector/autoEmbedJob';
 
 export const getJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -27,6 +28,10 @@ export const createJob = async (req: AuthRequest, res: Response, next: NextFunct
     try {
         const data = createJobSchema.parse(req.body);
         const job = await JobService.createJob(data, req.user!.id);
+        
+        // Immediately trigger FAISS auto-embed background process
+        autoEmbedJob(job).catch(err => console.error("Auto-embed failed for job:", job._id, err));
+
         res.status(201).json({ success: true, data: job });
     } catch (err) {
         next(err);

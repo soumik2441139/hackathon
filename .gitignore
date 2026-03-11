@@ -1,4 +1,7 @@
 # ─── Dependencies ────────────────────────────────────────────────
+agents/venv/
+__pycache__/
+*.pyc
 node_modules/
 .pnp
 .pnp.js
