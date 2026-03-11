@@ -1,0 +1,11 @@
+TypeError: Cannot set property query of #<IncomingMessage> which has only a getter
+    at C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\express-mongo-sanitize\index.js:113:18
+    at Array.forEach (<anonymous>)
+    at C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\express-mongo-sanitize\index.js:110:44
+    at Layer.handleRequest (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\router\index.js:342:13)
+    at C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\router\index.js:297:9
+    at processParams (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\router\index.js:582:12)
+    at next (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\router\index.js:291:5)
+    at read (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\body-parser\lib\read.js:53:5)
+    at urlencodedParser (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\body-parser\lib\types\urlencoded.js:57:5)

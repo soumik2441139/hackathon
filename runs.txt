@@ -1,0 +1,20 @@
+completed	success	UI: remove domain of expertise from registration for students	Opushire CI/CD	soumik	push	22965549698	43s	2026-03-11T17:24:27Z
+completed	failure	UI: remove domain of expertise from registration for students	Build and deploy Node.js app to Azure Web App - opushire-backend	soumik	push	22965549694	1m39s	2026-03-11T17:24:27Z
+completed	success	UI: remove domain of expertise from registration for students	Build and deploy Node.js app to Azure Web App - opushire-frontend-app	soumik	push	22965549693	2m8s	2026-03-11T17:24:27Z
+completed	success	UI: unify navbars by omitting custom headers in auth pages	Opushire CI/CD	soumik	push	22964897564	41s	2026-03-11T17:09:13Z
+completed	success	UI: unify navbars by omitting custom headers in auth pages	Build and deploy Node.js app to Azure Web App - opushire-frontend-app	soumik	push	22964897551	1m56s	2026-03-11T17:09:13Z
+completed	success	UI: unify navbars by omitting custom headers in auth pages	Build and deploy Node.js app to Azure Web App - opushire-backend	soumik	push	22964897532	3m3s	2026-03-11T17:09:13Z
+completed	success	feat: Replace registration UI with 1:1 'Join the Elite' template	Build and deploy Node.js app to Azure Web App - opushire-frontend-app	soumik	push	22964312678	2m9s	2026-03-11T16:55:32Z
+completed	success	feat: Replace registration UI with 1:1 'Join the Elite' template	Build and deploy Node.js app to Azure Web App - opushire-backend	soumik	push	22964312646	3m11s	2026-03-11T16:55:32Z
+completed	success	feat: Replace registration UI with 1:1 'Join the Elite' template	Opushire CI/CD	soumik	push	22964312639	42s	2026-03-11T16:55:32Z
+completed	success	feat: Implement Student-Gateway hybrid auth flow	Build and deploy Node.js app to Azure Web App - opushire-frontend-app	soumik	push	22961844412	2m28s	2026-03-11T15:59:39Z
+completed	success	feat: Implement Student-Gateway hybrid auth flow	Opushire CI/CD	soumik	push	22961844365	38s	2026-03-11T15:59:39Z
+completed	success	feat: Implement Student-Gateway hybrid auth flow	Build and deploy Node.js app to Azure Web App - opushire-backend	soumik	push	22961844336	2m22s	2026-03-11T15:59:39Z
+completed	success	fix(backend): remove incompatible security middlewares causing TypeEr…	Opushire CI/CD	soumik	push	22959348989	38s	2026-03-11T15:05:37Z
+completed	success	fix(backend): remove incompatible security middlewares causing TypeEr…	Build and deploy Node.js app to Azure Web App - opushire-backend	soumik	push	22959348926	3m0s	2026-03-11T15:05:37Z
+completed	success	fix(backend): remove incompatible security middlewares causing TypeEr…	Build and deploy Node.js app to Azure Web App - opushire-frontend-app	soumik	push	22959348906	2m6s	2026-03-11T15:05:37Z
+completed	success	feat(ui): implement agentic recruitment landing page redesign with GS…	Opushire CI/CD	soumik	push	22942564128	44s	2026-03-11T07:59:03Z
+completed	success	feat(ui): implement agentic recruitment landing page redesign with GS…	Build and deploy Node.js app to Azure Web App - opushire-backend	soumik	push	22942564117	2m55s	2026-03-11T07:59:03Z
+completed	success	feat(ui): implement agentic recruitment landing page redesign with GS…	Build and deploy Node.js app to Azure Web App - opushire-frontend-app	soumik	push	22942564104	2m20s	2026-03-11T07:59:03Z
+completed	success	chore: clean up unwanted report dump files	Build and deploy Node.js app to Azure Web App - opushire-backend	soumik	push	22917325196	3m6s	2026-03-10T18:10:34Z
+completed	success	chore: clean up unwanted report dump files	Opushire CI/CD	soumik	push	22917325157	37s	2026-03-10T18:10:34Z

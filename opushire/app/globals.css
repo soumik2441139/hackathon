@@ -9,8 +9,11 @@
   --color-brand-glass-border: rgba(255, 255, 255, 0.08);
 
   --color-primary: #1152d4;
+  --color-electric-blue: #2563eb;
+  --color-cyan-accent: #06b6d4;
   --color-background-light: #f6f6f8;
-  --color-background-dark: #05070a;
+  --color-background-dark: #050505;
+  --color-vantablack: #050505;
   --color-slate-custom: #111722;
 
   --font-display: "Manrope", sans-serif;
@@ -64,7 +67,11 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-black/40;
+    @apply bg-white/5 backdrop-blur-2xl border border-white/10 rounded-sm shadow-2xl shadow-black/40 transition-all duration-300;
+  }
+  
+  .glass-card:hover {
+    border-color: rgba(37, 99, 235, 0.4);
   }
 
   .glass-button {
@@ -76,7 +83,20 @@
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-violet to-brand-cyan drop-shadow-sm;
+    background: linear-gradient(to right, var(--color-electric-blue), var(--color-cyan-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .glow-dot {
+    box-shadow: 0 0 15px 2px rgba(6, 182, 212, 0.6);
+  }
+
+  .glass-nav {
+    background: rgba(10, 10, 10, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .glass-morphism {

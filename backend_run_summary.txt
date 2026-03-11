@@ -1,0 +1,35 @@
+
+X soumik Build and deploy Node.js app to Azure Web App - opushire-backend soumik2441139/hackathon#7 · 22965549694
+Triggered via push about 23 minutes ago
+
+JOBS
+✓ build in 1m5s (ID 66667952648)
+X deploy in 27s (ID 66668129021)
+  ✓ Set up job
+  ✓ Download artifact from build job
+  X Login to Azure
+  - Configure Azure Web App settings
+  - Deploy to Azure Web App
+  ✓ Post Login to Azure
+  ✓ Complete job
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-node@v3, actions/upload-artifact@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+build: .github#2
+
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/download-artifact@v4, azure/login@v2. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+deploy: .github#3
+
+X Login failed with Error: The process '/usr/bin/az' failed with exit code 1. Double check if the 'auth-type' is correct. Refer to https://github.com/Azure/login#readme for more information.
+deploy: .github#23
+
+X JSON is invalid: Expecting value: line 1 column 1 (char 0)
+
+deploy: .github#21
+
+
+ARTIFACTS
+backend-app
+
+To see what failed, try: gh run view 22965549694 --log-failed
+View this run on GitHub: https://github.com/soumik2441139/hackathon/actions/runs/22965549694
