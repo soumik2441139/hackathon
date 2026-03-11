@@ -11,8 +11,7 @@ export default function RegisterPage() {
 
     const [form, setForm] = useState({
         legalIdentity: '',
-        secureChannel: '',
-        domain: 'Neural Architecture'
+        secureChannel: ''
     });
 
     useEffect(() => {
@@ -189,24 +188,7 @@ export default function RegisterPage() {
                                             </div>
                                         </div>
                                         
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Domain of Expertise</label>
-                                            <div className="relative">
-                                                <select 
-                                                    className="w-full bg-[#020203] border border-slate-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl h-14 text-white appearance-none px-5 transition-all outline-none"
-                                                    name="domain"
-                                                    value={form.domain}
-                                                    onChange={handleChange}
-                                                >
-                                                    <option>Neural Architecture</option>
-                                                    <option>Quantum Computation</option>
-                                                    <option>Bio-Digital Systems</option>
-                                                    <option>Autonomous Governance</option>
-                                                </select>
-                                                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none">unfold_more</span>
-                                            </div>
-                                        </div>
-                                        
+
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Intellectual Digital Blueprint</label>
                                             <div onClick={handleCVClick} className="relative group cursor-pointer">
