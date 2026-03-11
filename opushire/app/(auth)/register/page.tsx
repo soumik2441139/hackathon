@@ -1,35 +1,27 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 import gsap from 'gsap';
 
 export default function RegisterPage() {
-    const { register } = useAuth();
-    const router = useRouter();
-
-    const [form, setForm] = useState({
-        name: '', email: '', password: '', confirmPassword: '',
-        college: '', degree: ''
-    });
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [isScanning, setIsScanning] = useState(false);
-    const [scanLog, setScanLog] = useState<string[]>([]);
-
-    const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-        setForm(prev => ({ ...prev, [field]: e.target.value }));
-
     const cardRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const lightRef = useRef<HTMLDivElement>(null);
 
-    // 3D Parallax effect
+    const [form, setForm] = useState({
+        legalIdentity: '',
+        secureChannel: '',
+        domain: 'Neural Architecture'
+    });
+
     useEffect(() => {
         const card = cardRef.current;
         const container = containerRef.current;
-        if (!card || !container || isScanning) return;
+        const light = lightRef.current;
+        if (!card || !container || !light) return;
+
+        const parallaxElements = card.querySelectorAll('[data-depth]');
 
         const handleMouseMove = (e: MouseEvent) => {
             const rect = container.getBoundingClientRect();
@@ -42,9 +34,28 @@ export default function RegisterPage() {
                 rotationX: -y * 15,
                 scale: 1.02,
                 boxShadow: '0 20px 40px rgba(17, 82, 212, 0.2)',
-                borderColor: 'rgba(17, 82, 212, 0.4)',
+                border: '1px solid rgba(17, 82, 212, 0.4)',
                 ease: 'power2.out',
                 transformPerspective: 1000,
+            });
+
+            const lightX = (e.clientX - rect.left);
+            const lightY = (e.clientY - rect.top);
+            gsap.to(light, {
+                duration: 0.5,
+                opacity: 1,
+                background: `radial-gradient(circle at ${lightX}px ${lightY}px, rgba(17, 82, 212, 0.25) 0%, transparent 60%)`,
+                ease: 'power1.out'
+            });
+
+            parallaxElements.forEach((el) => {
+                const depth = parseFloat(el.getAttribute('data-depth') || '0.1');
+                gsap.to(el, {
+                    duration: 0.8,
+                    x: -x * 30 * depth,
+                    y: -y * 30 * depth,
+                    ease: 'power2.out'
+                });
             });
         };
 
@@ -55,8 +66,23 @@ export default function RegisterPage() {
                 rotationX: 0,
                 scale: 1,
                 boxShadow: 'none',
-                borderColor: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(17, 82, 212, 0.2)',
                 ease: 'elastic.out(1, 0.5)',
+            });
+
+            gsap.to(light, {
+                duration: 0.5,
+                opacity: 0,
+                ease: 'power2.inOut'
+            });
+
+            parallaxElements.forEach((el) => {
+                gsap.to(el, {
+                    duration: 1.2,
+                    x: 0,
+                    y: 0,
+                    ease: 'elastic.out(1, 0.5)'
+                });
             });
         };
 
@@ -67,281 +93,262 @@ export default function RegisterPage() {
             container.removeEventListener('mousemove', handleMouseMove);
             container.removeEventListener('mouseleave', handleMouseLeave);
         };
-    }, [isScanning]);
+    }, []);
 
-    // Handle form submission and fake scanning delay
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-
-        if (form.password !== form.confirmPassword) {
-            setError('Passwords do not match.');
-            return;
-        }
-
-        setIsScanning(true);
-        setScanLog(['[SYS] Initiating profile synthesis...']);
-
-        // Simulate scanning logs
-        setTimeout(() => setScanLog(prev => [...prev, '[SYS] Verifying university credentials...']), 800);
-        setTimeout(() => setScanLog(prev => [...prev, '[SYS] Mapping junior developer roles...']), 1600);
-        setTimeout(() => setScanLog(prev => [...prev, '[SYS] Profile encrypted and synced.']), 2400);
-
-        try {
-            await register({
-                name: form.name,
-                email: form.email,
-                password: form.password,
-                college: form.college,
-                degree: form.degree
-            });
-            // Give time for the animation
-            setTimeout(() => {
-                router.push('/dashboard');
-            }, 3200);
-        } catch (err: unknown) {
-            setIsScanning(false);
-            setError(err instanceof Error ? err.message : 'Registration failed.');
-            setLoading(false);
-        }
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
-    if (isScanning) {
-        return (
-            <div className="bg-background-dark text-slate-100 min-h-screen flex flex-col font-display selection:bg-primary/30 items-center justify-center p-6">
-                <div className="w-full max-w-4xl space-y-8">
-                    <div className="space-y-2">
-                        <div className="inline-block px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-widest mb-2">
-                            Stage 02: Synthesis
-                        </div>
-                        <h1 className="text-slate-100 text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-                            Neural Blueprint Mapping
-                        </h1>
-                        <p className="text-slate-400 text-lg max-w-2xl">
-                            Actively scanning and mapping your professional profile to locate the best entry-level roles.
-                        </p>
-                    </div>
-
-                    <div className="group relative overflow-hidden rounded-xl bg-slate-800/50 border border-primary/20 shadow-2xl backdrop-blur-sm p-6 flex flex-col min-h-[400px]">
-                        <div className="absolute inset-0 shimmer-grid opacity-30"></div>
-                        <div className="scanning-line z-10 absolute top-0 left-0 w-full animate-[scan_2s_linear_infinite]"></div>
-                        
-                        <div className="relative z-20 flex-1 flex flex-col gap-4 opacity-70">
-                            <div className="h-4 bg-slate-700 rounded w-1/3"></div>
-                            <div className="space-y-2">
-                                <div className="h-3 bg-slate-700 rounded w-full"></div>
-                                <div className="h-3 bg-slate-700 rounded w-5/6"></div>
-                                <div className="h-3 bg-slate-700 rounded w-4/6"></div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4 mt-8">
-                                <div className="h-20 bg-slate-700/50 rounded-lg border border-slate-600"></div>
-                                <div className="h-20 bg-slate-700/50 rounded-lg border border-slate-600"></div>
-                            </div>
-                        </div>
-
-                        <div className="relative z-20 mt-auto pt-6 flex flex-wrap items-center justify-between gap-4 border-t border-primary/10">
-                            <div className="flex flex-col">
-                                <p className="text-slate-500 text-xs font-medium uppercase tracking-widest">Semantic Extraction</p>
-                                <p className="text-primary text-sm font-bold animate-pulse">PROCESSING DATA...</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-black/40 border border-slate-800 h-32 overflow-hidden flex flex-col gap-2 font-mono text-xs shadow-inner">
-                        {scanLog.map((log, i) => (
-                            <div key={i} className="text-primary/80 transition-all duration-300">
-                                {log}
-                            </div>
-                        ))}
-                        <div className="text-primary/60 animate-pulse">_</div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    const handleCVClick = () => {
+        document.getElementById('cv-upload')?.click();
+    };
 
     return (
-        <div className="bg-[#020203] text-slate-100 min-h-screen flex flex-col font-display selection:bg-primary/30 relative">
-            {/* Background Particles (static radial substitute) */}
-            <div className="fixed inset-0 z-0 bg-[radial-gradient(circle_at_20%_30%,rgba(17,82,212,0.05)_0%,transparent_50%),radial-gradient(circle_at_80%_70%,rgba(17,82,212,0.05)_0%,transparent_50%)] pointer-events-none"></div>
+        <div className="font-display text-slate-100 selection:bg-primary/30 min-h-screen relative tracking-normal">
+            <style dangerouslySetInnerHTML={{__html: `
+                .perspective-1000 { perspective: 1000px; }
+                .transform-style-3d { transform-style: preserve-3d; }
+                @keyframes scan {
+                    0% { transform: translateY(-100%); }
+                    100% { transform: translateY(500%); }
+                }
+                .particle-bg {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: -1;
+                    background-image: 
+                        radial-gradient(circle at 20% 30%, rgba(17, 82, 212, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(17, 82, 212, 0.05) 0%, transparent 50%);
+                }
+                .vanta-gradient {
+                    background: radial-gradient(circle at 50% 50%, #111722 0%, #05070a 100%);
+                }
+                .neural-glow {
+                    box-shadow: 0 0 20px rgba(17, 82, 212, 0.15);
+                    border: 1px solid rgba(17, 82, 212, 0.3);
+                }
+                .glass-panel {
+                    background: rgba(16, 22, 34, 0.6);
+                    backdrop-filter: blur(12px);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                }
+            `}} />
 
-            <header className="fixed top-0 w-full z-50 flex items-center justify-between px-6 md:px-20 py-6 bg-[#101622]/60 backdrop-blur-md border-b border-white/5">
-                <Link href="/" className="flex items-center gap-3">
-                    <div className="size-8 bg-primary rounded flex items-center justify-center">
-                        <span className="material-symbols-outlined text-white text-xl">stat_3</span>
-                    </div>
-                    <h2 className="text-white text-xl font-extrabold tracking-tighter uppercase italic">Opushire</h2>
-                </Link>
-                <div className="flex items-center gap-4">
-                    <Link href="/login" className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-full h-10 px-6 bg-primary hover:bg-primary/80 text-white text-xs font-bold uppercase tracking-widest transition-all">Sign In</Link>
-                </div>
-            </header>
-
-            <main className="flex-1 flex flex-col items-center pt-32 pb-20 px-4 z-10 w-full">
-                <div className="max-w-5xl w-full">
-                    <div className="flex flex-col items-center text-center mb-16 space-y-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-[0.2em] mb-4 shadow-[0_0_15px_rgba(17,82,212,0.2)]">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                            </span>
-                            Enrolling New Talent
+            <div className="particle-bg"></div>
+            
+            <div className="relative flex min-h-screen w-full flex-col bg-[#05070a] overflow-x-hidden pt-24">
+                <header className="fixed top-0 w-full z-50 flex items-center justify-between px-6 md:px-20 py-6 glass-panel border-b-0 border-transparent">
+                    <Link href="/" className="flex items-center gap-3">
+                        <div className="size-8 bg-primary rounded flex items-center justify-center">
+                            <span className="material-symbols-outlined text-white text-xl">stat_3</span>
                         </div>
-                        <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-[1] max-w-2xl">
-                            BUILD YOUR <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">PROFILE</span>
-                        </h1>
-                        <p className="text-slate-400 text-lg md:text-xl font-light max-w-xl">
-                            Join the smartest talent network for junior developers and connect with your next great role.
-                        </p>
+                        <h2 className="text-white text-xl font-extrabold tracking-tighter uppercase italic">Opushire</h2>
+                    </Link>
+                    <div className="hidden md:flex gap-8 text-sm font-medium text-slate-400">
+                        <Link href="/network" className="hover:text-primary transition-colors">Network</Link>
+                        <Link href="/ecosystem" className="hover:text-primary transition-colors">Ecosystem</Link>
+                        <Link href="/intelligence" className="hover:text-primary transition-colors">Intelligence</Link>
                     </div>
+                    <Link href="/login" className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-full h-10 px-6 bg-primary hover:bg-primary/80 text-white text-xs font-bold uppercase tracking-widest transition-all">
+                        Sign In
+                    </Link>
+                </header>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start w-full">
-                        <div className="lg:col-span-7 space-y-8 w-full">
-                            <div className="bg-[#101622]/60 backdrop-blur-md p-8 rounded-2xl border border-white/5 shadow-[0_0_20px_rgba(17,82,212,0.15)] w-full">
-                                {error && (
-                                    <div className="mb-6 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-sm font-medium">
-                                        {error}
-                                    </div>
-                                )}
-
-                                <form className="space-y-6 w-full" onSubmit={handleSubmit}>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Full Name</label>
-                                            <input 
-                                                type="text"
-                                                required
-                                                value={form.name}
-                                                onChange={set('name')}
-                                                className="w-full bg-[#020203] border border-slate-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl h-14 text-white placeholder:text-slate-700 transition-all px-5" 
-                                                placeholder="John Doe" 
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">College Email</label>
-                                            <input 
-                                                type="email"
-                                                required
-                                                value={form.email}
-                                                onChange={set('email')}
-                                                className="w-full bg-[#020203] border border-slate-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl h-14 text-white placeholder:text-slate-700 transition-all px-5" 
-                                                placeholder="name@college.edu" 
-                                            />
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">University / College</label>
-                                            <input 
-                                                type="text"
-                                                value={form.college}
-                                                onChange={set('college')}
-                                                className="w-full bg-[#020203] border border-slate-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl h-14 text-white placeholder:text-slate-700 transition-all px-5" 
-                                                placeholder="MIT" 
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Degree / Branch</label>
-                                            <input 
-                                                type="text"
-                                                value={form.degree}
-                                                onChange={set('degree')}
-                                                className="w-full bg-[#020203] border border-slate-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl h-14 text-white placeholder:text-slate-700 transition-all px-5" 
-                                                placeholder="B.Tech Computer Science" 
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Password</label>
-                                            <input 
-                                                type="password"
-                                                required
-                                                minLength={6}
-                                                value={form.password}
-                                                onChange={set('password')}
-                                                className="w-full bg-[#020203] border border-slate-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl h-14 text-white placeholder:text-slate-700 transition-all px-5" 
-                                                placeholder="••••••••" 
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Confirm Password</label>
-                                            <input 
-                                                type="password"
-                                                required
-                                                minLength={6}
-                                                value={form.confirmPassword}
-                                                onChange={set('confirmPassword')}
-                                                className="w-full bg-[#020203] border border-slate-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl h-14 text-white placeholder:text-slate-700 transition-all px-5" 
-                                                placeholder="••••••••" 
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <button 
-                                        type="submit"
-                                        className="w-full bg-primary hover:bg-blue-600 text-white font-bold py-5 rounded-xl transition-all flex items-center justify-center gap-3 group mt-4 relative overflow-hidden"
-                                    >
-                                        <span className="relative z-10 uppercase tracking-[0.2em] text-sm">Initiate Onboarding</span>
-                                        <span className="material-symbols-outlined relative z-10 group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
-                                    </button>
-                                </form>
+                <main className="flex-1 flex flex-col items-center pb-20 px-4 w-full">
+                    <div className="max-w-4xl w-full">
+                        <div className="flex flex-col items-center text-center mb-16 space-y-4">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-[0.2em] mb-4">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                </span>
+                                Enrolling for Q4
                             </div>
+                            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-[0.9] max-w-2xl">
+                                JOIN THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-[#60a5fa]">ELITE</span>
+                            </h1>
+                            <p className="text-slate-400 text-lg md:text-xl font-light max-w-xl">
+                                Experience the Vantablack Depth of our private talent network. Reserved for the top 0.1% of global innovators.
+                            </p>
                         </div>
+                        
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                            <div className="lg:col-span-7 space-y-8">
+                                <div className="glass-panel p-8 rounded-2xl neural-glow">
+                                    <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Legal Identity</label>
+                                                <input 
+                                                    className="w-full bg-[#020203] border border-slate-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl h-14 text-white placeholder:text-slate-700 transition-all px-5" 
+                                                    placeholder="Full Name" 
+                                                    type="text"
+                                                    name="legalIdentity"
+                                                    value={form.legalIdentity}
+                                                    onChange={handleChange}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Secure Channel</label>
+                                                <input 
+                                                    className="w-full bg-[#020203] border border-slate-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl h-14 text-white placeholder:text-slate-700 transition-all px-5" 
+                                                    placeholder="Email Address" 
+                                                    type="email"
+                                                    name="secureChannel"
+                                                    value={form.secureChannel}
+                                                    onChange={handleChange}
+                                                />
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Domain of Expertise</label>
+                                            <div className="relative">
+                                                <select 
+                                                    className="w-full bg-[#020203] border border-slate-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl h-14 text-white appearance-none px-5 transition-all outline-none"
+                                                    name="domain"
+                                                    value={form.domain}
+                                                    onChange={handleChange}
+                                                >
+                                                    <option>Neural Architecture</option>
+                                                    <option>Quantum Computation</option>
+                                                    <option>Bio-Digital Systems</option>
+                                                    <option>Autonomous Governance</option>
+                                                </select>
+                                                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none">unfold_more</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Intellectual Digital Blueprint</label>
+                                            <div onClick={handleCVClick} className="relative group cursor-pointer">
+                                                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                                                <div className="relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-slate-800 bg-[#020203] rounded-xl group-hover:border-primary/50 transition-all p-8">
+                                                    <span className="material-symbols-outlined text-4xl text-primary mb-3">cloud_upload</span>
+                                                    <p className="text-sm text-slate-300 font-medium">Drop CV or Portfolio</p>
+                                                    <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-tighter">Maximum fidelity required (PDF/JSON/MD)</p>
+                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-10 pointer-events-none overflow-hidden rounded-xl">
+                                                        <div className="w-full h-[1px] bg-primary animate-[pulse_2s_infinite]"></div>
+                                                    </div>
+                                                </div>
+                                                <input type="file" id="cv-upload" className="hidden" accept=".pdf,.json,.md" />
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="mt-8 perspective-1000" id="cv-parallax-container" ref={containerRef}>
+                                            <div className="glass-panel p-6 rounded-2xl border border-primary/20 relative overflow-hidden transition-all duration-500 ease-out transform-style-3d shadow-2xl" id="neural-blueprint-card" ref={cardRef}>
+                                                <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300" id="card-dynamic-light" ref={lightRef} style={{ background: 'radial-gradient(circle at 50% 50%, rgba(17, 82, 212, 0.15) 0%, transparent 70%)' }}></div>
+                                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+                                                <div className="relative z-10 space-y-4">
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <h4 className="text-primary text-[10px] font-black uppercase tracking-[0.3em]" data-depth="0.1">Neural Blueprint</h4>
+                                                            <p className="text-white text-xs font-mono mt-1 opacity-70" data-depth="0.05">STATUS: ANALYZING_DATA_STRUCTURE</p>
+                                                        </div>
+                                                        <span className="material-symbols-outlined text-primary text-3xl animate-pulse">psychology</span>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        <div className="h-1 bg-slate-800 rounded-full overflow-hidden" data-depth="0.15">
+                                                            <div className="h-full bg-primary w-2/3 shadow-[0_0_10px_rgba(17,82,212,0.8)]"></div>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-4" data-depth="0.08">
+                                                            <div className="bg-[#020203]/50 p-3 rounded-lg border border-white/5">
+                                                                <span className="text-[8px] text-slate-500 uppercase block">Cognitive Load</span>
+                                                                <span className="text-white text-xs font-mono" data-depth="0.05">8.4 PFLOPS</span>
+                                                            </div>
+                                                            <div className="bg-[#020203]/50 p-3 rounded-lg border border-white/5">
+                                                                <span className="text-[8px] text-slate-500 uppercase block">Experience Depth</span>
+                                                                <span className="text-white text-xs font-mono" data-depth="0.05">LEVEL_09</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-2 items-center">
+                                                        <div className="size-1.5 rounded-full bg-primary animate-ping"></div>
+                                                        <div className="text-[8px] text-primary/80 font-mono tracking-widest">SCANNING_SUB_SURFACE_NODES...</div>
+                                                    </div>
+                                                </div>
+                                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent animate-[scan_3s_linear_infinite] pointer-events-none"></div>
+                                            </div>
+                                        </div>
 
-                        <div className="lg:col-span-5 h-full w-full">
-                            <div className="sticky top-32 w-full" style={{ perspective: '1000px' }} ref={containerRef}>
-                                <div 
-                                    ref={cardRef}
-                                    className="bg-[#101622]/60 backdrop-blur-md p-8 rounded-2xl border border-white/5 relative overflow-hidden transition-all duration-500 ease-out shadow-xl w-full"
-                                    style={{ transformStyle: 'preserve-3d' }}
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
-                                    
-                                    <div className="relative z-10 space-y-6">
-                                        <div className="flex justify-between items-start">
+                                        <button className="w-full bg-primary hover:bg-[#2563eb] text-white font-bold py-5 rounded-xl transition-all flex items-center justify-center gap-3 group mt-8">
+                                            <span className="uppercase tracking-[0.2em] text-sm">Initiate Onboarding</span>
+                                            <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <div className="flex items-center gap-4 text-slate-500 text-xs font-medium px-4">
+                                    <span className="material-symbols-outlined text-primary text-sm">verified_user</span>
+                                    <p>End-to-end encrypted submission. Your data is processed through our proprietary neural scrub before storage.</p>
+                                </div>
+                            </div>
+
+                            <div className="lg:col-span-5 space-y-6">
+                                <div className="p-8 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent border border-white/5 space-y-6">
+                                    <h3 className="text-white text-xs font-black uppercase tracking-[0.3em]">Network Privileges</h3>
+                                    <div className="space-y-8">
+                                        <div className="flex gap-4">
+                                            <div className="h-10 w-10 shrink-0 rounded-lg bg-white/5 flex items-center justify-center">
+                                                <span className="material-symbols-outlined text-primary">hub</span>
+                                            </div>
                                             <div>
-                                                <h4 className="text-primary text-[10px] font-black uppercase tracking-[0.3em]">Profile Status</h4>
-                                                <p className="text-white text-xs font-mono mt-1 opacity-70">STATUS: {form.name || form.email ? 'BUILDING_PROFILE' : 'AWAITING_INPUT'}</p>
-                                            </div>
-                                            <span className="material-symbols-outlined text-primary text-3xl animate-pulse">psychology</span>
-                                        </div>
-                                        
-                                        <div className="space-y-3 pt-4">
-                                            <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                                                <div 
-                                                    className="h-full bg-primary shadow-[0_0_10px_rgba(17,82,212,0.8)] transition-all duration-700"
-                                                    style={{ width: `${Math.min(100, (Object.values(form).filter(v => v !== '').length / 6) * 100)}%` }}
-                                                ></div>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-4 pt-2">
-                                                <div className="bg-[#020203]/80 p-3 rounded-lg border border-white/5">
-                                                    <span className="text-[8px] text-slate-500 uppercase block tracking-wider">Experience Level</span>
-                                                    <span className="text-white text-xs font-bold mt-1 block">Junior / Intern</span>
-                                                </div>
-                                                <div className="bg-[#020203]/80 p-3 rounded-lg border border-white/5">
-                                                    <span className="text-[8px] text-slate-500 uppercase block tracking-wider">Data Sync</span>
-                                                    <span className="text-white text-xs font-bold mt-1 block tracking-widest">{form.email ? 'ENCRYPTED' : 'PENDING'}</span>
-                                                </div>
+                                                <h4 className="text-white text-sm font-bold">Neural Mapping</h4>
+                                                <p className="text-slate-400 text-xs mt-1 leading-relaxed">Our AI decodes your career trajectory to match you with visionary mandates.</p>
                                             </div>
                                         </div>
-                                        
-                                        <div className="flex gap-2 items-center pt-2">
-                                            <div className="size-1.5 rounded-full bg-primary animate-ping"></div>
-                                            <div className="text-[8px] text-primary/80 font-mono tracking-widest break-all">
-                                                {form.college ? 'CONNECTING_TO_UNIVERSITY_GRAPH...' : 'AWAITING_DATA...'}
+                                        <div className="flex gap-4">
+                                            <div className="h-10 w-10 shrink-0 rounded-lg bg-white/5 flex items-center justify-center">
+                                                <span className="material-symbols-outlined text-primary">visibility_off</span>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-white text-sm font-bold">Shadow Operations</h4>
+                                                <p className="text-slate-400 text-xs mt-1 leading-relaxed">Stealth-mode recruitment for high-stakes leadership transitions.</p>
                                             </div>
                                         </div>
+                                        <div className="flex gap-4">
+                                            <div className="h-10 w-10 shrink-0 rounded-lg bg-white/5 flex items-center justify-center">
+                                                <span className="material-symbols-outlined text-primary">diamond</span>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-white text-sm font-bold">Vantablack Tier</h4>
+                                                <p className="text-slate-400 text-xs mt-1 leading-relaxed">Access to pre-IPO opportunities and confidential research grants.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="relative overflow-hidden rounded-2xl aspect-video glass-panel p-1 group">
+                                    <div className="absolute inset-0 bg-primary/20 animate-pulse group-hover:hidden"></div>
+                                    <img 
+                                        alt="Abstract neural network" 
+                                        className="w-full h-full object-cover rounded-xl grayscale group-hover:grayscale-0 transition-all duration-700 opacity-40 group-hover:opacity-80" 
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx5cLtdu9DTUSh7VjjiaKy7MdQg7FldPs-W1phABEuXiwlfiExaXzH_OyvY3BOt9XwqKtexo_Sw0Cfez7zGTaJYQK7SwMZipOgutsRitPl-7qc9ZLW0twahp2_jrUegeFiqVp9CaAHos4aWnnZWVuWWpVUmQOYqFuApoNLqiCSGb0ii-_GNrzdxlOATf8kss5B1LHUsJzE69clxZ_ZraK6RULgWgJDlow2FwOUo4_k1Ve4hkcof-ThrvtlyqqoxYNyKpT1iVLFnu4"
+                                    />
+                                    <div className="absolute bottom-4 left-4 flex flex-col">
+                                        <span className="text-[10px] text-primary font-black uppercase tracking-widest">Network Live</span>
+                                        <span className="text-white text-[8px] font-mono">NODE_772_OPUS_SYNC... ACTIVE</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </main>
+                </main>
+
+                <footer className="mt-auto border-t border-slate-900/50 py-10 px-8 md:px-20 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="flex flex-col items-center md:items-start">
+                        <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.4em]">© 2024 OPUSHIRE FOUNDATION</p>
+                        <p className="text-slate-700 text-[8px] mt-1 italic tracking-widest">ARCHITECTED FOR THE SOVEREIGN INDIVIDUAL</p>
+                    </div>
+                    <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                        <Link href="/nodes" className="hover:text-primary transition-colors">Nodes</Link>
+                        <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Lexicon</Link>
+                        <Link href="/sub-space" className="hover:text-primary transition-colors">Sub-Space</Link>
+                    </div>
+                </footer>
+            </div>
         </div>
     );
 }
