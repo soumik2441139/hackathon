@@ -3,9 +3,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import mongoSanitize from 'express-mongo-sanitize';
-const xss = require('xss-clean');
-const hpp = require('hpp');
 import { connectDB } from './config/db';
 import { corsOptions } from './config/cors';
 import { env } from './config/env';
@@ -36,15 +33,6 @@ app.use('/api', limiter);
 
 app.use(express.json({ limit: '10kb' })); // Limit body payload to 10kb against DOS
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-
-// Data sanitization against NoSQL query injection
-app.use(mongoSanitize());
-
-// Data sanitization against XSS
-app.use(xss());
-
-// Prevent HTTP Parameter Pollution
-app.use(hpp());
 
 // Logging
 if (env.NODE_ENV !== 'test') {
