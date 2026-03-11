@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CanvasBackground } from './CanvasBackground';
@@ -9,6 +11,21 @@ import { Search, Zap, ChevronsUp, Terminal, BrainCircuit, Network, DoorOpen } fr
 gsap.registerPlugin(ScrollTrigger);
 
 export const LandingPage = () => {
+  const router = useRouter();
+  const { user } = useAuth();
+
+  const handleStartTrajectory = () => {
+    if (user) {
+      const dashboardHref =
+        user.role === 'admin' ? '/dashboard/admin' :
+        user.role === 'recruiter' ? '/dashboard/recruiter' :
+        '/dashboard/student';
+      router.push(dashboardHref);
+    } else {
+      router.push('/register');
+    }
+  };
+
   useEffect(() => {
     // Hero Section Entrance
     const heroTl = gsap.timeline({ defaults: { ease: "power4.out", duration: 1.5 } });
@@ -137,7 +154,9 @@ export const LandingPage = () => {
           </p>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 opacity-0" id="hero-cta">
-            <button className="magnetic-btn bg-electric-blue hover:shadow-[0_0_30px_rgba(37,99,235,0.4)] text-white px-10 py-4 rounded-sm text-sm font-bold tracking-widest uppercase transition-all flex items-center group">
+            <button 
+              onClick={handleStartTrajectory}
+              className="magnetic-btn bg-electric-blue hover:shadow-[0_0_30px_rgba(37,99,235,0.4)] text-white px-10 py-4 rounded-sm text-sm font-bold tracking-widest uppercase transition-all flex items-center group">
               Start Trajectory 
               <svg className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
             </button>
@@ -164,37 +183,37 @@ export const LandingPage = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="glass-card p-10 group" data-purpose="protocol-card">
+            <div className="p-10 group border border-white/5 bg-white/[0.02] backdrop-blur-3xl transition-all duration-500 hover:border-[#2563eb]/20 hover:bg-white/[0.04] flex flex-col items-start" data-purpose="protocol-card">
               <div className="w-12 h-12 rounded-lg bg-[#0F111A] flex items-center justify-center mb-10 group-hover:bg-[#151822] transition-colors border border-white/5">
                 <Search className="w-5 h-5 text-blue-500" strokeWidth={2} />
               </div>
-              <h3 className="text-xl font-bold mb-4 uppercase tracking-wider">Signal Isolation</h3>
-              <p className="text-gray-500 font-light leading-relaxed mb-8">
+              <h3 className="text-xl font-bold mb-4 uppercase tracking-wider text-white">Signal Isolation</h3>
+              <p className="text-gray-500 font-medium leading-relaxed mb-12 text-sm">
                 Isolating high-value opportunities from market noise using deep neural filtering. We identify roles before they reach public boards.
               </p>
-              <span className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Module 01</span>
+              <span className="text-[10px] text-gray-700 font-bold uppercase tracking-widest">Module 01</span>
             </div>
             
-            <div className="glass-card p-10 group" data-purpose="protocol-card">
+            <div className="p-10 group border border-white/5 bg-white/[0.02] backdrop-blur-3xl transition-all duration-500 hover:border-[#06b6d4]/20 hover:bg-white/[0.04] flex flex-col items-start" data-purpose="protocol-card">
               <div className="w-12 h-12 rounded-lg bg-[#0A1A1C] flex items-center justify-center mb-10 group-hover:bg-[#0D2427] transition-colors border border-white/5">
                 <Zap className="w-5 h-5 text-teal-500" strokeWidth={2} />
               </div>
-              <h3 className="text-xl font-bold mb-4 uppercase tracking-wider">Neural Alignment</h3>
-              <p className="text-gray-500 font-light leading-relaxed mb-8">
+              <h3 className="text-xl font-bold mb-4 uppercase tracking-wider text-white">Neural Alignment</h3>
+              <p className="text-gray-500 font-medium leading-relaxed mb-12 text-sm">
                 Matching your unique professional DNA with institutional requirements. Our AI optimizes your profile for zero-friction acquisition.
               </p>
-              <span className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Module 02</span>
+              <span className="text-[10px] text-gray-700 font-bold uppercase tracking-widest">Module 02</span>
             </div>
             
-            <div className="glass-card p-10 group" data-purpose="protocol-card">
+            <div className="p-10 group border border-white/5 bg-white/[0.02] backdrop-blur-3xl transition-all duration-500 hover:border-[#d946ef]/20 hover:bg-white/[0.04] flex flex-col items-start" data-purpose="protocol-card">
               <div className="w-12 h-12 rounded-lg bg-[#140C1A] flex items-center justify-center mb-10 group-hover:bg-[#1D1226] transition-colors border border-white/5">
                 <ChevronsUp className="w-5 h-5 text-purple-500" strokeWidth={2} />
               </div>
-              <h3 className="text-xl font-bold mb-4 uppercase tracking-wider">Velocity Scaling</h3>
-              <p className="text-gray-500 font-light leading-relaxed mb-8">
+              <h3 className="text-xl font-bold mb-4 uppercase tracking-wider text-white">Velocity Scaling</h3>
+              <p className="text-gray-500 font-medium leading-relaxed mb-12 text-sm">
                 Accelerating your transition from entry-level to executive leadership roles with hyper-targeted strategic maneuvers.
               </p>
-              <span className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Module 03</span>
+              <span className="text-[10px] text-gray-700 font-bold uppercase tracking-widest">Module 03</span>
             </div>
           </div>
         </div>
@@ -265,58 +284,58 @@ export const LandingPage = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="glass-card p-8 group" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded-md bg-[#131A2A] flex items-center justify-center mb-8 group-hover:bg-[#1A2338] transition-colors border border-white/5">
+            <div className="p-8 group border border-white/5 bg-white/[0.01] transition-all duration-500 hover:bg-white/[0.03] flex flex-col items-start" data-purpose="roadmap-card">
+              <div className="w-10 h-10 rounded-md bg-[#131A2A] flex items-center justify-center mb-8 border border-white/5">
                 <Terminal className="w-4 h-4 text-blue-500" strokeWidth={2} />
               </div>
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-center w-full mb-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-white">Dorm Room</h3>
-                <span className="text-electric-blue text-xs font-mono">PHASE 01</span>
+                <span className="text-blue-600 text-[10px] font-bold tracking-widest uppercase">Phase 01</span>
               </div>
-              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Skill Ingestion</div>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-4">Skill Ingestion</div>
+              <p className="text-xs text-gray-600 leading-relaxed font-medium">
                 Deep-mining academic technical stacks and personal repositories to catalog your latent engineering potential.
               </p>
             </div>
             
-            <div className="glass-card p-8 group" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded-md bg-[#0C1A1D] flex items-center justify-center mb-8 group-hover:bg-[#102429] transition-colors border border-white/5">
+            <div className="p-8 group border border-white/5 bg-white/[0.01] transition-all duration-500 hover:bg-white/[0.03] flex flex-col items-start" data-purpose="roadmap-card">
+              <div className="w-10 h-10 rounded-md bg-[#0C1A1D] flex items-center justify-center mb-8 border border-white/5">
                 <BrainCircuit className="w-4 h-4 text-teal-500" strokeWidth={2} />
               </div>
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-center w-full mb-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-white">Neural Mapping</h3>
-                <span className="text-cyan-accent text-xs font-mono">PHASE 02</span>
+                <span className="text-teal-600 text-[10px] font-bold tracking-widest uppercase">Phase 02</span>
               </div>
-              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Agentic Analysis</div>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-4">Agentic Analysis</div>
+              <p className="text-xs text-gray-600 leading-relaxed font-medium">
                 Our AI synthesizes your profile against global market demands, identifying the highest-leverage career pivots.
               </p>
             </div>
             
-            <div className="glass-card p-8 group" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded-md bg-[#160D1D] flex items-center justify-center mb-8 group-hover:bg-[#20132B] transition-colors border border-white/5">
+            <div className="p-8 group border border-white/5 bg-white/[0.01] transition-all duration-500 hover:bg-white/[0.03] flex flex-col items-start" data-purpose="roadmap-card">
+              <div className="w-10 h-10 rounded-md bg-[#160D1D] flex items-center justify-center mb-8 border border-white/5">
                 <Network className="w-4 h-4 text-purple-500" strokeWidth={2} />
               </div>
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-center w-full mb-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-white">Network Sync</h3>
-                <span className="text-purple-500 text-xs font-mono">PHASE 03</span>
+                <span className="text-purple-600 text-[10px] font-bold tracking-widest uppercase">Phase 03</span>
               </div>
-              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Strategic Bridge</div>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-4">Strategic Bridge</div>
+              <p className="text-xs text-gray-600 leading-relaxed font-medium">
                 Autonomous agents initiate high-level protocol handshakes with elite engineering nodes and decision-makers.
               </p>
             </div>
             
-            <div className="glass-card p-8 group" data-purpose="roadmap-card">
-              <div className="w-10 h-10 rounded-md bg-[#0C1C13] flex items-center justify-center mb-8 group-hover:bg-[#102619] transition-colors border border-white/5">
+            <div className="p-8 group border border-white/5 bg-white/[0.01] transition-all duration-500 hover:bg-white/[0.03] flex flex-col items-start" data-purpose="roadmap-card">
+              <div className="w-10 h-10 rounded-md bg-[#0C1C13] flex items-center justify-center mb-8 border border-white/5">
                 <DoorOpen className="w-4 h-4 text-green-500" strokeWidth={2} />
               </div>
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-center w-full mb-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-white">Boardroom</h3>
-                <span className="text-green-500 text-xs font-mono">PHASE 04</span>
+                <span className="text-green-600 text-[10px] font-bold tracking-widest uppercase">Phase 04</span>
               </div>
-              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Elite Placement</div>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-4">Elite Placement</div>
+              <p className="text-xs text-gray-600 leading-relaxed font-medium">
                 Final deployment into high-stakes leadership or architectural roles with optimized compensation packages.
               </p>
             </div>

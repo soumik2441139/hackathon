@@ -3,18 +3,21 @@ const path = require('path');
 
 // Configuration for all sub-agents in the ecosystem
 const bots = [
-    { name: 'Scanner', dir: 'bots/scanner', script: 'scan.js', color: '\x1b[36m' },     // Cyan
-    { name: 'Fixer', dir: 'bots/fixer', script: 'fix.js', color: '\x1b[33m' },         // Yellow
-    { name: 'Supervisor', dir: 'bots/supervisor', script: 'supervise.js', color: '\x1b[35m' }, // Magenta
-    { name: 'Archiver', dir: 'bots/cleanup', script: 'cleanup.js', color: '\x1b[32m' }     // Green
+    { name: 'Recruiter', dir: 'recruiter-bot', cmd: /^win/.test(process.platform) ? 'npx.cmd' : 'npx', args: ['ts-node', 'src/cli.ts'], color: '\x1b[31m' }, // Red
+    { name: 'Scanner', dir: 'bots/scanner', cmd: 'node', args: ['scan.js'], color: '\x1b[36m' },     // Cyan
+    { name: 'Fixer', dir: 'bots/fixer', cmd: 'node', args: ['fix.js'], color: '\x1b[33m' },         // Yellow
+    { name: 'Supervisor', dir: 'bots/supervisor', cmd: 'node', args: ['supervise.js'], color: '\x1b[35m' }, // Magenta
+    { name: 'Cleaner', dir: 'bots/cleanup', cmd: 'node', args: ['cleanup.js'], color: '\x1b[32m' },     // Green
+    { name: 'Archiver', dir: 'bots/archiver', cmd: 'node', args: ['archive.js'], color: '\x1b[34m' }    // Blue
 ];
 
 console.log('🚀 Starting OpusHire Autonomous AI Bot Ecosystem...\n');
 
 bots.forEach(bot => {
-    const botProcess = spawn('node', [bot.script], {
+    const botProcess = spawn(bot.cmd, bot.args, {
         cwd: path.join(__dirname, bot.dir),
-        stdio: 'pipe'
+        stdio: 'pipe',
+        shell: /^win/.test(process.platform)
     });
 
     // Pipe standard output securely with color-coded tags
@@ -38,4 +41,4 @@ bots.forEach(bot => {
     });
 });
 
-console.log('✅ All 4 daemon bots deployed and streaming logs below:\n');
+console.log('✅ All 6 daemon bots deployed and streaming logs below:\n');

@@ -124,7 +124,12 @@ export const startBot = (botId: string, args: string[] = []) => {
 
 export const startPipeline = async () => {
     if (activeBots.size > 0) {
-        throw new Error('Pipeline cannot start. Another bot is currently running.');
+        console.log('[PIPELINE] Forcing stop on active continuous bots to start autonomous pipeline...');
+        for (const [id] of activeBots.entries()) {
+            try { stopBot(id); } catch(e) {}
+        }
+        // Give the OS 2 seconds to gracefully kill the processes
+        await new Promise(resolve => setTimeout(resolve, 2000));
     }
 
     console.log('[PIPELINE] Starting autonomous sequential ecosystem run...');
