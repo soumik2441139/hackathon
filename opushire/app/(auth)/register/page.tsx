@@ -140,22 +140,7 @@ export default function RegisterPage() {
             <div className="particle-bg"></div>
             
             <div className="relative flex min-h-screen w-full flex-col bg-[#05070a] overflow-x-hidden pt-24">
-                <header className="fixed top-0 w-full z-50 flex items-center justify-between px-6 md:px-20 py-6 glass-panel border-b-0 border-transparent">
-                    <Link href="/" className="flex items-center gap-3">
-                        <div className="size-8 bg-primary rounded flex items-center justify-center">
-                            <span className="material-symbols-outlined text-white text-xl">stat_3</span>
-                        </div>
-                        <h2 className="text-white text-xl font-extrabold tracking-tighter uppercase italic">Opushire</h2>
-                    </Link>
-                    <div className="hidden md:flex gap-8 text-sm font-medium text-slate-400">
-                        <Link href="/network" className="hover:text-primary transition-colors">Network</Link>
-                        <Link href="/ecosystem" className="hover:text-primary transition-colors">Ecosystem</Link>
-                        <Link href="/intelligence" className="hover:text-primary transition-colors">Intelligence</Link>
-                    </div>
-                    <Link href="/login" className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-full h-10 px-6 bg-primary hover:bg-primary/80 text-white text-xs font-bold uppercase tracking-widest transition-all">
-                        Sign In
-                    </Link>
-                </header>
+
 
                 <main className="flex-1 flex flex-col items-center pb-20 px-4 w-full">
                     <div className="max-w-4xl w-full">
