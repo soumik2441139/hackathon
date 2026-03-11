@@ -15,14 +15,14 @@ export const Navbar = () => {
                 '/dashboard/student';
 
     return (
-        <nav className="fixed top-0 left-0 w-full z-50 px-6 py-4">
-            <div className="max-w-7xl mx-auto glass-card h-16 px-6 flex items-center justify-between border-white/5">
-                <Link href="/" className="flex items-center gap-2 group">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-violet to-brand-cyan flex items-center justify-center text-[#020817] font-bold text-xl transition-transform group-hover:rotate-12 shadow-lg shadow-brand-violet/20">
-                        O
+        <nav className="fixed top-0 left-0 w-full z-50 glass-morphism border-b border-white/5">
+            <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                <Link href="/" className="flex items-center gap-3 group">
+                    <div className="size-8 bg-primary rounded flex items-center justify-center transition-transform group-hover:scale-105 shadow-lg shadow-primary/20">
+                        <span className="material-symbols-outlined text-white text-xl">deployed_code</span>
                     </div>
-                    <span className="font-display text-2xl font-bold tracking-tight text-white">
-                        Opushire<span className="text-brand-cyan">.</span>
+                    <span className="font-display text-xl font-bold tracking-tighter uppercase text-white">
+                        Opushire
                     </span>
                 </Link>
 

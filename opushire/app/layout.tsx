@@ -1,19 +1,14 @@
 import type { Metadata } from "next";
-import { Outfit, Inter } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/ui/Navbar";
 import { Footer } from "@/components/ui/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 
-const outfit = Outfit({
+const manrope = Manrope({
   subsets: ["latin"],
   variable: "--font-display",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-body",
 });
 
 
@@ -29,7 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} ${inter.variable} font-body bg-brand-dark text-white`}>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
+      <body className={`${manrope.variable} font-display bg-background-dark text-slate-100 selection:bg-primary selection:text-white`}>
         <SmoothScrollProvider>
           <AuthProvider>
             <Navbar />
