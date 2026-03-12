@@ -1,10 +1,11 @@
 # ─── Dependencies ────────────────────────────────────────────────
+node_modules/
 agents/venv/
 __pycache__/
 *.pyc
-node_modules/
 .pnp
 .pnp.js
+package-lock.json
 
 # ─── Build Outputs ───────────────────────────────────────────────
 /coverage
@@ -14,6 +15,8 @@ build/
 dist/
 opushire/.next/
 opushire-backend/dist/
+recruiter-bot/dist/
+*.tsbuildinfo
 
 # ─── Environment Variables ───────────────────────────────────────
 .env
@@ -21,6 +24,7 @@ opushire-backend/dist/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example
 
 # ─── Logs ────────────────────────────────────────────────────────
 *.log
@@ -28,6 +32,14 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+bots/**/log.txt
+opushire-backend/logs/
+opushire-backend/error.txt
+pip_install.log
+pydantic_error.log
+run_error*.log
+triggers_error.log
+trigger_test.log
 
 # ─── IDE / Editor ────────────────────────────────────────────────
 .idea/
@@ -41,28 +53,28 @@ yarn-error.log*
 Thumbs.db
 desktop.ini
 
+# ─── Local Reference Docs (never commit) ─────────────────────────
+AZURE_ENV_TRACKER.md
+
 # ─── Temp / Debug / One-off Scripts ──────────────────────────────
 *.pem
 *.tmp
-build_output*.txt
-debug_output*.txt
-*_log*.txt
-*_fail*.txt
-*_deploy*.txt
-*_verify*.txt
-*_runs*.json
-*_success*.txt
-full_settings.json
-run_log_final.json
-null
 *.zip
-backend_logs_extracted/
+null
+backend_run_log.txt
+backend_run_summary.txt
+failed_log.txt
+runs.json
+runs.txt
+backend_logs_extracted*/
+temp_*/
 
-# ─── Nested node_modules (explicit) ─────────────────────────────
-opushire/node_modules/
-opushire-backend/node_modules/
-recruiter-bot/node_modules/
-bot1-scanner/node_modules/
-bot2-fixer/node_modules/
-bot3-supervisor/node_modules/
-bot4-cleanup/node_modules/
+# ─── Uploads & Generated Data ───────────────────────────────────
+opushire-backend/uploads/
+opushire-backend/reports-dump.json
+bots/scanner/mismatched_jobs.json
+
+# ─── FAISS / Vector Indexes ─────────────────────────────────────
+*.faiss
+*.pkl
+faiss_index/

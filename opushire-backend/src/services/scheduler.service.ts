@@ -1,6 +1,26 @@
 import cron from 'node-cron';
-import { startPipeline, BOTS } from './bot.service';
+import { startPipeline } from './bot.service';
 import BotReport from '../models/BotReport';
+import { distillMemories } from './memory/agent.memory';
+import { enqueue } from './queue/queue.service';
+
+async function safeReportAction(action: string) {
+    try {
+        await (BotReport as any).logAction('scheduler', 'Scheduler', action, 0);
+    } catch (err) {
+        // Scheduler telemetry must never crash the API if Mongo is unavailable.
+        console.error('⏰ [Scheduler] Failed to persist action log:', err);
+    }
+}
+
+async function safeReportError(message: string) {
+    try {
+        await (BotReport as any).logError('scheduler', 'Scheduler', message);
+    } catch (err) {
+        // Keep runtime stable even when report persistence fails.
+        console.error('⏰ [Scheduler] Failed to persist error log:', err);
+    }
+}
 
 /**
  * Autonomous Bot Scheduler
@@ -14,21 +34,12 @@ export function initScheduler() {
     cron.schedule('0 */6 * * *', async () => {
         console.log('⏰ [Scheduler] Triggering scheduled pipeline run...');
         try {
-            await (BotReport as any).logAction(
-                'scheduler', 'Scheduler',
-                '⏰ Scheduled pipeline triggered automatically', 0
-            );
+            await safeReportAction('⏰ Scheduled pipeline triggered automatically');
             await startPipeline();
-            await (BotReport as any).logAction(
-                'scheduler', 'Scheduler',
-                '✅ Scheduled pipeline completed successfully', 0
-            );
+            await safeReportAction('✅ Scheduled pipeline completed successfully');
         } catch (err: any) {
             console.error('⏰ [Scheduler] Pipeline failed:', err.message);
-            await (BotReport as any).logError(
-                'scheduler', 'Scheduler',
-                `Pipeline failed: ${err.message}`
-            );
+            await safeReportError(`Pipeline failed: ${err.message}`);
         }
     });
 
@@ -43,8 +54,27 @@ export function initScheduler() {
             if (result.deletedCount > 0) {
                 console.log(`🧹 [Scheduler] Cleaned up ${result.deletedCount} old report entries.`);
             }
+
+            // Trigger daily cleanup via BullMQ queue
+            await enqueue('cleanup-jobs', 'daily-cleanup', {}, { jobId: `cleanup-${cutoffDate}` });
         } catch (err) {
             console.error('🧹 [Scheduler] Report cleanup failed:', err);
+        }
+    });
+
+    // Distill agent memories daily at 3 AM — agents learn from their history
+    cron.schedule('0 3 * * *', async () => {
+        console.log('🧠 [Scheduler] Running memory distillation...');
+        try {
+            const agents = ['fix-worker', 'supervise-worker', 'scan-worker'];
+            for (const agentId of agents) {
+                const rules = await distillMemories(agentId);
+                if (rules.length > 0) {
+                    console.log(`🧠 [Scheduler] ${agentId} learned ${rules.length} new rules`);
+                }
+            }
+        } catch (err) {
+            console.error('🧠 [Scheduler] Memory distillation failed:', err);
         }
     });
 
@@ -52,21 +82,12 @@ export function initScheduler() {
     setTimeout(async () => {
         console.log('⏰ [Scheduler] Running initial pipeline on startup...');
         try {
-            await (BotReport as any).logAction(
-                'scheduler', 'Scheduler',
-                '🚀 Initial startup pipeline triggered', 0
-            );
+            await safeReportAction('🚀 Initial startup pipeline triggered');
             await startPipeline();
-            await (BotReport as any).logAction(
-                'scheduler', 'Scheduler',
-                '✅ Startup pipeline completed', 0
-            );
+            await safeReportAction('✅ Startup pipeline completed');
         } catch (err: any) {
             console.error('⏰ [Scheduler] Initial pipeline failed:', err.message);
-            await (BotReport as any).logError(
-                'scheduler', 'Scheduler',
-                `Startup pipeline failed: ${err.message}`
-            );
+            await safeReportError(`Startup pipeline failed: ${err.message}`);
         }
     }, 30000);
 }

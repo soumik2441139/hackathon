@@ -1,7 +1,12 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import * as AuthService from '../services/auth.service';
-import { registerSchema, loginSchema } from '../services/auth.service';
+import {
+    registerSchema,
+    loginSchema,
+    verifyEmailSchema,
+    resendVerificationSchema,
+} from '../services/auth.service';
 import { imageToBase64 } from '../services/image.service';
 
 export const register = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -14,7 +19,7 @@ export const register = async (req: AuthRequest, res: Response, next: NextFuncti
         }
 
         const result = await AuthService.registerUser(data);
-        res.status(201).json({ success: true, data: result });
+        res.status(201).json({ success: true, data: result, message: result.message });
     } catch (err) {
         next(err);
     }
@@ -25,6 +30,26 @@ export const login = async (req: AuthRequest, res: Response, next: NextFunction)
         const data = loginSchema.parse(req.body);
         const result = await AuthService.loginUser(data);
         res.json({ success: true, data: result });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const verifyEmail = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const data = verifyEmailSchema.parse(req.body);
+        const result = await AuthService.verifyEmail(data);
+        res.json({ success: true, data: result, message: 'Email verified successfully.' });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const resendVerificationCode = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const data = resendVerificationSchema.parse(req.body);
+        const result = await AuthService.resendVerificationCode(data);
+        res.json({ success: true, data: result, message: result.message });
     } catch (err) {
         next(err);
     }

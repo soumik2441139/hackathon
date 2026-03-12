@@ -31,6 +31,19 @@ async function logInsight(db, botId, botName, insight, count = 1) {
     );
 }
 
+// State machine: valid transitions from OK
+const VALID_FROM_OK = ['VETTED', 'NEEDS_SHORTENING'];
+
+function buildStatusUpdate(from, to, actor, extra = {}) {
+    if (from === 'OK' && !VALID_FROM_OK.includes(to)) {
+        throw new Error(`Invalid transition: ${from} → ${to}`);
+    }
+    return {
+        $set: { tagTileStatus: to, ...extra },
+        $push: { statusHistory: { from, to, actor, timestamp: new Date() } },
+    };
+}
+
 async function runScanner() {
     const uri = process.env.MONGODB_URI;
     if (!uri) throw new Error('MONGODB_URI not found');
@@ -43,41 +56,36 @@ async function runScanner() {
 
     const scanOnce = async () => {
         try {
-            const unvettedJobs = await db.collection('jobs').find({
-                tagTileStatus: { $nin: ['VETTED', 'NEEDS_SHORTENING', 'FAILED', 'READY_TO_APPLY'] }
-            }).toArray();
-
-            if (unvettedJobs.length > 0) {
-                console.log(`[Scan] Found ${unvettedJobs.length} new or unvetted jobs. Analyzing tags...`);
-            }
-
+            // Atomic claim: pick one unvetted job at a time to prevent duplicates
             let flaggedCount = 0;
-
-            for (const job of unvettedJobs) {
+            let job;
+            while ((job = await db.collection('jobs').findOneAndUpdate(
+                {
+                    tagTileStatus: { $nin: ['VETTED', 'NEEDS_SHORTENING', 'FAILED', 'READY_TO_APPLY', 'PENDING_REVIEW'] },
+                    _claimedBy: { $exists: false },
+                },
+                { $set: { _claimedBy: 'bot1-scanner', _claimedAt: new Date() } },
+                { returnDocument: 'after' }
+            ))) {
                 if (!job.tags || !Array.isArray(job.tags)) {
-                    await db.collection('jobs').updateOne({ _id: job._id }, { $set: { tagTileStatus: 'VETTED' } });
+                    const update = buildStatusUpdate('OK', 'VETTED', 'bot1-scanner');
+                    update.$unset = { _claimedBy: '', _claimedAt: '' };
+                    await db.collection('jobs').updateOne({ _id: job._id }, update);
                     continue;
                 }
 
                 const longTags = job.tags.filter(tag => tag.length > 25 || tag.split(' ').length > 3);
 
                 if (longTags.length > 0) {
-                    await db.collection('jobs').updateOne(
-                        { _id: job._id },
-                        {
-                            $set: {
-                                tagTileStatus: 'NEEDS_SHORTENING',
-                                longTagsToFix: longTags
-                            }
-                        }
-                    );
+                    const update = buildStatusUpdate('OK', 'NEEDS_SHORTENING', 'bot1-scanner', { longTagsToFix: longTags });
+                    update.$unset = { _claimedBy: '', _claimedAt: '' };
+                    await db.collection('jobs').updateOne({ _id: job._id }, update);
                     flaggedCount++;
                     console.log(`  -> Flagged: "${job.title}" for bad tags.`);
                 } else {
-                    await db.collection('jobs').updateOne(
-                        { _id: job._id },
-                        { $set: { tagTileStatus: 'VETTED' } }
-                    );
+                    const update = buildStatusUpdate('OK', 'VETTED', 'bot1-scanner');
+                    update.$unset = { _claimedBy: '', _claimedAt: '' };
+                    await db.collection('jobs').updateOne({ _id: job._id }, update);
                 }
             }
 

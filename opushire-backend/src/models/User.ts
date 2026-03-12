@@ -15,12 +15,18 @@ export interface IUser extends Document {
     companyWebsite?: string;
     companyLogo?: string;
     avatar: string;
+    phone?: string;
+    linkedin?: string;
     savedJobs: mongoose.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
     refreshToken?: string;
     resetToken?: string;
     resetTokenExpiry?: Date;
+    // Email verification — undefined/true = verified (existing users unaffected)
+    emailVerified?: boolean;
+    emailVerificationCode?: string;
+    emailVerificationExpiry?: Date;
     comparePassword(password: string): Promise<boolean>;
 }
 
@@ -48,7 +54,11 @@ export const UserSchema = new Schema<IUser>(
         savedJobs: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
         refreshToken: { type: String, select: false },
         resetToken: { type: String },
-        resetTokenExpiry: { type: Date }
+        resetTokenExpiry: { type: Date },
+        // Email verification (select: false keeps it out of normal queries)
+        emailVerified: { type: Boolean, default: true },
+        emailVerificationCode: { type: String, select: false },
+        emailVerificationExpiry: { type: Date, select: false },
     },
     { timestamps: true }
 );

@@ -32,9 +32,9 @@ jobs:
           npm run build --if-present
           
           # Remove dev dependencies and reinstall production deps standalone
-          # This ensures node_modules is populated locally and not symlinked to root
+          # We use --install-links to ensure deps are copied into the local node_modules
           rm -rf node_modules
-          npm install --omit=dev --no-workspaces
+          npm install --omit=dev --no-workspaces --install-links
           
           # Install dependencies for each bot directory so they work on Azure
           for botdir in recruiter-bot bots/scanner bots/fixer bots/supervisor bots/cleanup bots/archiver bots/matcher bots/advisor bots/linkedin-enricher; do

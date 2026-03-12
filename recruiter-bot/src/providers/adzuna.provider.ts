@@ -1,12 +1,45 @@
 import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
 import { NormalizedJob } from './remotive.provider';
 
 /**
  * Adzuna Job Provider — Phase 2
  * Fetches internship & junior jobs from Adzuna's API (16+ countries)
+ *
+ * Rate limiting: caches results for 8 hours to stay within the 250 req/month trial tier.
  */
 
 const ADZUNA_API = 'https://api.adzuna.com/v1/api/jobs';
+const CACHE_DIR = path.join(__dirname, '..', '..', '.cache');
+const CACHE_FILE = path.join(CACHE_DIR, 'adzuna_cache.json');
+const CACHE_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
+
+interface AdzunaCache {
+    timestamp: number;
+    jobs: NormalizedJob[];
+}
+
+function readCache(): AdzunaCache | null {
+    try {
+        if (!fs.existsSync(CACHE_FILE)) return null;
+        const data: AdzunaCache = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8'));
+        if (Date.now() - data.timestamp < CACHE_TTL_MS) {
+            return data;
+        }
+    } catch { /* cache corrupt, ignore */ }
+    return null;
+}
+
+function writeCache(jobs: NormalizedJob[]): void {
+    try {
+        fs.mkdirSync(CACHE_DIR, { recursive: true });
+        const data: AdzunaCache = { timestamp: Date.now(), jobs };
+        fs.writeFileSync(CACHE_FILE, JSON.stringify(data));
+    } catch (e: any) {
+        console.warn(`⚠️ [Adzuna] Cache write failed: ${e.message}`);
+    }
+}
 
 const JUNIOR_KEYWORDS = [
     'intern', 'internship', 'junior', 'entry', 'entry-level',
@@ -70,7 +103,14 @@ export async function fetchAdzunaJobs(): Promise<NormalizedJob[]> {
         return [];
     }
 
-    console.log('🤖 [Adzuna] Fetching jobs...');
+    // Return cached results if still fresh (saves ~15 API calls per cycle)
+    const cached = readCache();
+    if (cached) {
+        console.log(`♻️  [Adzuna] Serving ${cached.jobs.length} cached jobs (${Math.round((Date.now() - cached.timestamp) / 60000)}m old)`);
+        return cached.jobs;
+    }
+
+    console.log('🤖 [Adzuna] Fetching jobs (cache miss)...');
     const allJobs: NormalizedJob[] = [];
     const seenIds = new Set<string>();
 
@@ -132,5 +172,6 @@ export async function fetchAdzunaJobs(): Promise<NormalizedJob[]> {
     }
 
     console.log(`🤖 [Adzuna] Total: ${allJobs.length} junior/intern jobs found`);
+    writeCache(allJobs);
     return allJobs;
 }

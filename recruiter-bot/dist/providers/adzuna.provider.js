@@ -5,11 +5,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchAdzunaJobs = fetchAdzunaJobs;
 const axios_1 = __importDefault(require("axios"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 /**
  * Adzuna Job Provider — Phase 2
  * Fetches internship & junior jobs from Adzuna's API (16+ countries)
+ *
+ * Rate limiting: caches results for 8 hours to stay within the 250 req/month trial tier.
  */
 const ADZUNA_API = 'https://api.adzuna.com/v1/api/jobs';
+const CACHE_DIR = path_1.default.join(__dirname, '..', '..', '.cache');
+const CACHE_FILE = path_1.default.join(CACHE_DIR, 'adzuna_cache.json');
+const CACHE_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
+function readCache() {
+    try {
+        if (!fs_1.default.existsSync(CACHE_FILE))
+            return null;
+        const data = JSON.parse(fs_1.default.readFileSync(CACHE_FILE, 'utf-8'));
+        if (Date.now() - data.timestamp < CACHE_TTL_MS) {
+            return data;
+        }
+    }
+    catch { /* cache corrupt, ignore */ }
+    return null;
+}
+function writeCache(jobs) {
+    try {
+        fs_1.default.mkdirSync(CACHE_DIR, { recursive: true });
+        const data = { timestamp: Date.now(), jobs };
+        fs_1.default.writeFileSync(CACHE_FILE, JSON.stringify(data));
+    }
+    catch (e) {
+        console.warn(`⚠️ [Adzuna] Cache write failed: ${e.message}`);
+    }
+}
 const JUNIOR_KEYWORDS = [
     'intern', 'internship', 'junior', 'entry', 'entry-level',
     'graduate', 'fresher', 'trainee', 'associate', 'starter',
@@ -70,7 +99,13 @@ async function fetchAdzunaJobs() {
         console.log('⏭️  [Adzuna] Skipped — no API keys configured');
         return [];
     }
-    console.log('🤖 [Adzuna] Fetching jobs...');
+    // Return cached results if still fresh (saves ~15 API calls per cycle)
+    const cached = readCache();
+    if (cached) {
+        console.log(`♻️  [Adzuna] Serving ${cached.jobs.length} cached jobs (${Math.round((Date.now() - cached.timestamp) / 60000)}m old)`);
+        return cached.jobs;
+    }
+    console.log('🤖 [Adzuna] Fetching jobs (cache miss)...');
     const allJobs = [];
     const seenIds = new Set();
     for (const country of SEARCH_COUNTRIES) {
@@ -128,6 +163,7 @@ async function fetchAdzunaJobs() {
         }
     }
     console.log(`🤖 [Adzuna] Total: ${allJobs.length} junior/intern jobs found`);
+    writeCache(allJobs);
     return allJobs;
 }
 //# sourceMappingURL=adzuna.provider.js.map

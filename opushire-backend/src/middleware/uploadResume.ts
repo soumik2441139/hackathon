@@ -1,13 +1,32 @@
 import multer from "multer";
 import fs from "fs";
+import path from "path";
 
-const uploadDir = "uploads/";
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+function resolveUploadDir(): string {
+  const candidates = [
+    process.env.UPLOAD_DIR,
+    process.env.WEBSITE_INSTANCE_ID ? "/home/uploads" : undefined,
+    path.resolve(process.cwd(), "uploads"),
+    path.resolve("/tmp", "uploads"),
+  ].filter((p): p is string => Boolean(p && p.trim()));
+
+  for (const dir of candidates) {
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+      fs.accessSync(dir, fs.constants.W_OK);
+      return dir;
+    } catch {
+      // Try next candidate if current directory is unavailable.
+    }
+  }
+
+  throw new Error("No writable upload directory available. Set UPLOAD_DIR to a writable path.");
 }
 
+const uploadDir = resolveUploadDir();
+
 const storage = multer.diskStorage({
-  destination: uploadDir,
+  destination: (_req, _file, cb) => cb(null, uploadDir),
   filename: (_, file, cb) => cb(null, Date.now() + "-" + file.originalname.replace(/[^a-zA-Z0-9.-]/g, "_"))
 });
 

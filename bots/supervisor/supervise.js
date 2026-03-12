@@ -8,6 +8,18 @@ const { MongoClient } = require('mongodb');
 const POLL_INTERVAL = 20000; // Check DB every 20 seconds
 const isSingleRun = process.argv.includes('--single-run');
 
+// State machine: valid transitions from PENDING_REVIEW
+function buildStatusUpdate(from, to, actor, extra = {}) {
+    const VALID = { 'PENDING_REVIEW': ['READY_TO_APPLY', 'NEEDS_SHORTENING'] };
+    if (!VALID[from]?.includes(to)) {
+        throw new Error(`Invalid transition: ${from} → ${to}`);
+    }
+    return {
+        $set: { tagTileStatus: to, ...extra },
+        $push: { statusHistory: { from, to, actor, timestamp: new Date() } },
+    };
+}
+
 async function incrementStat(db, metric, amount = 1) {
     const today = new Date().toISOString().split('T')[0];
     await db.collection('botstats').updateOne(
@@ -74,56 +86,41 @@ async function runSupervisor() {
 
     const superviseOnce = async () => {
         try {
-            const jobsToReview = await db.collection('jobs').find({
-                tagTileStatus: 'PENDING_REVIEW'
-            }).toArray();
-
-            if (jobsToReview.length > 0) {
-                console.log(`[Supervisor] Found ${jobsToReview.length} jobs awaiting QA review...`);
-            }
-
             let approvals = 0;
             let hallucinations = 0;
-
-            for (const job of jobsToReview) {
+            let job;
+            // Atomic claim: one job at a time
+            while ((job = await db.collection('jobs').findOneAndUpdate(
+                { tagTileStatus: 'PENDING_REVIEW', _claimedBy: { $exists: false } },
+                { $set: { _claimedBy: 'bot3-supervisor', _claimedAt: new Date() } },
+                { returnDocument: 'after' }
+            ))) {
                 console.log(`  -> Reviewing tags for: ${job.title}...`);
                 try {
                     const originalLongTags = job.longTagsToFix || job.tags.filter(t => t.length > 25);
                     const isApproved = await evaluateKeywords(originalLongTags, job.proposedTags, apiKey);
 
                     if (isApproved) {
-                        // Supervisor Approved! Put in READY_TO_APPLY for Admin Review
-                        await db.collection('jobs').updateOne(
-                            { _id: job._id },
-                            {
-                                $set: {
-                                    verifiedTags: job.proposedTags,
-                                    tagTileStatus: 'READY_TO_APPLY'
-                                },
-                                $unset: { longTagsToFix: "", proposedTags: "" }
-                            }
-                        );
+                        const update = buildStatusUpdate('PENDING_REVIEW', 'READY_TO_APPLY', 'bot3-supervisor', {
+                            verifiedTags: job.proposedTags,
+                        });
+                        update.$unset = { longTagsToFix: "", proposedTags: "", _claimedBy: "", _claimedAt: "" };
+                        await db.collection('jobs').updateOne({ _id: job._id }, update);
                         console.log(`     ✅ APPROVED: "${job.proposedTags.join(', ')}". Sent to Admin Queue (READY_TO_APPLY).`);
                         approvals++;
                     } else {
-                        // Supervisor Rejected! Send back to Fixer
-                        await db.collection('jobs').updateOne(
-                            { _id: job._id },
-                            {
-                                $set: { tagTileStatus: 'NEEDS_SHORTENING' },
-                                $unset: { proposedTags: "" }
-                            }
-                        );
+                        const update = buildStatusUpdate('PENDING_REVIEW', 'NEEDS_SHORTENING', 'bot3-supervisor');
+                        update.$unset = { proposedTags: "", _claimedBy: "", _claimedAt: "" };
+                        await db.collection('jobs').updateOne({ _id: job._id }, update);
                         console.log(`     ❌ REJECTED! Hallucination detected. Sending back to Bot 2.`);
                         hallucinations++;
                     }
                 } catch (err) {
                     console.error(`     Failed to review job ${job._id}:`, err);
-                    await db.collection('jobs').updateOne({ _id: job._id }, { $set: { tagTileStatus: 'FAILED' } });
-                }
-
-                if (!isSingleRun) {
-                    await new Promise(r => setTimeout(r, 2000));
+                    await db.collection('jobs').updateOne({ _id: job._id }, {
+                        $set: { tagTileStatus: 'FAILED' },
+                        $unset: { _claimedBy: '', _claimedAt: '' }
+                    });
                 }
             }
 

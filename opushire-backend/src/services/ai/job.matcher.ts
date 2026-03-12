@@ -1,4 +1,4 @@
-import { geminiModel } from './gemini.client';
+import { safeGeminiCall } from './gemini.client';
 import { IParsedData } from '../../models/Resume';
 import { IJob } from '../../models/Job'; // Assuming standard job structure
 
@@ -24,13 +24,7 @@ Required format:
 `;
 
     try {
-        const r = await geminiModel.generateContent(prompt);
-        let text = r.response.text().trim();
-        // Clean markdown
-        if (text.startsWith('```json')) text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        else if (text.startsWith('```')) text = text.replace(/```/g, '').trim();
-        
-        return text;
+        return await safeGeminiCall(prompt);
     } catch (e) {
         console.error("Match LLM Explanation Failed:", e);
         return JSON.stringify({ match_score: 0, reason: "Error generating explanation" });

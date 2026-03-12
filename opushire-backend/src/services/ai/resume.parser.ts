@@ -1,4 +1,4 @@
-import { geminiModel } from './gemini.client';
+import { safeGeminiCall } from './gemini.client';
 import { normalizeSkills } from '../../utils/skillNormalizer';
 import { IParsedData } from '../../models/Resume';
 
@@ -21,15 +21,7 @@ Resume Text:
 ${resumeText}
 `;
 
-    const res = await geminiModel.generateContent(prompt);
-    let text = res.response.text().trim();
-    
-    // Clean potential markdown from Gemini output
-    if (text.startsWith('```json')) {
-        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    } else if (text.startsWith('```')) {
-        text = text.replace(/```/g, '').trim();
-    }
+    const text = await safeGeminiCall(prompt);
 
     let full: any = {};
     try {

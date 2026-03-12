@@ -14,6 +14,8 @@ const router = Router();
 // Public
 router.post('/register', authLimiter, AuthController.register);
 router.post('/login', authLimiter, AuthController.login);
+router.post('/verify-email', authLimiter, AuthController.verifyEmail);
+router.post('/resend-verification', authLimiter, AuthController.resendVerificationCode);
 
 // Protected
 router.get('/me', authenticate, AuthController.getMe);

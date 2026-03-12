@@ -1,21 +1,29 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/lib/api';
+import { auth, VerificationChallenge } from '@/lib/api';
 import { User } from '@/lib/types';
+
+const PENDING_VERIFICATION_EMAIL_KEY = 'opushire_pending_verification_email';
+
+interface RegistrationData {
+    name: string;
+    email: string;
+    password: string;
+    role?: 'student' | 'admin';
+    college?: string;
+    degree?: string;
+    year?: string;
+}
 
 interface AuthContextValue {
     user: User | null;
     token: string | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<void>;
-    register: (data: {
-        name: string; email: string; password: string;
-        role?: 'student' | 'recruiter';
-        college?: string; degree?: string; year?: string;
-        companyName?: string; companyWebsite?: string;
-        companyLogo?: string;
-    }) => Promise<void>;
+    register: (data: RegistrationData) => Promise<VerificationChallenge>;
+    verifyEmail: (email: string, code: string) => Promise<void>;
+    resendVerificationCode: (email: string) => Promise<VerificationChallenge>;
     refreshUser: () => Promise<void>;
     logout: () => void;
 }
@@ -27,6 +35,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const setPendingVerificationEmail = useCallback((email: string) => {
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem(PENDING_VERIFICATION_EMAIL_KEY, email);
+        }
+    }, []);
+
+    const clearPendingVerificationEmail = useCallback(() => {
+        if (typeof window !== 'undefined') {
+            sessionStorage.removeItem(PENDING_VERIFICATION_EMAIL_KEY);
+        }
+    }, []);
+
+    const routeByRole = useCallback((nextUser: User) => {
+        if (nextUser.role === 'admin') router.push('/dashboard/admin');
+        else if (nextUser.role === 'recruiter') router.push('/dashboard/recruiter');
+        else router.push('/dashboard/student');
+    }, [router]);
 
     // Restore session from localStorage on mount & verify with server
     useEffect(() => {
@@ -70,27 +96,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const login = useCallback(async (email: string, password: string) => {
         const res = await auth.login({ email, password });
         persist(res.data.user, res.data.token);
-        const { role } = res.data.user;
-        if (role === 'admin') router.push('/dashboard/admin');
-        else if (role === 'recruiter') router.push('/dashboard/recruiter');
-        else router.push('/dashboard/student');
-    }, [router]);
+        routeByRole(res.data.user);
+    }, [routeByRole]);
 
-    const register = useCallback(async (data: {
-        name: string; email: string; password: string;
-        role?: 'student' | 'recruiter';
-        college?: string; degree?: string; year?: string;
-        companyName?: string; companyWebsite?: string;
-        companyLogo?: string;
-    }) => {
+    const register = useCallback(async (data: RegistrationData) => {
         const res = await auth.register({ ...data });
+        setPendingVerificationEmail(res.data.email);
+        router.push(`/verify-email?email=${encodeURIComponent(res.data.email)}`);
+        return res.data;
+    }, [router, setPendingVerificationEmail]);
+
+    const verifyEmail = useCallback(async (email: string, code: string) => {
+        const res = await auth.verifyEmail({ email, code });
         persist(res.data.user, res.data.token);
-        if (res.data.user.role === 'recruiter') {
-            router.push('/dashboard/recruiter');
-        } else {
-            router.push('/dashboard/student');
-        }
-    }, [router]);
+        clearPendingVerificationEmail();
+        routeByRole(res.data.user);
+    }, [clearPendingVerificationEmail, routeByRole]);
+
+    const resendVerificationCode = useCallback(async (email: string) => {
+        const res = await auth.resendVerificationCode({ email });
+        setPendingVerificationEmail(res.data.email);
+        return res.data;
+    }, [setPendingVerificationEmail]);
 
     // Apply theme based on role
     useEffect(() => {
@@ -107,8 +134,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         document.documentElement.classList.remove('theme-recruiter', 'theme-student', 'theme-admin');
         setToken(null);
         setUser(null);
+        clearPendingVerificationEmail();
         router.push('/');
-    }, [router]);
+    }, [clearPendingVerificationEmail, router]);
 
     const refreshUser = useCallback(async () => {
         try {
@@ -125,7 +153,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ user, token, loading, login, register, refreshUser, logout }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                token,
+                loading,
+                login,
+                register,
+                verifyEmail,
+                resendVerificationCode,
+                refreshUser,
+                logout,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );

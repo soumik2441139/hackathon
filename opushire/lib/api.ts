@@ -1,5 +1,11 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
+export type ApiError = Error & {
+    fields?: unknown;
+    status?: number;
+    data?: unknown;
+};
+
 function getToken(): string | null {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('opushire_token');
@@ -24,27 +30,51 @@ async function request<T>(
     const data = await res.json();
 
     if (!res.ok) {
-        const error = new Error(data.message || 'Something went wrong') as Error & { fields?: unknown };
-        error.fields = data.errors; // Capture Zod field errors
+        const error = new Error(data.message || 'Something went wrong') as ApiError;
+        error.fields = data.errors;
+        error.status = res.status;
+        error.data = data.data;
         throw error;
     }
     return data;
 }
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
+export interface VerificationChallenge {
+    email: string;
+    verificationRequired: true;
+    expiresInMinutes: number;
+    message: string;
+}
+
 export interface AuthResponse {
     success: boolean;
     data: { user: import('./types').User; token: string };
+}
+
+export interface VerificationChallengeResponse {
+    success: boolean;
+    data: VerificationChallenge;
+    message?: string;
 }
 
 export const auth = {
     register: (body: {
         name: string; email: string; password: string;
         role?: string; college?: string; degree?: string; year?: string;
-    }) => request<AuthResponse>('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
+    }) => request<VerificationChallengeResponse>('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
 
     login: (body: { email: string; password: string }) =>
         request<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+
+    verifyEmail: (body: { email: string; code: string }) =>
+        request<AuthResponse>('/auth/verify-email', { method: 'POST', body: JSON.stringify(body) }),
+
+    resendVerificationCode: (body: { email: string }) =>
+        request<VerificationChallengeResponse>('/auth/resend-verification', {
+            method: 'POST',
+            body: JSON.stringify(body),
+        }),
 
     getMe: () =>
         request<{ success: boolean; data: import('./types').User }>('/auth/me'),

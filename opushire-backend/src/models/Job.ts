@@ -28,8 +28,9 @@ export interface IJob extends Document {
     externalId?: string;
     externalUrl?: string;
     freeApiPostId?: string;
-    tagTileStatus?: 'OK' | 'NEEDS_SHORTENING' | 'READY_TO_APPLY' | 'VETTED';
+    tagTileStatus?: 'OK' | 'NEEDS_SHORTENING' | 'PENDING_REVIEW' | 'READY_TO_APPLY' | 'FAILED' | 'VETTED';
     verifiedTags?: string[];
+    statusHistory?: { from: string; to: string; actor: string; timestamp: Date }[];
     isArchived?: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -78,10 +79,16 @@ const JobSchema = new Schema<IJob>(
         freeApiPostId: { type: String },
         tagTileStatus: {
             type: String,
-            enum: ['OK', 'NEEDS_SHORTENING', 'READY_TO_APPLY', 'VETTED'],
+            enum: ['OK', 'NEEDS_SHORTENING', 'PENDING_REVIEW', 'READY_TO_APPLY', 'FAILED', 'VETTED'],
             default: 'OK',
         },
         verifiedTags: [{ type: String, trim: true }],
+        statusHistory: [{
+            from: String,
+            to: String,
+            actor: String,
+            timestamp: { type: Date, default: Date.now },
+        }],
         isArchived: { type: Boolean, default: false },
     },
     { timestamps: true }

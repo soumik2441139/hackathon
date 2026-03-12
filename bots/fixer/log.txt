@@ -1,3 +1,0 @@
-[dotenv@17.3.1] injecting env (5) from ..\opushire-backend\.env -- tip: ΓÜÖ∩╕Å  enable debug logging with { debug: true }
-[dotenv@17.3.1] injecting env (4) from ..\recruiter-bot\.env -- tip: ≡ƒöÉ encrypt with Dotenvx: https://dotenvx.com
-≡ƒ¢á Bot 2 (Fixer): Connected to database. Listening for broken tiles...

@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import Resume from '../models/Resume';
-import { mockLinkedInExtract } from '../services/enrichment/linkedin.service';
+import { extractLinkedInProfile } from '../services/enrichment/linkedin.service';
 
 export async function enrichLinkedIn(req: AuthRequest, res: Response): Promise<Response | void> {
     try {
@@ -16,7 +16,7 @@ export async function enrichLinkedIn(req: AuthRequest, res: Response): Promise<R
             return res.status(404).json({ error: "Resume not found" });
         }
 
-        const data = mockLinkedInExtract(linkedinUrl);
+        const data = await extractLinkedInProfile(linkedinUrl);
 
         resume.extraData = resume.extraData || {};
         resume.extraData.certifications = [

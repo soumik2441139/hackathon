@@ -8,6 +8,18 @@ const { MongoClient } = require('mongodb');
 const POLL_INTERVAL = 15000; // Check DB every 15 seconds
 const isSingleRun = process.argv.includes('--single-run');
 
+// State machine: valid transitions from NEEDS_SHORTENING
+function buildStatusUpdate(from, to, actor, extra = {}) {
+    const VALID = { 'NEEDS_SHORTENING': ['PENDING_REVIEW', 'FAILED', 'VETTED'] };
+    if (!VALID[from]?.includes(to)) {
+        throw new Error(`Invalid transition: ${from} → ${to}`);
+    }
+    return {
+        $set: { tagTileStatus: to, ...extra },
+        $push: { statusHistory: { from, to, actor, timestamp: new Date() } },
+    };
+}
+
 async function incrementStat(db, metric, amount = 1) {
     const today = new Date().toISOString().split('T')[0];
     await db.collection('botstats').updateOne(
@@ -69,17 +81,14 @@ async function runFixer() {
 
     const fixOnce = async () => {
         try {
-            const jobsToFix = await db.collection('jobs').find({
-                tagTileStatus: 'NEEDS_SHORTENING'
-            }).toArray();
-
-            if (jobsToFix.length > 0) {
-                console.log(`[Fixer] Found ${jobsToFix.length} jobs needing tag shortening...`);
-            }
-
             let fixedCount = 0;
-
-            for (const job of jobsToFix) {
+            let job;
+            // Atomic claim: one job at a time
+            while ((job = await db.collection('jobs').findOneAndUpdate(
+                { tagTileStatus: 'NEEDS_SHORTENING', _claimedBy: { $exists: false } },
+                { $set: { _claimedBy: 'bot2-fixer', _claimedAt: new Date() } },
+                { returnDocument: 'after' }
+            ))) {
                 console.log(`  -> Processing LLM rewrite for: ${job.title}...`);
                 try {
                     const newKeywords = await generateKeywords(job.longTagsToFix || job.tags, apiKey);
@@ -88,27 +97,21 @@ async function runFixer() {
                         const goodTags = job.tags.filter(tag => !(tag.length > 25 || tag.split(' ').length > 3));
                         const finalTags = [...new Set([...goodTags, ...newKeywords])];
 
-                        await db.collection('jobs').updateOne(
-                            { _id: job._id },
-                            {
-                                $set: {
-                                    proposedTags: finalTags,
-                                    tagTileStatus: 'PENDING_REVIEW'
-                                }
-                            }
-                        );
+                        const update = buildStatusUpdate('NEEDS_SHORTENING', 'PENDING_REVIEW', 'bot2-fixer', { proposedTags: finalTags });
+                        update.$unset = { _claimedBy: '', _claimedAt: '' };
+                        await db.collection('jobs').updateOne({ _id: job._id }, update);
                         console.log(`     Proposed tags for review: ${finalTags.join(', ')}`);
                         fixedCount++;
                     } else {
-                        await db.collection('jobs').updateOne({ _id: job._id }, { $set: { tagTileStatus: 'FAILED' } });
+                        const update = buildStatusUpdate('NEEDS_SHORTENING', 'FAILED', 'bot2-fixer');
+                        update.$unset = { _claimedBy: '', _claimedAt: '' };
+                        await db.collection('jobs').updateOne({ _id: job._id }, update);
                     }
                 } catch (err) {
                     console.error(`     Failed to fix job ${job._id}:`, err);
-                    await db.collection('jobs').updateOne({ _id: job._id }, { $set: { tagTileStatus: 'FAILED' } });
-                }
-
-                if (!isSingleRun) {
-                    await new Promise(r => setTimeout(r, 2000));
+                    const update = buildStatusUpdate('NEEDS_SHORTENING', 'FAILED', 'bot2-fixer');
+                    update.$unset = { _claimedBy: '', _claimedAt: '' };
+                    await db.collection('jobs').updateOne({ _id: job._id }, update);
                 }
             }
 

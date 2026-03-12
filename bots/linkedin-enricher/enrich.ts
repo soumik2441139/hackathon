@@ -1,5 +1,5 @@
 import Resume from '../../opushire-backend/src/models/Resume';
-import { mockLinkedInExtract } from '../../opushire-backend/src/services/enrichment/linkedin.service';
+import { extractLinkedInProfile } from '../../opushire-backend/src/services/enrichment/linkedin.service';
 import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 dotenv.config({ path: './opushire-backend/.env' });
@@ -17,9 +17,11 @@ async function run() {
             const linkedinUrl = r.extraData?.linkedin;
             if (!linkedinUrl) continue;
             
-            // In a real scenario, this might check a 'lastEnriched' timestamp to avoid looping
+            // Skip if already enriched in the last 7 days
+            const lastEnriched = r.extraData?.lastLinkedInEnrich;
+            if (lastEnriched && Date.now() - new Date(lastEnriched).getTime() < 7 * 24 * 60 * 60 * 1000) continue;
 
-            const data = mockLinkedInExtract(linkedinUrl);
+            const data = await extractLinkedInProfile(linkedinUrl);
 
             const currentCerts = r.extraData?.certifications || [];
 
@@ -28,8 +30,13 @@ async function run() {
                 certifications: [
                     ...currentCerts,
                     ...(data.certifications || [])
-                ]
+                ],
+                lastLinkedInEnrich: new Date().toISOString(),
             };
+
+            if (data.headline) {
+                r.extraData.linkedinHeadline = data.headline;
+            }
             
             if (r.extraData && r.extraData.certifications) {
                 r.extraData.certifications = r.extraData.certifications.filter((val: any, idx: number, arr: any[]) => arr.indexOf(val) === idx);
@@ -38,6 +45,9 @@ async function run() {
             r.markModified('extraData');
             await r.save();
             enrichedCount++;
+
+            // Rate-limit: 2s between profiles to avoid being blocked
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
 
         if (enrichedCount > 0) {

@@ -10,6 +10,8 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const verificationHref = email ? `/verify-email?email=${encodeURIComponent(email)}` : '/verify-email';
+    const showVerifyLink = error.toLowerCase().includes('not verified');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -55,6 +57,13 @@ export default function LoginPage() {
                         {error && (
                             <div className="mb-6 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-sm font-medium">
                                 {error}
+                                {showVerifyLink && (
+                                    <div className="mt-3">
+                                        <Link href={verificationHref} className="font-semibold text-cyan-300 hover:text-cyan-200">
+                                            Open email verification
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -109,6 +118,9 @@ export default function LoginPage() {
                         <div className="mt-10 pt-6 border-t border-primary/10 text-center">
                             <p className="text-sm text-slate-500">
                                 New to the network? <Link href="/register" className="text-primary font-bold hover:underline">Sign up here</Link>
+                            </p>
+                            <p className="mt-3 text-xs text-slate-500">
+                                Need to finish activation? <Link href={verificationHref} className="text-cyan-300 font-semibold hover:underline">Verify your email</Link>
                             </p>
                         </div>
                     </div>

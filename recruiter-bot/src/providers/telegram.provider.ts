@@ -1,4 +1,5 @@
 import axios from 'axios';
+import * as cheerio from 'cheerio';
 import { NormalizedJob } from './remotive.provider';
 import { deepScrapeJob } from './page-scraper';
 
@@ -217,30 +218,57 @@ function buildDescription(text: string, company: string, gradYear: string, apply
 
 // ─── Channel Fetcher ──────────────────────────────────────────────────────────
 
-async function fetchChannelPosts(channelName: string): Promise<string[]> {
-    try {
-        const url = `https://t.me/s/${channelName}`;
-        const { data: html } = await axios.get(url, {
-            timeout: 15000,
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            },
-        });
+async function fetchChannelPosts(channelName: string, retries = 2): Promise<string[]> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const url = `https://t.me/s/${channelName}`;
+            const { data: html } = await axios.get(url, {
+                timeout: 15000,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                },
+            });
 
-        const messageRegex = /<div class="tgme_widget_message_text[^"]*"[^>]*>([\s\S]*?)<\/div>/g;
-        const posts: string[] = [];
-        let match;
+            // Use Cheerio DOM parsing instead of fragile regex
+            const $ = cheerio.load(html);
+            const posts: string[] = [];
 
-        while ((match = messageRegex.exec(html)) !== null) {
-            const text = stripHtml(match[1]);
-            if (text.length > 50) posts.push(text);
+            // Primary: structured DOM selectors for Telegram widget messages
+            $('.tgme_widget_message_text').each((_, el) => {
+                const text = stripHtml($(el).html() || '');
+                if (text.length > 50) posts.push(text);
+            });
+
+            // Fallback: if Telegram changes class names, try broader selectors
+            if (posts.length === 0) {
+                $('[class*="message_text"], [class*="message-text"], .js-message_text').each((_, el) => {
+                    const text = stripHtml($(el).html() || '');
+                    if (text.length > 50) posts.push(text);
+                });
+            }
+
+            // Last resort: regex extraction (backward compat)
+            if (posts.length === 0) {
+                const messageRegex = /<div class="tgme_widget_message_text[^"]*"[^>]*>([\s\S]*?)<\/div>/g;
+                let match;
+                while ((match = messageRegex.exec(html)) !== null) {
+                    const text = stripHtml(match[1]);
+                    if (text.length > 50) posts.push(text);
+                }
+            }
+
+            return posts;
+        } catch (err: any) {
+            if (attempt < retries) {
+                const delay = (attempt + 1) * 3000;
+                console.warn(`⚠️ [Telegram] @${channelName} attempt ${attempt + 1} failed, retrying in ${delay / 1000}s...`);
+                await new Promise(r => setTimeout(r, delay));
+            } else {
+                console.warn(`⚠️ [Telegram] Failed to fetch @${channelName} after ${retries + 1} attempts: ${err.message}`);
+            }
         }
-
-        return posts;
-    } catch (err: any) {
-        console.warn(`⚠️ [Telegram] Failed to fetch @${channelName}: ${err.message}`);
-        return [];
     }
+    return [];
 }
 
 // ─── Main Export ──────────────────────────────────────────────────────────────

@@ -1,10 +1,44 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchTelegramJobs = fetchTelegramJobs;
 const axios_1 = __importDefault(require("axios"));
+const cheerio = __importStar(require("cheerio"));
 const page_scraper_1 = require("./page-scraper");
 /**
  * Telegram Public Channel Provider — Phase 3 (v2 - Smart Parsing)
@@ -198,29 +232,57 @@ function buildDescription(text, company, gradYear, applyLink) {
     return desc;
 }
 // ─── Channel Fetcher ──────────────────────────────────────────────────────────
-async function fetchChannelPosts(channelName) {
-    try {
-        const url = `https://t.me/s/${channelName}`;
-        const { data: html } = await axios_1.default.get(url, {
-            timeout: 15000,
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            },
-        });
-        const messageRegex = /<div class="tgme_widget_message_text[^"]*"[^>]*>([\s\S]*?)<\/div>/g;
-        const posts = [];
-        let match;
-        while ((match = messageRegex.exec(html)) !== null) {
-            const text = stripHtml(match[1]);
-            if (text.length > 50)
-                posts.push(text);
+async function fetchChannelPosts(channelName, retries = 2) {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const url = `https://t.me/s/${channelName}`;
+            const { data: html } = await axios_1.default.get(url, {
+                timeout: 15000,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                },
+            });
+            // Use Cheerio DOM parsing instead of fragile regex
+            const $ = cheerio.load(html);
+            const posts = [];
+            // Primary: structured DOM selectors for Telegram widget messages
+            $('.tgme_widget_message_text').each((_, el) => {
+                const text = stripHtml($(el).html() || '');
+                if (text.length > 50)
+                    posts.push(text);
+            });
+            // Fallback: if Telegram changes class names, try broader selectors
+            if (posts.length === 0) {
+                $('[class*="message_text"], [class*="message-text"], .js-message_text').each((_, el) => {
+                    const text = stripHtml($(el).html() || '');
+                    if (text.length > 50)
+                        posts.push(text);
+                });
+            }
+            // Last resort: regex extraction (backward compat)
+            if (posts.length === 0) {
+                const messageRegex = /<div class="tgme_widget_message_text[^"]*"[^>]*>([\s\S]*?)<\/div>/g;
+                let match;
+                while ((match = messageRegex.exec(html)) !== null) {
+                    const text = stripHtml(match[1]);
+                    if (text.length > 50)
+                        posts.push(text);
+                }
+            }
+            return posts;
         }
-        return posts;
+        catch (err) {
+            if (attempt < retries) {
+                const delay = (attempt + 1) * 3000;
+                console.warn(`⚠️ [Telegram] @${channelName} attempt ${attempt + 1} failed, retrying in ${delay / 1000}s...`);
+                await new Promise(r => setTimeout(r, delay));
+            }
+            else {
+                console.warn(`⚠️ [Telegram] Failed to fetch @${channelName} after ${retries + 1} attempts: ${err.message}`);
+            }
+        }
     }
-    catch (err) {
-        console.warn(`⚠️ [Telegram] Failed to fetch @${channelName}: ${err.message}`);
-        return [];
-    }
+    return [];
 }
 // ─── Main Export ──────────────────────────────────────────────────────────────
 async function fetchTelegramJobs() {
