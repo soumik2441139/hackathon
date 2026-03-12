@@ -78,3 +78,6 @@ bots/scanner/mismatched_jobs.json
 *.faiss
 *.pkl
 faiss_index/
+
+# ─── Azure Specific ─────────────────────────────────────────────
+azure-settings.json
