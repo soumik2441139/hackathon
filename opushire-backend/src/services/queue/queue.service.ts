@@ -5,13 +5,29 @@ import { log, logError } from '../../utils/logger';
 // ─── Redis Connection ────────────────────────────────────────────
 // Azure Cache for Redis requires TLS. Support both local dev and production.
 
-const connection = {
-  host: SystemConfig.redis.host,
-  port: SystemConfig.redis.port,
-  ...(SystemConfig.redis.password ? { password: SystemConfig.redis.password } : {}),
-  ...(SystemConfig.redis.tls ? { tls: { servername: SystemConfig.redis.host, rejectUnauthorized: false } } : {}),
-  maxRetriesPerRequest: null,
-};
+// Use any to bypass type conflicts between bullmq's ioredis and others
+let sharedConnection: any;
+
+function getConnection() {
+  if (!sharedConnection) {
+    // BullMQ uses ioredis internally. We use the same to ensure compatibility.
+    // We require it here to avoid adding a direct dependency to package.json
+    // which caused type conflicts previously.
+    const IORedis = require('ioredis');
+    sharedConnection = new IORedis({
+      host: SystemConfig.redis.host,
+      port: SystemConfig.redis.port,
+      ...(SystemConfig.redis.password ? { password: SystemConfig.redis.password } : {}),
+      ...(SystemConfig.redis.tls ? { tls: { servername: SystemConfig.redis.host, rejectUnauthorized: false } } : {}),
+      maxRetriesPerRequest: null,
+    });
+    
+    sharedConnection.on('error', (err: any) => {
+      logError('REDIS', 'Shared connection error', err);
+    });
+  }
+  return sharedConnection;
+}
 
 // ─── Lazy Queue Registry ─────────────────────────────────────────
 // Queues are created lazily on first use so the server boots even
@@ -41,14 +57,15 @@ export async function probeRedis(): Promise<boolean> {
   if (_redisAvailable !== null) return _redisAvailable;
   try {
     // Create a temporary lightweight queue and try to ping
-    const probe = new Queue('__probe__', { connection });
+    const probe = new Queue('__probe__', { connection: getConnection() });
     await probe.client; // forces ioredis connect
     await probe.close();
     _redisAvailable = true;
-    log('REDIS', `Connected to ${connection.host}:${connection.port}`);
+    const conn = getConnection();
+    log('REDIS', `Connected to ${conn.options.host}:${conn.options.port}`);
   } catch (err) {
     _redisAvailable = false;
-    logError('REDIS', `Redis unreachable at ${connection.host}:${connection.port} — queue features disabled`, err);
+    logError('REDIS', `Redis unreachable — queue features disabled`, err);
   }
   return _redisAvailable;
 }
@@ -64,7 +81,7 @@ export function getQueue(name: QueueName): Queue | null {
   if (_redisAvailable === false) return null;
 
   if (!queueMap.has(name)) {
-    const q = new Queue(name, { connection });
+    const q = new Queue(name, { connection: getConnection() });
     queueMap.set(name, q);
     attachEvents(q);
   }
@@ -103,7 +120,7 @@ export async function enqueue(
 // ─── Queue Event Logging ─────────────────────────────────────────
 
 function attachEvents(queue: Queue) {
-  const events = new QueueEvents(queue.name, { connection });
+  const events = new QueueEvents(queue.name, { connection: getConnection() });
   events.on('completed', ({ jobId, returnvalue }) => {
     log('QUEUE', `Job ${jobId} completed on ${queue.name}`, { returnvalue });
   });
@@ -133,7 +150,7 @@ export function createWorker(
       return processor(job.data);
     },
     {
-      connection,
+      connection: getConnection(),
       concurrency: opts.concurrency || 1,
     },
   );

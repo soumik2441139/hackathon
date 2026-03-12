@@ -36,6 +36,9 @@ import { probeRedis } from './services/queue/queue.service';
 
 const app = express();
 
+// Trust the first proxy (Azure App Service)
+app.set('trust proxy', 1);
+
 // Security & parsing
 app.use(helmet());
 app.use(cors(corsOptions));
