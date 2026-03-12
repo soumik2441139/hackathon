@@ -67,7 +67,7 @@ BotReportSchema.statics.logAction = async function (
                 'summary.jobsProcessed': count
             }
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: 'after' }
     );
 };
 
@@ -92,7 +92,7 @@ BotReportSchema.statics.logError = async function (
                 'summary.errors': 1
             }
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: 'after' }
     );
 };
 

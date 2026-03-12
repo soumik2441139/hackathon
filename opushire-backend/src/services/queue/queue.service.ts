@@ -5,14 +5,23 @@ import { log, logError } from '../../utils/logger';
 // ─── Redis Connection ────────────────────────────────────────────
 // Azure Cache for Redis requires TLS. Support both local dev and production.
 
-// Use any to bypass type conflicts between bullmq's ioredis and others
-let sharedConnection: any;
+type RedisConnectionOptions = {
+  host: string;
+  port: number;
+  password?: string;
+  tls?: { servername: string; rejectUnauthorized: boolean };
+  maxRetriesPerRequest: null;
+};
 
-function getConnection() {
+let sharedConnection: any = null;
+let sharedQueue: Queue | null = null;
+let sharedQueueEvents: QueueEvents | null = null;
+let sharedWorker: Worker | null = null;
+
+function getConnection(): any {
   if (!sharedConnection) {
     // BullMQ uses ioredis internally. We use the same to ensure compatibility.
-    // We require it here to avoid adding a direct dependency to package.json
-    // which caused type conflicts previously.
+    // We use any to avoid type conflicts between different ioredis versions.
     const IORedis = require('ioredis');
     sharedConnection = new IORedis({
       host: SystemConfig.redis.host,
@@ -21,12 +30,50 @@ function getConnection() {
       ...(SystemConfig.redis.tls ? { tls: { servername: SystemConfig.redis.host, rejectUnauthorized: false } } : {}),
       maxRetriesPerRequest: null,
     });
-    
+
     sharedConnection.on('error', (err: any) => {
       logError('REDIS', 'Shared connection error', err);
     });
   }
   return sharedConnection;
+}
+
+const PHYSICAL_QUEUE_NAME = process.env.BULLMQ_SHARED_QUEUE_NAME || 'opushire-jobs';
+const JOB_NAME_SEPARATOR = '::';
+const WORKER_CONCURRENCY = Math.max(1, Number(process.env.BULLMQ_WORKER_CONCURRENCY || '1'));
+const ENABLE_QUEUE_EVENTS = process.env.BULLMQ_ENABLE_QUEUE_EVENTS === 'true';
+const WORKERS_ENABLED = process.env.BULLMQ_WORKERS_ENABLED !== 'false';
+
+function buildLogicalJobName(queueName: QueueName, jobName: string): string {
+  return `${queueName}${JOB_NAME_SEPARATOR}${jobName}`;
+}
+
+function parseLogicalQueueName(fullJobName: string): QueueName | null {
+  const idx = fullJobName.indexOf(JOB_NAME_SEPARATOR);
+  const logicalQueue = idx >= 0 ? fullJobName.slice(0, idx) : fullJobName;
+  if ((QUEUE_NAMES as readonly string[]).includes(logicalQueue)) {
+    return logicalQueue as QueueName;
+  }
+  return null;
+}
+
+function getSharedQueue(): Queue {
+  if (!sharedQueue) {
+    sharedQueue = new Queue(PHYSICAL_QUEUE_NAME, { connection: getConnection() });
+    attachSharedEvents();
+  }
+  return sharedQueue;
+}
+
+function attachSharedEvents() {
+  if (!ENABLE_QUEUE_EVENTS || sharedQueueEvents) return;
+  sharedQueueEvents = new QueueEvents(PHYSICAL_QUEUE_NAME, { connection: getConnection() });
+  sharedQueueEvents.on('completed', ({ jobId, returnvalue }) => {
+    log('QUEUE', `Job ${jobId} completed on ${PHYSICAL_QUEUE_NAME}`, { returnvalue });
+  });
+  sharedQueueEvents.on('failed', ({ jobId, failedReason }) => {
+    logError('QUEUE', `Job ${jobId} failed on ${PHYSICAL_QUEUE_NAME}: ${failedReason}`);
+  });
 }
 
 // ─── Lazy Queue Registry ─────────────────────────────────────────
@@ -47,6 +94,7 @@ const QUEUE_NAMES = [
 export type QueueName = (typeof QUEUE_NAMES)[number];
 
 const queueMap = new Map<QueueName, Queue>();
+const processorMap = new Map<QueueName, ProcessorFn>();
 let _redisAvailable: boolean | null = null;
 
 /**
@@ -56,13 +104,17 @@ let _redisAvailable: boolean | null = null;
 export async function probeRedis(): Promise<boolean> {
   if (_redisAvailable !== null) return _redisAvailable;
   try {
-    // Create a temporary lightweight queue and try to ping
-    const probe = new Queue('__probe__', { connection: getConnection() });
-    await probe.client; // forces ioredis connect
-    await probe.close();
-    _redisAvailable = true;
     const conn = getConnection();
-    log('REDIS', `Connected to ${conn.options.host}:${conn.options.port}`);
+    // Use raw info command to check eviction policy
+    const info = await conn.info('memory');
+    if (info.includes('maxmemory_policy:volatile-lru') || info.includes('maxmemory_policy:allkeys-lru')) {
+      logError('REDIS', 'CRITICAL: Redis eviction policy is NOT "noeviction". This may lead to BullMQ job loss!');
+    } else {
+      log('REDIS', 'Eviction policy is safe (noeviction)');
+    }
+
+    _redisAvailable = true;
+    log('REDIS', `Connected to ${SystemConfig.redis.host}:${SystemConfig.redis.port}`);
   } catch (err) {
     _redisAvailable = false;
     logError('REDIS', `Redis unreachable — queue features disabled`, err);
@@ -81,9 +133,9 @@ export function getQueue(name: QueueName): Queue | null {
   if (_redisAvailable === false) return null;
 
   if (!queueMap.has(name)) {
-    const q = new Queue(name, { connection: getConnection() });
+    // Logical queue aliases map to one shared physical BullMQ queue.
+    const q = getSharedQueue();
     queueMap.set(name, q);
-    attachEvents(q);
   }
   return queueMap.get(name)!;
 }
@@ -114,19 +166,7 @@ export async function enqueue(
     log('QUEUE', `Skipped enqueue to ${name} — Redis not available`);
     return;
   }
-  await q.add(jobName, data, opts);
-}
-
-// ─── Queue Event Logging ─────────────────────────────────────────
-
-function attachEvents(queue: Queue) {
-  const events = new QueueEvents(queue.name, { connection: getConnection() });
-  events.on('completed', ({ jobId, returnvalue }) => {
-    log('QUEUE', `Job ${jobId} completed on ${queue.name}`, { returnvalue });
-  });
-  events.on('failed', ({ jobId, failedReason }) => {
-    logError('QUEUE', `Job ${jobId} failed on ${queue.name}: ${failedReason}`);
-  });
+  await q.add(buildLogicalJobName(name, jobName), data, opts);
 }
 
 // ─── Helper to create workers ────────────────────────────────────
@@ -134,43 +174,102 @@ function attachEvents(queue: Queue) {
 export type ProcessorFn = (data: any) => Promise<any>;
 
 export function createWorker(
-  queueName: string,
+  queueName: QueueName,
   processor: ProcessorFn,
   opts: { concurrency?: number } = {},
 ): Worker | null {
+  if (!WORKERS_ENABLED) {
+    log('WORKER', `Skipping processor registration for ${queueName} — workers disabled by BULLMQ_WORKERS_ENABLED=false`);
+    return null;
+  }
+
   if (_redisAvailable === false) {
     log('WORKER', `Skipped worker for ${queueName} — Redis not available`);
     return null;
   }
 
-  const worker = new Worker(
-    queueName,
+  if (opts.concurrency && opts.concurrency > 1) {
+    log('WORKER', `Ignoring per-queue concurrency for ${queueName}; using shared worker concurrency ${WORKER_CONCURRENCY}`);
+  }
+
+  processorMap.set(queueName, processor);
+  return sharedWorker;
+}
+
+export function startRegisteredWorkers(): Worker | null {
+  if (!WORKERS_ENABLED) {
+    log('WORKER', 'Shared worker disabled by BULLMQ_WORKERS_ENABLED=false');
+    return null;
+  }
+
+  if (_redisAvailable === false) {
+    log('WORKER', 'Skipped shared worker startup — Redis not available');
+    return null;
+  }
+
+  if (sharedWorker) return sharedWorker;
+
+  if (processorMap.size === 0) {
+    log('WORKER', 'No processors registered; shared worker not started');
+    return null;
+  }
+
+  sharedWorker = new Worker(
+    PHYSICAL_QUEUE_NAME,
     async (job) => {
-      log('WORKER', `Processing ${queueName} job ${job.id}`, { data: job.data });
+      const logicalQueue = parseLogicalQueueName(job.name);
+      if (!logicalQueue) {
+        throw new Error(`Unknown logical queue for job: ${job.name}`);
+      }
+
+      const processor = processorMap.get(logicalQueue);
+      if (!processor) {
+        throw new Error(`No processor registered for logical queue: ${logicalQueue}`);
+      }
+
+      log('WORKER', `Processing ${logicalQueue} job ${job.id}`, { jobName: job.name, data: job.data });
       return processor(job.data);
     },
     {
       connection: getConnection(),
-      concurrency: opts.concurrency || 1,
+      concurrency: WORKER_CONCURRENCY,
     },
   );
 
-  worker.on('failed', (job, err) => {
-    logError('WORKER', `${queueName} job ${job?.id} failed`, err);
+  sharedWorker.on('failed', (job, err) => {
+    const logicalQueue = job ? parseLogicalQueueName(job.name) : null;
+    logError('WORKER', `${logicalQueue || 'unknown'} job ${job?.id} failed`, err);
   });
 
-  return worker;
+  log('WORKER', `Shared BullMQ worker started on ${PHYSICAL_QUEUE_NAME} with concurrency=${WORKER_CONCURRENCY}`);
+  return sharedWorker;
 }
 
 // ─── Graceful Shutdown ───────────────────────────────────────────
 
 export async function closeQueues(): Promise<void> {
-  log('QUEUE', 'Closing all queues...');
+  log('QUEUE', 'Closing queue resources...');
+
   const closeTasks: Promise<void>[] = [];
-  for (const q of queueMap.values()) {
-    closeTasks.push(q.close());
+  if (sharedWorker) {
+    closeTasks.push(sharedWorker.close());
+    sharedWorker = null;
   }
+
+  if (sharedQueueEvents) {
+    closeTasks.push(sharedQueueEvents.close());
+    sharedQueueEvents = null;
+  }
+
+  if (sharedQueue) {
+    closeTasks.push(sharedQueue.close());
+    sharedQueue = null;
+  }
+
+  sharedConnection = null;
+
   await Promise.all(closeTasks);
   queueMap.clear();
-  log('QUEUE', 'All queues closed.');
+  processorMap.clear();
+  log('QUEUE', 'Queue resources closed.');
 }

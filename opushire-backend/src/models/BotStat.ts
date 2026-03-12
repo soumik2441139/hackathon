@@ -40,7 +40,7 @@ botStatSchema.statics.incrementMetric = async function (metric: keyof IBotStat, 
     return await this.findOneAndUpdate(
         { date: today },
         { $inc: update },
-        { new: true, upsert: true }
+        { returnDocument: 'after', upsert: true }
     );
 };
 

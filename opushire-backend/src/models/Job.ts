@@ -74,7 +74,7 @@ const JobSchema = new Schema<IJob>(
             enum: ['manual', 'remotive', 'arbeitnow', 'adzuna', 'telegram'],
             default: 'manual',
         },
-        externalId: { type: String, sparse: true, unique: true },
+        externalId: { type: String, sparse: true, index: { unique: true, sparse: true } },
         externalUrl: { type: String },
         freeApiPostId: { type: String },
         tagTileStatus: {
@@ -104,7 +104,6 @@ JobSchema.index({ featured: 1 });
 JobSchema.index({ createdAt: -1 });
 // Bot indexes
 JobSchema.index({ source: 1 });
-JobSchema.index({ externalId: 1 });
 
 const JobModel = mongoose.model<IJob>('Job', JobSchema);
 export { JobModel as Job };

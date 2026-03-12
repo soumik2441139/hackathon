@@ -36,7 +36,7 @@ import { probeRedis } from './services/queue/queue.service';
 
 const app = express();
 
-// Trust the first proxy (Azure App Service)
+// Trust the first proxy (Azure App Service) - Must be set before any middleware
 app.set('trust proxy', 1);
 
 // Security & parsing
@@ -48,6 +48,16 @@ const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // Limit each IP to 100 requests per windowMs
     message: 'Too many requests from this IP, please try again after 15 minutes',
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req): string => {
+        // Express 'trust proxy' already handles stripping ports and picking the correct IP
+        // from X-Forwarded-For when configured.
+        const ip = req.ip || 'unknown';
+        
+        // Strip IPv4-mapped IPv6 address (e.g. ::ffff:1.2.3.4) but keep pure IPv6 intact
+        return ip.startsWith('::ffff:') ? ip.replace('::ffff:', '') : ip;
+    }
 });
 app.use('/api', limiter);
 

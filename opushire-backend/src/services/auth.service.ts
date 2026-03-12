@@ -248,8 +248,8 @@ export const updateProfile = async (userId: string, rawData: unknown) => {
     const data = updateProfileSchema.parse(rawData);
 
     // Attempt update in all collections
-    let user = await Student.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
-    if (!user) user = await Admin.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
+    let user = await Student.findByIdAndUpdate(userId, data, { returnDocument: 'after', runValidators: true });
+    if (!user) user = await Admin.findByIdAndUpdate(userId, data, { returnDocument: 'after', runValidators: true });
 
     if (!user) throw createError('User not found', 404);
     return user;

@@ -24,7 +24,7 @@ export async function setWorkingMemory(agentId: string, key: string, value: any)
   await WorkingMemory.findOneAndUpdate(
     { agentId, key },
     { value, createdAt: new Date() },
-    { upsert: true },
+    { upsert: true, returnDocument: 'after' },
   );
 }
 

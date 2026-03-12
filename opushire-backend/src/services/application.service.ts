@@ -54,7 +54,7 @@ export const updateApplicationStatus = async (
     const app = await Application.findByIdAndUpdate(
         applicationId,
         { status: data.status },
-        { new: true }
+        { returnDocument: 'after' }
     ).populate(['job', 'applicant']);
 
     if (!app) throw createError('Application not found', 404);

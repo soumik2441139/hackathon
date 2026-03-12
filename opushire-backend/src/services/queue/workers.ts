@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import {
   createWorker,
   probeRedis,
+  startRegisteredWorkers,
   enqueue,
 } from './queue.service';
 import { log, logError } from '../../utils/logger';
@@ -25,7 +26,8 @@ export async function initWorkers(): Promise<void> {
   }
 
   registerAllWorkers();
-  log('WORKERS', 'All BullMQ workers registered.');
+  startRegisteredWorkers();
+  log('WORKERS', 'All BullMQ processors registered and shared worker started.');
 }
 
 function registerAllWorkers() {
@@ -251,6 +253,14 @@ createWorker('career-advisor', async (data: { resumeId: string }) => {
   await resume.save();
 
   return { advised: true };
+});
+
+// ─── LinkedIn Enrich Worker ──────────────────────────────────────
+
+createWorker('linkedin-enrich', async (data: { resumeId: string; linkedinUrl: string }) => {
+  log('WORKER', `LinkedIn enrichment requested for ${data.resumeId} (${data.linkedinUrl}) — stub active`);
+  // This worker handles background scraping of LinkedIn profiles if implemented
+  return { enriched: false, reason: 'Enrichment service not yet connected' };
 });
 
 } // end registerAllWorkers

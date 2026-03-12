@@ -99,7 +99,7 @@ export const updateJob = async (id: string, rawData: unknown) => {
         data.companyLogo = await imageToBase64(data.companyLogo);
     }
 
-    const job = await Job.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+    const job = await Job.findByIdAndUpdate(id, data, { returnDocument: 'after', runValidators: true });
     if (!job) throw createError('Job not found', 404);
     return job;
 };
