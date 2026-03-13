@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import mongoose from 'mongoose';
 import { connectDB } from './config/db';
 import { corsOptions } from './config/cors';
@@ -53,11 +53,12 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again after 15 minutes',
     standardHeaders: true,
     legacyHeaders: false,
-    // Fix for Azure/Cloud: Strip port if present in IP (e.g., 103.161.223.15:13005)
-    keyGenerator: (req) => {
-        const ip = (req.headers['x-forwarded-for'] as string) || req.ip || 'unknown';
-        return ip.split(':')[0].split(',')[0].trim();
-    },
+    // Use express-rate-limit helper for IPv6-safe key generation.
+    keyGenerator: (req) => ipKeyGenerator(req.ip || req.socket.remoteAddress || 'unknown'),
+    validate: { 
+        xForwardedForHeader: false,
+        ip: false 
+    }, 
 });
 app.use('/api', limiter);
 
