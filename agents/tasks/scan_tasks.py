@@ -20,4 +20,4 @@ def scan_job_tags(job):
     except Exception as e:
         print(f"[CrewAI] Scan pipeline failed for {title}: {e}")
         from agents.utils.failure_logger import log_failure
-        log_failure("scan_job_tags", {"job": title, "error": str(e)})
+        log_failure("scan_job_tags", e, {"job": title})

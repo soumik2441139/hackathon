@@ -28,19 +28,32 @@ jobs:
       - name: npm install, build, and zip
         run: |
           cd opushire-backend
-          npm install
+          # Use npm ci for clean, predictable installation in CI
+          npm ci
+          
+          # Force rebuild of native modules for the Linux runner platform
+          npm rebuild
+          
           npm run build --if-present
           
           # Remove dev dependencies and reinstall production deps standalone
-          # We use --install-links to ensure deps are copied into the local node_modules
+          # This ensures we don't carry Windows binaries or unnecessary dev tools to Azure
           rm -rf node_modules
           npm install --omit=dev --no-workspaces --install-links
+          
+          # Final sanity check rebuild for production-only dependencies
+          npm rebuild
           
           # Install dependencies for each bot directory so they work on Azure
           for botdir in recruiter-bot bots/scanner bots/fixer bots/supervisor bots/cleanup bots/archiver bots/matcher bots/advisor bots/linkedin-enricher; do
             if [ -d "../$botdir" ]; then
-              echo "Installing deps for $botdir..."
-              (cd "../$botdir" && npm install --production --no-workspaces)
+              echo "Preparing $botdir..."
+              if [ "$botdir" = "recruiter-bot" ]; then
+                # Build recruiter-bot CLI and then prune dev deps so runtime uses dist/cli.js.
+                (cd "../$botdir" && npm install --no-workspaces && npm run build && npm prune --omit=dev)
+              else
+                (cd "../$botdir" && npm install --production --no-workspaces)
+              fi
             fi
           done
 
@@ -100,6 +113,9 @@ jobs:
             {
               "appCommandLine": "node dist/server.js"
             }
+
+      - name: Wait for SCM restart stabilization
+        run: sleep 30
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp

@@ -20,7 +20,11 @@ const envSchema = z.object({
     AZURE_STORAGE_ACCOUNT: z.string().optional(),
     AZURE_STORAGE_KEY: z.string().optional(),
 
-    // SMTP / Email verification
+    // Email (Resend)
+    RESEND_API_KEY: z.string().optional(),
+    EMAIL_FROM: z.string().optional(),
+
+    // SMTP / Email verification (legacy fallback)
     SMTP_HOST: z.string().optional(),
     SMTP_PORT: z.string().optional(),
     SMTP_SECURE: z.string().default('false'),
@@ -28,11 +32,17 @@ const envSchema = z.object({
     SMTP_PASS: z.string().optional(),
     SMTP_FROM: z.string().optional(),
 
-    // Redis (BullMQ)
+    // Redis (BullMQ - Primary)
     REDIS_HOST: z.string().default('localhost'),
     REDIS_PORT: z.string().default('6379'),
     REDIS_PASSWORD: z.string().optional(),
     REDIS_TLS: z.string().default('false'),
+
+    // Redis (BullMQ - Secondary for heavy Bot jobs)
+    SECONDARY_REDIS_HOST: z.string().optional(),
+    SECONDARY_REDIS_PORT: z.string().optional(),
+    SECONDARY_REDIS_PASSWORD: z.string().optional(),
+    SECONDARY_REDIS_TLS: z.string().default('false'),
 
     // Misc
     LOG_LEVEL: z.string().default('info'),

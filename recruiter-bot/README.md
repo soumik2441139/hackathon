@@ -239,6 +239,7 @@ npm start
 |---|---|---|
 | `MONGODB_URI` | ✅ | Same MongoDB as OpusHire backend |
 | `PORT` | ❌ | Server port (default: 5001) |
+| `RECRUITER_BOT_ADMIN_KEY` | ✅ (for remote access) | Required for non-loopback API calls via `x-bot-admin-key` |
 | `ADZUNA_APP_ID` | ❌ | Adzuna Application ID |
 | `ADZUNA_API_KEY` | ❌ | Adzuna API Key |
 | `TELEGRAM_CHANNELS` | ❌ | Comma-separated channel names (overrides defaults) |
@@ -249,10 +250,16 @@ npm start
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/` | Built-in dashboard UI |
-| `GET` | `/api/status` | Bot status, last run time, stats per source |
-| `POST` | `/api/fetch` | Trigger a new fetch cycle |
-| `GET` | `/api/jobs` | List all bot-fetched jobs (optional `?source=remotive`) |
+| `GET` | `/` | Built-in dashboard UI (public shell; prompts for key remotely) |
+| `GET` | `/api/status` | Bot status, last run time, stats per source (requires `x-bot-admin-key` remotely) |
+| `POST` | `/api/fetch` | Trigger a new fetch cycle (requires `x-bot-admin-key` remotely) |
+| `GET` | `/api/jobs` | List bot-fetched jobs (requires `x-bot-admin-key` remotely) |
+
+Remote API example:
+
+```bash
+curl -H "x-bot-admin-key: YOUR_KEY" http://<host>:5001/api/status
+```
 
 ---
 

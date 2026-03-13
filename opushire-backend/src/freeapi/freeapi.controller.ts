@@ -110,19 +110,21 @@ export const toggleSaveJob = async (req: Request, res: Response): Promise<void> 
             return;
         }
 
+        if ((user as any).role !== 'student') {
+            res.status(403).json({ success: false, message: 'Only students can save jobs' });
+            return;
+        }
+
         const token = await FreeApiAuthService.getOrGenerateToken(user.email, user.name);
         // Call FreeAPI to toggle like status
         const { isLiked } = await FreeApiSocialService.toggleSaveJob(token, String(jobId));
 
-        // Sync with our local MongoDB for fast retrieval on profile page
-        // Only students can save jobs for now, keeping it safe
-        if ((user as any).role === 'student' || true) {
-            const updateOp = isLiked
-                ? { $addToSet: { savedJobs: jobId } }
-                : { $pull: { savedJobs: jobId } };
+        // Sync with local MongoDB for fast retrieval on profile page.
+        const updateOp = isLiked
+            ? { $addToSet: { savedJobs: jobId } }
+            : { $pull: { savedJobs: jobId } };
 
-            await Student.findByIdAndUpdate(userId, updateOp);
-        }
+        await Student.findByIdAndUpdate(userId, updateOp);
 
         res.json({ success: true, data: { isSaved: isLiked } });
     } catch (error: any) {

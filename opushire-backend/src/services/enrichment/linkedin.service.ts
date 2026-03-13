@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { assertSafePublicUrl } from '../../utils/urlSafety';
 
 interface LinkedInEnrichment {
     certifications: string[];
@@ -20,7 +21,8 @@ export async function extractLinkedInProfile(url: string): Promise<LinkedInEnric
     }
 
     try {
-        const { data: html } = await axios.get(url, {
+        const safeUrl = (await assertSafePublicUrl(url, ['http:', 'https:'])).toString();
+        const { data: html } = await axios.get(safeUrl, {
             timeout: 12000,
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',

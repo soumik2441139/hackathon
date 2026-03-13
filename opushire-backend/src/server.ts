@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import mongoose from 'mongoose';
 import { connectDB } from './config/db';
 import { corsOptions } from './config/cors';
 import { env } from './config/env';
@@ -35,6 +36,8 @@ import { initWorkers } from './services/queue/workers';
 import { probeRedis } from './services/queue/queue.service';
 
 const app = express();
+let httpServer: ReturnType<typeof app.listen> | null = null;
+let shuttingDown = false;
 
 // Trust the first proxy (Azure App Service) - Must be set before any middleware
 app.set('trust proxy', 1);
@@ -91,12 +94,15 @@ app.get('/health', (_req, res) => {
 });
 
 app.get('/api/health', async (_req, res) => {
-    const redisUp = await probeRedis();
+    const redisStatus = await probeRedis();
     res.json({
         status: 'ok',
         env: env.NODE_ENV,
         timestamp: new Date().toISOString(),
-        redis: redisUp ? 'connected' : 'unavailable',
+        redis: {
+            primary: redisStatus.primary ? 'connected' : 'unavailable',
+            secondary: env.SECONDARY_REDIS_HOST ? (redisStatus.secondary ? 'connected' : 'unavailable') : 'not_configured',
+        },
         email: isEmailVerificationConfigured() ? 'configured' : 'unconfigured',
         circuits: {
             gemini: geminiBreaker.getState(),
@@ -137,7 +143,7 @@ const start = async () => {
     registerGlobalEvents();
 
     // Start HTTP server immediately — don't block on DB or Redis
-    app.listen(env.PORT, () => {
+    httpServer = app.listen(env.PORT, () => {
         logger.info({ port: env.PORT, env: env.NODE_ENV }, `Opushire API running on http://localhost:${env.PORT}`);
     });
     // Connect to DB in background (auto-retries)
@@ -149,5 +155,46 @@ const start = async () => {
 };
 
 start().catch(console.error);
+
+// ─── Graceful Shutdown ───────────────────────────────────────────
+// Must call closeQueues() so IORedis TCP sockets are released immediately.
+// Without this, Azure restarts leave ghost connections on Redis Cloud until
+// the server-side TCP timeout (~5-10 min), causing max-connection breaches.
+async function shutdown(signal: string) {
+    if (shuttingDown) return;
+    shuttingDown = true;
+
+  logger.info(`${signal} received — closing Redis connections and exiting`);
+
+  try {
+    const { closeQueues } = await import('./services/queue/queue.service');
+    await closeQueues();
+  } catch (err) {
+    logger.error({ err }, 'Error during queue shutdown');
+  }
+
+    try {
+        if (httpServer) {
+            await new Promise<void>((resolve, reject) => {
+                httpServer!.close((err) => (err ? reject(err) : resolve()));
+            });
+        }
+    } catch (err) {
+        logger.error({ err }, 'Error while closing HTTP server');
+    }
+
+    try {
+        if (mongoose.connection.readyState === 1) {
+            await mongoose.connection.close(false);
+        }
+    } catch (err) {
+        logger.error({ err }, 'Error while closing MongoDB connection');
+    }
+
+  process.exit(0);
+}
+
+process.once('SIGTERM', () => shutdown('SIGTERM'));
+process.once('SIGINT',  () => shutdown('SIGINT'));
 
 export default app;

@@ -14,14 +14,38 @@ type RedisConnectionOptions = {
 };
 
 let sharedConnection: any = null;
+let secondaryConnection: any = null;
 let sharedQueue: Queue | null = null;
+let secondaryQueue: Queue | null = null;  // cached singleton — prevents multiple Queue instances on Upstash
 let sharedQueueEvents: QueueEvents | null = null;
 let sharedWorker: Worker | null = null;
+let secondaryWorker: Worker | null = null;
 
-function getConnection(): any {
+function getConnection(isSecondary = false): any {
+  if (isSecondary && !SystemConfig.redisSecondary) {
+    // Fallback to primary if secondary not configured
+    return getConnection(false);
+  }
+
+  if (isSecondary) {
+    if (!secondaryConnection) {
+      const IORedis = require('ioredis');
+      const config = SystemConfig.redisSecondary!;
+      secondaryConnection = new IORedis({
+        host: config.host,
+        port: config.port,
+        ...(config.password ? { password: config.password } : {}),
+        ...(config.tls ? { tls: { servername: config.host, rejectUnauthorized: false } } : {}),
+        maxRetriesPerRequest: null,
+        enableOfflineQueue: false,   // fail-fast; don't buffer commands while disconnected
+        connectionName: 'bullmq-secondary',
+      });
+      secondaryConnection.on('error', (err: any) => logError('REDIS_SECONDARY', 'Connection error', err));
+    }
+    return secondaryConnection;
+  }
+
   if (!sharedConnection) {
-    // BullMQ uses ioredis internally. We use the same to ensure compatibility.
-    // We use any to avoid type conflicts between different ioredis versions.
     const IORedis = require('ioredis');
     sharedConnection = new IORedis({
       host: SystemConfig.redis.host,
@@ -29,11 +53,10 @@ function getConnection(): any {
       ...(SystemConfig.redis.password ? { password: SystemConfig.redis.password } : {}),
       ...(SystemConfig.redis.tls ? { tls: { servername: SystemConfig.redis.host, rejectUnauthorized: false } } : {}),
       maxRetriesPerRequest: null,
+      enableOfflineQueue: false,   // fail-fast; don't buffer commands while disconnected
+      connectionName: 'bullmq-primary',
     });
-
-    sharedConnection.on('error', (err: any) => {
-      logError('REDIS', 'Shared connection error', err);
-    });
+    sharedConnection.on('error', (err: any) => logError('REDIS_PRIMARY', 'Connection error', err));
   }
   return sharedConnection;
 }
@@ -57,9 +80,18 @@ function parseLogicalQueueName(fullJobName: string): QueueName | null {
   return null;
 }
 
-function getSharedQueue(): Queue {
+function getSharedQueue(isSecondary = false): Queue {
+  if (isSecondary) {
+    // Reuse a single secondary Queue instance so BullMQ only duplicates the
+    // Upstash connection once — each new Queue() costs an extra connection.
+    if (!secondaryQueue) {
+      secondaryQueue = new Queue(PHYSICAL_QUEUE_NAME, { connection: getConnection(true) });
+    }
+    return secondaryQueue;
+  }
+
   if (!sharedQueue) {
-    sharedQueue = new Queue(PHYSICAL_QUEUE_NAME, { connection: getConnection() });
+    sharedQueue = new Queue(PHYSICAL_QUEUE_NAME, { connection: getConnection(false) });
     attachSharedEvents();
   }
   return sharedQueue;
@@ -96,34 +128,46 @@ export type QueueName = (typeof QUEUE_NAMES)[number];
 const queueMap = new Map<QueueName, Queue>();
 const processorMap = new Map<QueueName, ProcessorFn>();
 let _redisAvailable: boolean | null = null;
+let _secondaryRedisAvailable: boolean | null = null;
 
 /**
  * Probe Redis once so we know whether to bother creating queues.
  * Returns true if reachable, false otherwise.
  */
-export async function probeRedis(): Promise<boolean> {
-  if (_redisAvailable !== null) return _redisAvailable;
+export async function probeRedis(): Promise<{ primary: boolean; secondary: boolean }> {
+  const result = { primary: false, secondary: false };
+  
   try {
-    const conn = getConnection();
-    // Use raw info command to check eviction policy
-    const info = await conn.info('memory');
-    if (info.includes('maxmemory_policy:volatile-lru') || info.includes('maxmemory_policy:allkeys-lru')) {
-      logError('REDIS', 'CRITICAL: Redis eviction policy is NOT "noeviction". This may lead to BullMQ job loss!');
-    } else {
-      log('REDIS', 'Eviction policy is safe (noeviction)');
-    }
-
-    _redisAvailable = true;
-    log('REDIS', `Connected to ${SystemConfig.redis.host}:${SystemConfig.redis.port}`);
+    const primary = getConnection(false);
+    await primary.ping();
+    result.primary = true;
   } catch (err) {
-    _redisAvailable = false;
-    logError('REDIS', `Redis unreachable — queue features disabled`, err);
+    logError('REDIS_PRIMARY', 'Unreachable', err);
   }
-  return _redisAvailable;
+
+  if (SystemConfig.redisSecondary) {
+    try {
+      const secondary = getConnection(true);
+      await secondary.ping();
+      result.secondary = true;
+    } catch (err) {
+      logError('REDIS_SECONDARY', 'Unreachable', err);
+    }
+  } else {
+    // If not configured, we consider it "null" or skip, but for the health check 'false' is fine
+    result.secondary = false;
+  }
+
+  _redisAvailable = result.primary; // Keep legacy flag for basic operational guard
+  _secondaryRedisAvailable = SystemConfig.redisSecondary ? result.secondary : null;
+  return result;
 }
 
 /** Reset probe state (used in tests or after config change). */
-export function resetRedisProbe() { _redisAvailable = null; }
+export function resetRedisProbe() {
+  _redisAvailable = null;
+  _secondaryRedisAvailable = null;
+}
 
 /**
  * Get or create a Queue instance by name.
@@ -133,8 +177,11 @@ export function getQueue(name: QueueName): Queue | null {
   if (_redisAvailable === false) return null;
 
   if (!queueMap.has(name)) {
-    // Logical queue aliases map to one shared physical BullMQ queue.
-    const q = getSharedQueue();
+    // Routing Logic: Specific heavy queues go to the secondary instance if available
+    const isHeavy = name === 'scan-jobs' || name === 'linkedin-enrich';
+    const useSecondary = isHeavy && !!SystemConfig.redisSecondary && _secondaryRedisAvailable !== false;
+
+    const q = getSharedQueue(useSecondary);
     queueMap.set(name, q);
   }
   return queueMap.get(name)!;
@@ -196,53 +243,50 @@ export function createWorker(
   return sharedWorker;
 }
 
-export function startRegisteredWorkers(): Worker | null {
-  if (!WORKERS_ENABLED) {
-    log('WORKER', 'Shared worker disabled by BULLMQ_WORKERS_ENABLED=false');
-    return null;
+export function startRegisteredWorkers(): { primary: Worker | null; secondary: Worker | null } {
+  const result = { primary: null as Worker | null, secondary: null as Worker | null };
+
+  if (!WORKERS_ENABLED || _redisAvailable === false) return result;
+
+  // Separate processors by target instance
+  const primaryProcessors = new Map<QueueName, ProcessorFn>();
+  const secondaryProcessors = new Map<QueueName, ProcessorFn>();
+  const canUseSecondary = !!SystemConfig.redisSecondary && _secondaryRedisAvailable === true;
+
+  for (const [name, proc] of processorMap.entries()) {
+    const isHeavy = name === 'scan-jobs' || name === 'linkedin-enrich';
+    if (isHeavy && canUseSecondary) {
+      secondaryProcessors.set(name, proc);
+    } else {
+      primaryProcessors.set(name, proc);
+    }
   }
 
-  if (_redisAvailable === false) {
-    log('WORKER', 'Skipped shared worker startup — Redis not available');
-    return null;
-  }
-
-  if (sharedWorker) return sharedWorker;
-
-  if (processorMap.size === 0) {
-    log('WORKER', 'No processors registered; shared worker not started');
-    return null;
-  }
-
-  sharedWorker = new Worker(
-    PHYSICAL_QUEUE_NAME,
-    async (job) => {
+  // Start Primary Worker
+  if (primaryProcessors.size > 0 && !sharedWorker) {
+    sharedWorker = new Worker(PHYSICAL_QUEUE_NAME, async (job) => {
       const logicalQueue = parseLogicalQueueName(job.name);
-      if (!logicalQueue) {
-        throw new Error(`Unknown logical queue for job: ${job.name}`);
-      }
-
-      const processor = processorMap.get(logicalQueue);
-      if (!processor) {
-        throw new Error(`No processor registered for logical queue: ${logicalQueue}`);
-      }
-
-      log('WORKER', `Processing ${logicalQueue} job ${job.id}`, { jobName: job.name, data: job.data });
+      const processor = logicalQueue ? primaryProcessors.get(logicalQueue) : null;
+      if (!processor) throw new Error(`No primary processor for ${job.name}`);
       return processor(job.data);
-    },
-    {
-      connection: getConnection(),
-      concurrency: WORKER_CONCURRENCY,
-    },
-  );
+    }, { connection: getConnection(false), concurrency: WORKER_CONCURRENCY });
+    result.primary = sharedWorker;
+    log('WORKER', `Primary worker started on ${PHYSICAL_QUEUE_NAME}`);
+  }
 
-  sharedWorker.on('failed', (job, err) => {
-    const logicalQueue = job ? parseLogicalQueueName(job.name) : null;
-    logError('WORKER', `${logicalQueue || 'unknown'} job ${job?.id} failed`, err);
-  });
+  // Start Secondary Worker
+  if (secondaryProcessors.size > 0 && !secondaryWorker) {
+    secondaryWorker = new Worker(PHYSICAL_QUEUE_NAME, async (job) => {
+      const logicalQueue = parseLogicalQueueName(job.name);
+      const processor = logicalQueue ? secondaryProcessors.get(logicalQueue) : null;
+      if (!processor) throw new Error(`No secondary processor for ${job.name}`);
+      return processor(job.data);
+    }, { connection: getConnection(true), concurrency: WORKER_CONCURRENCY });
+    result.secondary = secondaryWorker;
+    log('WORKER', `Secondary worker started on ${PHYSICAL_QUEUE_NAME} (Heavy jobs)`);
+  }
 
-  log('WORKER', `Shared BullMQ worker started on ${PHYSICAL_QUEUE_NAME} with concurrency=${WORKER_CONCURRENCY}`);
-  return sharedWorker;
+  return result;
 }
 
 // ─── Graceful Shutdown ───────────────────────────────────────────
@@ -256,6 +300,11 @@ export async function closeQueues(): Promise<void> {
     sharedWorker = null;
   }
 
+  if (secondaryWorker) {
+    closeTasks.push(secondaryWorker.close());
+    secondaryWorker = null;
+  }
+
   if (sharedQueueEvents) {
     closeTasks.push(sharedQueueEvents.close());
     sharedQueueEvents = null;
@@ -266,10 +315,27 @@ export async function closeQueues(): Promise<void> {
     sharedQueue = null;
   }
 
-  sharedConnection = null;
+  if (secondaryQueue) {
+    closeTasks.push(secondaryQueue.close());
+    secondaryQueue = null;
+  }
 
   await Promise.all(closeTasks);
   queueMap.clear();
   processorMap.clear();
+
+  // Explicitly disconnect IORedis clients so TCP sockets are released immediately.
+  // Without this, the OS eventually closes them but Redis Cloud counts them until then.
+  const disconnectTasks: Promise<void>[] = [];
+  if (sharedConnection) {
+    disconnectTasks.push(Promise.resolve(sharedConnection.disconnect()));
+    sharedConnection = null;
+  }
+  if (secondaryConnection) {
+    disconnectTasks.push(Promise.resolve(secondaryConnection.disconnect()));
+    secondaryConnection = null;
+  }
+  await Promise.allSettled(disconnectTasks);
+
   log('QUEUE', 'Queue resources closed.');
 }

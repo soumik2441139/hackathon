@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
+import multer from 'multer';
 import { env } from '../config/env';
 
 export interface AppError extends Error {
@@ -19,6 +20,21 @@ export const errorHandler = (
             success: false,
             message: 'Validation failed',
             errors: err.flatten().fieldErrors,
+        });
+        return;
+    }
+
+    if (err instanceof multer.MulterError) {
+        let message = 'File upload failed';
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            message = 'Uploaded file exceeds the allowed size limit';
+        } else if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+            message = 'Unsupported file type or field name';
+        }
+
+        res.status(400).json({
+            success: false,
+            message,
         });
         return;
     }

@@ -7,6 +7,12 @@ export const SystemConfig = Object.freeze({
     password: env.REDIS_PASSWORD,
     tls: env.REDIS_TLS === 'true',
   },
+  redisSecondary: env.SECONDARY_REDIS_HOST ? {
+    host: env.SECONDARY_REDIS_HOST,
+    port: parseInt(env.SECONDARY_REDIS_PORT || '6379', 10),
+    password: env.SECONDARY_REDIS_PASSWORD,
+    tls: env.SECONDARY_REDIS_TLS === 'true',
+  } : null,
   mongoUri: env.MONGODB_URI,
   azure: {
     connectionString: env.AZURE_STORAGE_CONNECTION_STRING,

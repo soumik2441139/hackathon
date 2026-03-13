@@ -1,37 +1,27 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { env } from '../config/env';
 import { createError } from '../middleware/errorHandler';
 
 const VERIFICATION_TTL_MINUTES = 10;
 
-let transporter: nodemailer.Transporter | null = null;
+let resendClient: Resend | null = null;
 
-const isSecure = env.SMTP_SECURE === 'true';
+const isResendConfigured = () => Boolean(env.RESEND_API_KEY);
 
-const emailConfigPresent = () =>
-    Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS && env.SMTP_FROM);
+const getFromAddress = () =>
+    env.EMAIL_FROM || env.SMTP_FROM || 'OpusHire <onboarding@resend.dev>';
 
-export const isEmailVerificationConfigured = () => emailConfigPresent();
-
-const getTransporter = () => {
-    if (!emailConfigPresent()) {
-        throw createError('Email verification mailer is not configured on the server.', 503);
+const getResend = () => {
+    if (!env.RESEND_API_KEY) {
+        throw createError('Email verification is not configured on the server.', 503);
     }
-
-    if (!transporter) {
-        transporter = nodemailer.createTransport({
-            host: env.SMTP_HOST,
-            port: Number(env.SMTP_PORT || (isSecure ? 465 : 587)),
-            secure: isSecure,
-            auth: {
-                user: env.SMTP_USER,
-                pass: env.SMTP_PASS,
-            },
-        });
+    if (!resendClient) {
+        resendClient = new Resend(env.RESEND_API_KEY);
     }
-
-    return transporter;
+    return resendClient;
 };
+
+export const isEmailVerificationConfigured = () => isResendConfigured();
 
 export const getVerificationTtlMinutes = () => VERIFICATION_TTL_MINUTES;
 
@@ -46,8 +36,8 @@ export const sendVerificationCodeEmail = async ({
 }) => {
     const verifyUrl = `${env.FRONTEND_URL.replace(/\/$/, '')}/verify-email?email=${encodeURIComponent(email)}`;
 
-    await getTransporter().sendMail({
-        from: env.SMTP_FROM,
+    const { error } = await getResend().emails.send({
+        from: getFromAddress(),
         to: email,
         subject: 'Verify your OpusHire account',
         text: [
@@ -74,4 +64,8 @@ export const sendVerificationCodeEmail = async ({
             </div>
         `,
     });
+
+    if (error) {
+        throw createError(`Failed to send verification email: ${error.message}`, 502);
+    }
 };

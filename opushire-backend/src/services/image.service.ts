@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { assertSafePublicUrl } from '../utils/urlSafety';
 
 /**
  * Fetches an image from a URL and converts it to a Base64 data URI.
@@ -9,8 +10,12 @@ export const imageToBase64 = async (url: string): Promise<string> => {
     if (!url || url.startsWith('data:')) return url;
 
     try {
-        const response = await axios.get(url, {
+        const safeUrl = (await assertSafePublicUrl(url, ['http:', 'https:'])).toString();
+
+        const response = await axios.get(safeUrl, {
             responseType: 'arraybuffer',
+            timeout: 10000,
+            maxRedirects: 3,
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }

@@ -5,7 +5,7 @@ import fs from 'fs';
 import BotReport from '../models/BotReport';
 
 export const BOTS = [
-    { id: 'bot0-recruiter', name: 'Recruiter', description: 'Scrapes jobs from integrated sources.', dir: 'recruiter-bot', script: os.platform() === 'win32' ? 'npx.cmd ts-node src/cli.ts' : 'npx ts-node src/cli.ts', isTsNode: true, color: '#ff4b4b' },
+    { id: 'bot0-recruiter', name: 'Recruiter', description: 'Scrapes jobs from integrated sources.', dir: 'recruiter-bot', script: 'src/cli.ts', isTsNode: true, color: '#ff4b4b' },
     { id: 'bot1-scanner', name: 'Scanner', description: 'Scans new jobs and flags broken tag tiles.', dir: 'bots/scanner', script: 'scan.js', color: '#06b6d4' },
     { id: 'bot2-fixer', name: 'Fixer', description: 'Takes flagged tags and generates keywords via Gemini LLM.', dir: 'bots/fixer', script: 'fix.js', color: '#eab308' },
     { id: 'bot3-supervisor', name: 'Supervisor', description: 'QA Agent utilizing Groq Llama-3 to prevent hallucination.', dir: 'bots/supervisor', script: 'supervise.js', color: '#d946ef' },
@@ -67,8 +67,16 @@ export const startBot = (botId: string, args: string[] = []) => {
         let childArgs = [botConfig.script, ...args];
 
         if ((botConfig as any).isTsNode) {
-            childUrl = 'node';
-            childArgs = ['-r', 'ts-node/register', 'src/cli.ts', ...args];
+            const compiledCli = path.join(scriptPath, 'dist', 'cli.js');
+            if (fs.existsSync(compiledCli)) {
+                // Prefer compiled JS when available (production-safe, no ts-node dependency at runtime).
+                childUrl = 'node';
+                childArgs = ['dist/cli.js', ...args];
+            } else {
+                // Development fallback when dist is not built yet.
+                childUrl = os.platform() === 'win32' ? 'npx.cmd' : 'npx';
+                childArgs = ['ts-node', 'src/cli.ts', ...args];
+            }
         }
 
         const child = spawn(childUrl, childArgs, {
@@ -84,7 +92,7 @@ export const startBot = (botId: string, args: string[] = []) => {
         };
         activeBots.set(botId, botState);
 
-        writeLog(botId, [`[SYSTEM] Starting ${botConfig.name} from ${scriptPath} with args [${args.join(',')}]...`]);
+        writeLog(botId, [`[SYSTEM] Starting ${botConfig.name} from ${scriptPath} with command "${childUrl} ${childArgs.join(' ')}" and args [${args.join(',')}]...`]);
         // System logs removed from UI reports to keep it insight-only
         // (BotReport as any).logAction(botId, botConfig.name, `🚀 Started (args: ${args.join(',') || 'none'})`, 0).catch(() => { });
 

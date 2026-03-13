@@ -4,10 +4,68 @@ require('dotenv').config({ path: '.env' });
 
 const { MongoClient } = require('mongodb');
 const puppeteer = require('puppeteer');
+const dns = require('dns').promises;
+const net = require('net');
 
 const POLL_INTERVAL = 60000; // Check DB every 60 seconds
 const BATCH_SIZE = 3;
 const isSingleRun = process.argv.includes('--single-run');
+
+const BLOCKED_HOSTS = new Set([
+    'localhost',
+    '0.0.0.0',
+    '169.254.169.254',
+    'metadata.google.internal',
+    'metadata.azure.internal',
+]);
+
+function isPrivateIpv4(address) {
+    const parts = address.split('.').map(Number);
+    if (parts.length !== 4 || parts.some((p) => Number.isNaN(p) || p < 0 || p > 255)) return false;
+    const [a, b] = parts;
+    return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
+}
+
+function isPrivateIpv6(address) {
+    const normalized = address.toLowerCase();
+    return normalized === '::1' || normalized.startsWith('fc') || normalized.startsWith('fd') || normalized.startsWith('fe80:') || normalized.startsWith('::ffff:127.');
+}
+
+function isBlockedIpAddress(address) {
+    const version = net.isIP(address);
+    if (version === 4) return isPrivateIpv4(address);
+    if (version === 6) return isPrivateIpv6(address);
+    return false;
+}
+
+async function assertSafePublicUrl(rawUrl) {
+    let parsed;
+    try {
+        parsed = new URL(rawUrl);
+    } catch {
+        throw new Error('Invalid URL');
+    }
+
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+        throw new Error(`Unsupported URL protocol: ${parsed.protocol}`);
+    }
+
+    const hostname = (parsed.hostname || '').toLowerCase();
+    if (!hostname) throw new Error('Missing hostname');
+    if (BLOCKED_HOSTS.has(hostname) || hostname.endsWith('.local') || hostname.endsWith('.internal') || hostname.endsWith('.localhost')) {
+        throw new Error(`Blocked hostname: ${hostname}`);
+    }
+    if (isBlockedIpAddress(hostname)) {
+        throw new Error(`Blocked IP: ${hostname}`);
+    }
+
+    const resolved = await dns.lookup(hostname, { all: true, verbatim: true });
+    if (resolved.some((record) => isBlockedIpAddress(record.address))) {
+        throw new Error(`Hostname resolves to private IP: ${hostname}`);
+    }
+
+    return parsed.toString();
+}
 
 async function incrementStat(db, metric, amount = 1) {
     const today = new Date().toISOString().split('T')[0];
@@ -84,12 +142,24 @@ async function checkJobs(db, browser, apiKey) {
         for (const job of jobsToCheck) {
             console.log(`  -> Verifying: ${job.title}...`);
             let isDead = false;
+            let safeUrl;
+
+            try {
+                safeUrl = await assertSafePublicUrl(job.externalUrl);
+            } catch (err) {
+                console.log(`     Blocked unsafe URL: ${err.message}`);
+                await db.collection('jobs').updateOne(
+                    { _id: job._id },
+                    { $set: { lastUrlCheck: new Date() } }
+                );
+                continue;
+            }
 
             try {
                 const page = await browser.newPage();
                 await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36');
 
-                const response = await page.goto(job.externalUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
+                const response = await page.goto(safeUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
 
                 if (response && response.status() >= 400) {
                     isDead = true;

@@ -20,14 +20,19 @@ import { recordEpisode, buildMemoryContext } from '../memory/agent.memory';
  */
 export async function initWorkers(): Promise<void> {
   const available = await probeRedis();
-  if (!available) {
+  if (!available.primary) {
     log('WORKERS', 'Redis unavailable — BullMQ workers NOT started. The API will function without queue processing.');
     return;
   }
 
   registerAllWorkers();
-  startRegisteredWorkers();
-  log('WORKERS', 'All BullMQ processors registered and shared worker started.');
+  const { primary, secondary } = startRegisteredWorkers();
+  
+  if (primary && secondary) {
+    log('WORKERS', 'Multi-Redis strategy active: Primary and Secondary workers started.');
+  } else if (primary) {
+    log('WORKERS', 'Single-Redis strategy active: Primary worker started.');
+  }
 }
 
 function registerAllWorkers() {

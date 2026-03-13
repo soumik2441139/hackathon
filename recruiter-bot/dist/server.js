@@ -12,15 +12,38 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5001;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/test';
+const ADMIN_KEY = (process.env.RECRUITER_BOT_ADMIN_KEY || '').trim();
+const LOOPBACK_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
+function isLoopbackRequest(ip) {
+    if (!ip)
+        return false;
+    return LOOPBACK_IPS.has(ip);
+}
+function requireDashboardAccess(req, res, next) {
+    if (isLoopbackRequest(req.ip)) {
+        next();
+        return;
+    }
+    if (!ADMIN_KEY) {
+        res.status(503).json({ success: false, error: 'RECRUITER_BOT_ADMIN_KEY is required for remote access' });
+        return;
+    }
+    const providedKey = req.header('x-bot-admin-key');
+    if (providedKey && providedKey === ADMIN_KEY) {
+        next();
+        return;
+    }
+    res.status(401).json({ success: false, error: 'Unauthorized' });
+}
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 // ─── API Routes ───────────────────────────────────────────────────────────────
-app.get('/api/status', async (_req, res) => {
+app.get('/api/status', requireDashboardAccess, async (_req, res) => {
     const status = (0, bot_service_1.getBotStatus)();
     const stats = await (0, bot_service_1.getBotJobStats)();
     res.json({ success: true, data: { ...status, stats } });
 });
-app.post('/api/fetch', async (_req, res) => {
+app.post('/api/fetch', requireDashboardAccess, async (_req, res) => {
     try {
         const result = await (0, bot_service_1.fetchAllJobs)();
         res.json({ success: true, data: result });
@@ -29,7 +52,7 @@ app.post('/api/fetch', async (_req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
-app.get('/api/jobs', async (req, res) => {
+app.get('/api/jobs', requireDashboardAccess, async (req, res) => {
     const { BotJob } = require('./models/Job');
     const source = req.query.source;
     const query = { source: { $ne: 'manual' } };
@@ -243,12 +266,83 @@ function getDashboardHTML() {
     <script>
         const API = window.location.origin;
         const log = document.getElementById('log');
-        function addLog(msg, cls = '') { log.innerHTML += '<span class="' + cls + '">' + msg + '</span>\\n'; log.scrollTop = log.scrollHeight; }
+        const ADMIN_KEY_STORAGE = 'opushire_recruiter_admin_key';
+
+        function isLoopbackHost() {
+            const host = window.location.hostname;
+            return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]';
+        }
+
+        function getAdminKey(forcePrompt = false) {
+            if (isLoopbackHost()) return '';
+            const existing = (localStorage.getItem(ADMIN_KEY_STORAGE) || '').trim();
+            if (existing && !forcePrompt) return existing;
+
+            const entered = window.prompt('Enter recruiter bot admin key:', existing || '');
+            const normalized = String(entered || '').trim();
+            if (normalized) {
+                localStorage.setItem(ADMIN_KEY_STORAGE, normalized);
+            }
+            return normalized;
+        }
+
+        async function apiFetch(path, options = {}, retryOnUnauthorized = true) {
+            const headers = new Headers(options.headers || {});
+            const adminKey = getAdminKey(false);
+            if (adminKey) headers.set('x-bot-admin-key', adminKey);
+
+            const requestOptions = { ...options, headers };
+            let res = await fetch(API + path, requestOptions);
+
+            if (retryOnUnauthorized && !isLoopbackHost() && (res.status === 401 || res.status === 503)) {
+                const newKey = getAdminKey(true);
+                if (newKey) {
+                    headers.set('x-bot-admin-key', newKey);
+                    res = await fetch(API + path, requestOptions);
+                }
+            }
+
+            return res;
+        }
+
+        function addLog(msg, cls = '') {
+            const span = document.createElement('span');
+            if (cls) span.className = cls;
+            span.textContent = String(msg);
+            log.appendChild(span);
+            log.appendChild(document.createTextNode('\n'));
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function renderEmptyJobs(message) {
+            const tbody = document.getElementById('jobs-tbody');
+            tbody.innerHTML = '';
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = 4;
+            td.style.textAlign = 'center';
+            td.style.color = 'rgba(255,255,255,0.2)';
+            td.textContent = message;
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        }
+
+        function createSourceBadge(source) {
+            const safeSource = String(source || 'unknown').toLowerCase().replace(/[^a-z0-9-]/g, '');
+            const badge = document.createElement('span');
+            badge.className = 'source-badge source-' + (safeSource || 'unknown');
+            badge.textContent = safeSource || 'unknown';
+            return badge;
+        }
 
         async function loadStatus() {
             try {
-                const res = await fetch(API + '/api/status');
-                const { data } = await res.json();
+                const res = await apiFetch('/api/status');
+                const payload = await res.json();
+                if (!res.ok || !payload?.success) {
+                    throw new Error(payload?.error || 'Unauthorized or unavailable');
+                }
+                const data = payload.data;
                 document.getElementById('stat-total').textContent = data.stats?.total ?? '—';
                 document.getElementById('stat-remotive').textContent = data.stats?.remotive ?? '—';
                 document.getElementById('stat-arbeitnow').textContent = data.stats?.arbeitnow ?? '—';
@@ -261,11 +355,40 @@ function getDashboardHTML() {
 
         async function loadJobs() {
             try {
-                const res = await fetch(API + '/api/jobs');
-                const { data } = await res.json();
+                const res = await apiFetch('/api/jobs');
+                const payload = await res.json();
+                if (!res.ok || !payload?.success) {
+                    throw new Error(payload?.error || 'Unauthorized or unavailable');
+                }
+                const data = payload.data;
                 const tbody = document.getElementById('jobs-tbody');
-                if (!data.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.2)">No bot jobs yet. Click "Fetch New Jobs" to start!</td></tr>'; return; }
-                tbody.innerHTML = data.map(j => '<tr><td>' + j.title + '</td><td>' + j.company + '</td><td><span class="source-badge source-' + j.source + '">' + j.source + '</span></td><td>' + j.type + '</td></tr>').join('');
+                if (!Array.isArray(data) || !data.length) {
+                    renderEmptyJobs('No bot jobs yet. Click "Fetch New Jobs" to start!');
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                data.forEach(j => {
+                    const tr = document.createElement('tr');
+
+                    const tdTitle = document.createElement('td');
+                    tdTitle.textContent = String(j.title || '');
+
+                    const tdCompany = document.createElement('td');
+                    tdCompany.textContent = String(j.company || '');
+
+                    const tdSource = document.createElement('td');
+                    tdSource.appendChild(createSourceBadge(j.source));
+
+                    const tdType = document.createElement('td');
+                    tdType.textContent = String(j.type || '');
+
+                    tr.appendChild(tdTitle);
+                    tr.appendChild(tdCompany);
+                    tr.appendChild(tdSource);
+                    tr.appendChild(tdType);
+                    tbody.appendChild(tr);
+                });
             } catch (e) { addLog('Failed to load jobs: ' + e.message, 'error'); }
         }
 
@@ -276,13 +399,17 @@ function getDashboardHTML() {
             log.innerHTML = '';
             addLog('🤖 Starting fetch cycle...', 'info');
             try {
-                const res = await fetch(API + '/api/fetch', { method: 'POST' });
-                const { data } = await res.json();
+                const res = await apiFetch('/api/fetch', { method: 'POST' });
+                const payload = await res.json();
+                if (!res.ok || !payload?.success) {
+                    throw new Error(payload?.error || 'Unauthorized or unavailable');
+                }
+                const data = payload.data;
                 addLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 for (const r of data.results) {
                     addLog('📦 ' + r.source.toUpperCase(), 'info');
                     addLog('   Fetched: ' + r.fetched + ' | New: ' + r.newJobs + ' | Dupes: ' + r.duplicates, r.newJobs > 0 ? 'success' : 'warning');
-                    if (r.errors.length) r.errors.forEach(e => addLog('   ⚠ ' + e, 'error'));
+                    if (Array.isArray(r.errors) && r.errors.length) r.errors.forEach(e => addLog('   ⚠ ' + e, 'error'));
                 }
                 addLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 addLog('✅ Total new: ' + data.totalNew + ' | Duplicates skipped: ' + data.totalDuplicates, 'success');
@@ -295,6 +422,9 @@ function getDashboardHTML() {
             }
         }
 
+        if (!isLoopbackHost()) {
+            getAdminKey(false);
+        }
         loadStatus();
     </script>
 </body>

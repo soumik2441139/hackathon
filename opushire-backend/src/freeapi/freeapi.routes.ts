@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
+import path from 'path';
 import { authenticate } from '../middleware/auth.middleware';
 import {
     uploadAvatar,
@@ -13,11 +14,25 @@ import {
 
 const router = Router();
 
+const ALLOWED_IMAGE_MIME_TYPES = new Set([
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+]);
+const ALLOWED_IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
+
 // Store files in memory temporarily before sending them to FreeAPI
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: {
         fileSize: 5 * 1024 * 1024, // 5MB limit
+    },
+    fileFilter: (_req, file, cb) => {
+        const mime = (file.mimetype || '').toLowerCase();
+        const ext = path.extname(file.originalname || '').toLowerCase();
+        const allowed = ALLOWED_IMAGE_MIME_TYPES.has(mime) && ALLOWED_IMAGE_EXTENSIONS.has(ext);
+        cb(null, allowed);
     },
 });
 

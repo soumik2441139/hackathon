@@ -44,7 +44,8 @@ export const registerSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
-    role: z.enum(['student', 'admin']).default('student'),
+    // Public signup is student-only. Admin provisioning must be internal.
+    role: z.literal('student').optional().default('student'),
     college: z.string().optional(),
     degree: z.string().optional(),
     year: z.string().optional(),
@@ -103,26 +104,14 @@ export const registerUser = async (data: z.infer<typeof registerSchema>) => {
     const { password: _password, ...userData } = data;
     const { code, codeHash, expiresAt } = createVerificationCode();
 
-    let user;
-    if (data.role === 'admin') {
-        user = await Admin.create({
-            ...userData,
-            email,
-            passwordHash,
-            emailVerified: false,
-            emailVerificationCode: codeHash,
-            emailVerificationExpiry: expiresAt,
-        });
-    } else {
-        user = await Student.create({
-            ...userData,
-            email,
-            passwordHash,
-            emailVerified: false,
-            emailVerificationCode: codeHash,
-            emailVerificationExpiry: expiresAt,
-        });
-    }
+    const user = await Student.create({
+        ...userData,
+        email,
+        passwordHash,
+        emailVerified: false,
+        emailVerificationCode: codeHash,
+        emailVerificationExpiry: expiresAt,
+    });
 
     try {
         await sendVerificationCodeEmail({

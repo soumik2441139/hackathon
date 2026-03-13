@@ -20,4 +20,4 @@ def match_resume(resume):
     except Exception as e:
         print(f"[CrewAI] Match pipeline failed for {resume_id}: {e}")
         from agents.utils.failure_logger import log_failure
-        log_failure("match_resume", {"resume_id": resume_id, "error": str(e)})
+        log_failure("match_resume", e, {"resume_id": resume_id})

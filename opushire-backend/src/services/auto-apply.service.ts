@@ -2,6 +2,7 @@ import puppeteer from 'puppeteer';
 import { Job } from '../models/Job';
 import { User } from '../models/User';
 import Resume from '../models/Resume';
+import { assertSafePublicUrl } from '../utils/urlSafety';
 
 // Trusted portals where auto-submit is allowed
 const SUBMIT_ALLOWLIST = [
@@ -26,6 +27,8 @@ export async function autoApplyToJob(jobId: string, userId: string) {
     const job = await Job.findById(jobId);
     if (!job || !job.externalUrl) throw new Error('Job or external URL not found');
 
+    const safeExternalUrl = (await assertSafePublicUrl(job.externalUrl, ['http:', 'https:'])).toString();
+
     const user = await User.findById(userId);
     if (!user) throw new Error('User not found');
 
@@ -39,10 +42,12 @@ export async function autoApplyToJob(jobId: string, userId: string) {
 
     try {
         const page = await browser.newPage();
+        page.setDefaultNavigationTimeout(30000);
+        page.setDefaultTimeout(20000);
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/114.0.0.0 Safari/537.36');
 
-        console.log(`[Auto-Apply] Navigating to ${job.externalUrl}...`);
-        await page.goto(job.externalUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+        console.log(`[Auto-Apply] Navigating to ${safeExternalUrl}...`);
+        await page.goto(safeExternalUrl, { waitUntil: 'networkidle2', timeout: 30000 });
 
         console.log(`[Auto-Apply] Attempting to fill application form for ${user.name}...`);
 
@@ -109,7 +114,7 @@ export async function autoApplyToJob(jobId: string, userId: string) {
 
         await new Promise(r => setTimeout(r, 2500));
 
-        const canSubmit = isSubmitAllowed(job.externalUrl);
+        const canSubmit = isSubmitAllowed(safeExternalUrl);
 
         if (canSubmit) {
             // Only submit on trusted ATS portals with env flag enabled
