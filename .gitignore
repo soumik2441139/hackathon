@@ -5,7 +5,7 @@ __pycache__/
 *.pyc
 .pnp
 .pnp.js
-package-lock.json
+# package-lock.json (Removed from ignore to fix CI/CD sync issues)
 
 # ─── Build Outputs ───────────────────────────────────────────────
 /coverage
