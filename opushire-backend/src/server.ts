@@ -53,6 +53,11 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again after 15 minutes',
     standardHeaders: true,
     legacyHeaders: false,
+    // Fix for Azure/Cloud: Strip port if present in IP (e.g., 103.161.223.15:13005)
+    keyGenerator: (req) => {
+        const ip = (req.headers['x-forwarded-for'] as string) || req.ip || 'unknown';
+        return ip.split(':')[0].split(',')[0].trim();
+    },
 });
 app.use('/api', limiter);
 
