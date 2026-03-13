@@ -4,14 +4,38 @@ import os from 'os';
 import fs from 'fs';
 import BotReport from '../models/BotReport';
 
-export const BOTS = [
-    { id: 'bot0-recruiter', name: 'Recruiter', description: 'Scrapes jobs from integrated sources.', dir: 'recruiter-bot', script: 'src/cli.ts', isTsNode: true, color: '#ff4b4b' },
+type BotRuntime = 'node' | 'ts-node';
+
+interface BotConfig {
+    id: string;
+    name: string;
+    description: string;
+    dir: string;
+    script: string;
+    color: string;
+    runtime?: BotRuntime;
+    compiledScript?: string;
+}
+
+export const BOTS: BotConfig[] = [
+    {
+        id: 'bot0-recruiter',
+        name: 'Recruiter',
+        description: 'Scrapes jobs from integrated sources.',
+        dir: 'recruiter-bot',
+        script: 'src/cli.ts',
+        runtime: 'ts-node',
+        compiledScript: 'dist/cli.js',
+        color: '#ff4b4b'
+    },
     { id: 'bot1-scanner', name: 'Scanner', description: 'Scans new jobs and flags broken tag tiles.', dir: 'bots/scanner', script: 'scan.js', color: '#06b6d4' },
     { id: 'bot2-fixer', name: 'Fixer', description: 'Takes flagged tags and generates keywords via Gemini LLM.', dir: 'bots/fixer', script: 'fix.js', color: '#eab308' },
     { id: 'bot3-supervisor', name: 'Supervisor', description: 'QA Agent utilizing Groq Llama-3 to prevent hallucination.', dir: 'bots/supervisor', script: 'supervise.js', color: '#d946ef' },
     { id: 'bot4-cleanup', name: 'Cleaner', description: 'Removes old or invalid job postings through record rotation.', dir: 'bots/cleanup', script: 'cleanup.js', color: '#22c55e' },
-    { id: 'bot5-cleaner', name: 'Cleaner', description: 'Manual database interaction layer for direct job purging.', dir: 'frontend', script: 'n/a', color: '#f97316', isManual: true },
-    { id: 'bot6-archiver', name: 'Ghost Detector', description: 'Visits active links with Puppeteer to archive dead positions.', dir: 'bots/archiver', script: 'archive.js', color: '#10b981' }
+    { id: 'bot6-archiver', name: 'Ghost Detector', description: 'Visits active links with Puppeteer to archive dead positions.', dir: 'bots/archiver', script: 'archive.js', color: '#10b981' },
+    { id: 'bot7-matcher', name: 'Matcher', description: 'Matches parsed resumes to jobs via semantic ranking.', dir: 'bots/matcher', script: 'match.ts', runtime: 'ts-node', color: '#06b6d4' },
+    { id: 'bot8-advisor', name: 'Advisor', description: 'Generates skill-gap insights and learning plans.', dir: 'bots/advisor', script: 'advise.ts', runtime: 'ts-node', color: '#f59e0b' },
+    { id: 'bot9-linkedin-enricher', name: 'LinkedIn Enricher', description: 'Enriches resume metadata from LinkedIn profile details.', dir: 'bots/linkedin-enricher', script: 'enrich.ts', runtime: 'ts-node', color: '#a855f7' }
 ];
 
 interface BotProcess {
@@ -47,35 +71,75 @@ function writeLog(botId: string, lines: string[]) {
 }
 
 function getBotScriptDir(botDir: string): string {
-    const cwdPath = path.resolve(process.cwd(), botDir);
-    const relPath = path.resolve(__dirname, '../../../', botDir);
-    return process.env.NODE_ENV === 'production' ? cwdPath : relPath;
+    const candidates = [
+        path.resolve(process.cwd(), botDir),
+        path.resolve(process.cwd(), '..', botDir),
+        path.resolve(__dirname, '../../../', botDir),
+        path.resolve(__dirname, '../../../../', botDir)
+    ];
+
+    const foundPath = candidates.find(candidate => fs.existsSync(candidate));
+    return foundPath || candidates[0];
+}
+
+function getTsProjectPath(scriptPath: string): string | undefined {
+    const backendDir = getBotScriptDir('opushire-backend');
+    const candidates = [
+        path.join(scriptPath, 'tsconfig.json'),
+        path.join(backendDir, 'tsconfig.json')
+    ];
+    return candidates.find(candidate => fs.existsSync(candidate));
 }
 
 export const startBot = (botId: string, args: string[] = []) => {
     return new Promise<void>((resolve, reject) => {
         const botConfig = BOTS.find(b => b.id === botId);
         if (!botConfig) throw new Error('Unknown bot ID');
-        if ((botConfig as any).isManual) return reject(new Error('Cannot start a manual bot interface.'));
 
         if (activeBots.has(botId)) {
             return reject(new Error(`${botConfig.name} is already running.`));
         }
 
         const scriptPath = getBotScriptDir(botConfig.dir);
+        const isSingleRun = args.includes('--single-run');
         let childUrl = 'node';
         let childArgs = [botConfig.script, ...args];
 
-        if ((botConfig as any).isTsNode) {
-            const compiledCli = path.join(scriptPath, 'dist', 'cli.js');
-            if (fs.existsSync(compiledCli)) {
-                // Prefer compiled JS when available (production-safe, no ts-node dependency at runtime).
+        if (botConfig.runtime === 'ts-node') {
+            const compiledScriptPath = botConfig.compiledScript
+                ? path.join(scriptPath, botConfig.compiledScript)
+                : null;
+
+            if (compiledScriptPath && fs.existsSync(compiledScriptPath)) {
+                // Prefer compiled JS when available to avoid runtime ts-node requirement.
                 childUrl = 'node';
-                childArgs = ['dist/cli.js', ...args];
+                childArgs = [botConfig.compiledScript!, ...args];
             } else {
-                // Development fallback when dist is not built yet.
-                childUrl = os.platform() === 'win32' ? 'npx.cmd' : 'npx';
-                childArgs = ['ts-node', 'src/cli.ts', ...args];
+                const tsProjectPath = getTsProjectPath(scriptPath);
+                const backendDir = getBotScriptDir('opushire-backend');
+                const localTsNodeBin = path.join(
+                    backendDir,
+                    'node_modules',
+                    '.bin',
+                    os.platform() === 'win32' ? 'ts-node.cmd' : 'ts-node'
+                );
+
+                if (fs.existsSync(localTsNodeBin)) {
+                    childUrl = localTsNodeBin;
+                    childArgs = [
+                        ...(tsProjectPath ? ['--project', tsProjectPath] : []),
+                        botConfig.script,
+                        ...args
+                    ];
+                } else {
+                    childUrl = os.platform() === 'win32' ? 'npx.cmd' : 'npx';
+                    childArgs = [
+                        'ts-node',
+                        ...(tsProjectPath ? ['--project', tsProjectPath] : []),
+                        botConfig.script,
+                        ...args
+                    ];
+                }
             }
         }
 
@@ -125,8 +189,19 @@ export const startBot = (botId: string, args: string[] = []) => {
                 activeBots.delete(botId);
             }, 2000);
 
-            resolve();
+            if (isSingleRun) {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error(`${botConfig.name} exited with code ${code}`));
+                }
+            }
         });
+
+        if (!isSingleRun) {
+            // Daemon starts should return immediately after process launch.
+            resolve();
+        }
     });
 };
 
@@ -144,7 +219,6 @@ export const startPipeline = async () => {
 
     // Sequential await spawn using the --single-run flag
     for (const bot of BOTS) {
-        if ((bot as any).isManual) continue;
         console.log(`[PIPELINE] Trigerring -> ${bot.id}`);
         try {
             await startBot(bot.id, ['--single-run']);

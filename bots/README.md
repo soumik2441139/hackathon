@@ -50,6 +50,9 @@ node run-pipeline.js
 # Run TS bots (matcher, advisor, enricher, recruiter)
 node start-bots.js
 
+# Preview standalone TS bot launch commands without starting them
+node start-bots.js --dry-run
+
 # Run a single bot in one-shot mode
 node bots/scanner/scan.js --single-run
 ```

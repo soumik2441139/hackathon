@@ -1,4 +1,5 @@
 from agents.crew.db.mongo import jobs_col, resumes_col
+from bson import ObjectId
 
 def get_unprocessed_jobs():
     jobs = jobs_col.find({"tagTileStatus": "NEEDS_SHORTENING"})
@@ -16,7 +17,11 @@ def get_resumes_for_matching():
     return list(resumes)
 
 def save_match_results(resume_id, matches):
+    try:
+        oid = ObjectId(resume_id)
+    except Exception:
+        oid = resume_id  # already an ObjectId or non-standard id
     resumes_col.update_one(
-        {"_id": resume_id},
+        {"_id": oid},
         {"$set": {"matches": matches, "matched": True}}
     )

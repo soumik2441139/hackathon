@@ -212,7 +212,7 @@ async function runArchiver() {
     await client.connect();
     const db = client.db();
 
-    console.log(`👻 Bot 4 (Archiver): Connected to database. Mode: ${isSingleRun ? 'Single Run' : 'Continuous'}`);
+    console.log(`👻 Bot 6 (Archiver): Connected to database. Mode: ${isSingleRun ? 'Single Run' : 'Continuous'}`);
 
     const browser = await puppeteer.launch({
         headless: true,

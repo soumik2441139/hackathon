@@ -177,6 +177,7 @@ Create a `.env` file in the root or specifically in `opushire-backend/` containi
 
 ### 3. Execution
 - **Full Ecosystem**: Run `node start-bots.js` from the root.
+- **Standalone TS Bot Dry Run**: Run `node start-bots.js --dry-run` to verify recruiter/matcher/advisor/enricher launch commands without starting them.
 - **Backend**: `cd opushire-backend && npm run dev`.
 - **Frontend**: `cd opushire && npm run dev`.
 

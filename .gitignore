@@ -67,6 +67,11 @@ runs.json
 runs.txt
 backend_logs_extracted*/
 temp_*/
+opushire-backend/debug-redis.js
+opushire-backend/health-check-2.js
+opushire-backend/health-check-final.js
+run-pipeline.js
+test-report.js
 
 # ─── Uploads & Generated Data ───────────────────────────────────
 opushire-backend/uploads/

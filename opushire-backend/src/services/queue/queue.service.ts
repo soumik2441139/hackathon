@@ -178,7 +178,7 @@ export function getQueue(name: QueueName): Queue | null {
 
   if (!queueMap.has(name)) {
     // Routing Logic: Specific heavy queues go to the secondary instance if available
-    const isHeavy = name === 'scan-jobs' || name === 'linkedin-enrich';
+    const isHeavy = ['scan-jobs', 'fix-tags', 'supervise-tags', 'linkedin-enrich'].includes(name);
     const useSecondary = isHeavy && !!SystemConfig.redisSecondary && _secondaryRedisAvailable !== false;
 
     const q = getSharedQueue(useSecondary);

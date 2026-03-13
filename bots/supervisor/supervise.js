@@ -119,6 +119,7 @@ async function runSupervisor() {
                     console.error(`     Failed to review job ${job._id}:`, err);
                     await db.collection('jobs').updateOne({ _id: job._id }, {
                         $set: { tagTileStatus: 'FAILED' },
+                        $push: { statusHistory: { from: 'PENDING_REVIEW', to: 'FAILED', actor: 'bot3-supervisor', timestamp: new Date() } },
                         $unset: { _claimedBy: '', _claimedAt: '' }
                     });
                 }

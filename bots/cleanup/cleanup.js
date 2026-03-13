@@ -63,6 +63,8 @@ async function runCleanup() {
                         {},
                         { $pull: { savedJobs: job._id } }
                     );
+                    // Remove orphaned applications tied to this job
+                    await db.collection('applications').deleteMany({ jobId: job._id });
                     await db.collection('jobs').deleteOne({ _id: job._id });
                     console.log(`     🗑️  Completely deleted expired job: ${job.title}`);
                 }

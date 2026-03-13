@@ -3,6 +3,7 @@ langchain
 langchain-google-genai
 langchain-core
 llama-index
+faiss-cpu
 openai
 pymongo
 motor

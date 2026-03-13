@@ -1,35 +1,60 @@
 import Resume from '../../opushire-backend/src/models/Resume';
 import { getMatches } from '../../opushire-backend/src/services/matching/match.service';
-import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
-dotenv.config({ path: './opushire-backend/.env' });
+import path from 'path';
 
-async function run() {
+dotenv.config({ path: path.resolve(__dirname, '../../opushire-backend/.env') });
+
+const SINGLE_RUN = process.argv.includes('--single-run');
+const POLL_INTERVAL_MS = 60 * 1000;
+
+async function runOnce() {
+    const { connectDBBlocking } = await import('../../opushire-backend/src/config/db');
+    await connectDBBlocking();
+
+    const resumes = await Resume.find({ matched: false });
+    if (resumes.length === 0) return;
+
+    console.log(`[Matcher Bot] Found ${resumes.length} unmatched resumes.`);
+
+    for (const r of resumes) {
+        if (!r.parsedData) continue;
+
+        const matches = await getMatches(r.rawText, r.parsedData);
+        r.matches = matches;
+        r.matched = true;
+        await r.save();
+    }
+
+    console.log(`[Matcher Bot] Successfully matched ${resumes.length} resumes.`);
+}
+
+async function runSafely() {
     try {
-        if (mongoose.connection.readyState !== 1) {
-            await mongoose.connect(process.env.MONGODB_URI as string);
-        }
-
-        const resumes = await Resume.find({ matched: false });
-        if (resumes.length === 0) return;
-
-        console.log(`[Matcher Bot] Found ${resumes.length} unmatched resumes.`);
-
-        for (const r of resumes) {
-            if (!r.parsedData) continue;
-            
-            const matches = await getMatches(r.rawText, r.parsedData);
-            r.matches = matches;
-            r.matched = true;
-            await r.save();
-        }
-        
-        console.log(`[Matcher Bot] Successfully matched ${resumes.length} resumes.`);
+        await runOnce();
     } catch (e) {
-        console.error("[Matcher Bot] Error:", e);
+        console.error('[Matcher Bot] Error:', e);
     }
 }
 
-// Run immediately, then every 60 seconds
-run();
-setInterval(run, 60000);
+async function runSingleMode() {
+    const { disconnectDB } = await import('../../opushire-backend/src/config/db');
+    try {
+        await runOnce();
+        process.exitCode = 0;
+    } catch (e) {
+        console.error('[Matcher Bot] Error:', e);
+        process.exitCode = 1;
+    } finally {
+        await disconnectDB();
+    }
+}
+
+if (SINGLE_RUN) {
+    void runSingleMode();
+} else {
+    void runSafely();
+    setInterval(() => {
+        void runSafely();
+    }, POLL_INTERVAL_MS);
+}
