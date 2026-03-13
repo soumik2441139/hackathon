@@ -15,7 +15,7 @@ import { deepScrapeJob } from './page-scraper';
 const DEFAULT_CHANNELS = [
     'getjobss', 'jobwithmayra', 'cryptojobslist', 'jobs_and_internships_updates', 'thinkcareers',
     'jobhuntcamp', 'internfreak', 'offcampusjobsandinternships', 'gocareers',
-    'internshala_jobs', 'freshabordjobs', 'jobs_and_internships',
+    'internshala_jobs', 'jobs_and_internships',
     'remote_jobs_feed', 'workintech',
 ];
 

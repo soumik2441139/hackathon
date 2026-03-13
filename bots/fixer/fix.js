@@ -7,10 +7,22 @@ const { MongoClient } = require('mongodb');
 
 const POLL_INTERVAL = 15000; // Check DB every 15 seconds
 const isSingleRun = process.argv.includes('--single-run');
+const CLAIM_TIMEOUT_MS = Math.max(60_000, Number(process.env.BOT_CLAIM_TIMEOUT_MS || '1200000')); // 20 min
+
+const STOP_WORDS = new Set([
+    'and', 'or', 'the', 'with', 'for', 'from', 'into', 'onto', 'your', 'you', 'our', 'their',
+    'that', 'this', 'these', 'those', 'have', 'has', 'had', 'will', 'can', 'must', 'should',
+    'ability', 'required', 'requirements', 'requirement', 'skills', 'skill', 'experience',
+    'knowledge', 'strong', 'good', 'working', 'using', 'use', 'plus', 'preferred', 'nice',
+    'to', 'of', 'in', 'on', 'at', 'by', 'as', 'an', 'a', 'is', 'are', 'be'
+]);
 
 // State machine: valid transitions from NEEDS_SHORTENING
 function buildStatusUpdate(from, to, actor, extra = {}) {
-    const VALID = { 'NEEDS_SHORTENING': ['PENDING_REVIEW', 'FAILED', 'VETTED'] };
+    const VALID = {
+        'NEEDS_SHORTENING': ['PENDING_REVIEW', 'FAILED', 'VETTED'],
+        'FAILED': ['NEEDS_SHORTENING']
+    };
     if (!VALID[from]?.includes(to)) {
         throw new Error(`Invalid transition: ${from} → ${to}`);
     }
@@ -45,26 +57,90 @@ async function logInsight(db, botId, botName, insight, count = 1) {
     );
 }
 
+function normalizeKeyword(text) {
+    return text
+        .replace(/[^a-zA-Z0-9+#\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function parseCommaSeparatedKeywords(text) {
+    return text
+        .replace(/[*_]/g, '')
+        .replace(/\n/g, ', ')
+        .split(',')
+        .map(k => normalizeKeyword(k).toUpperCase())
+        .filter(Boolean)
+        .slice(0, 3);
+}
+
+function extractFallbackKeywords(lines) {
+    const counts = new Map();
+
+    for (const line of lines || []) {
+        const cleaned = String(line || '').toLowerCase().replace(/[^a-z0-9+#\s]/g, ' ');
+        const words = cleaned.split(/\s+/).filter(Boolean);
+        for (const word of words) {
+            if (word.length < 3) continue;
+            if (STOP_WORDS.has(word)) continue;
+            counts.set(word, (counts.get(word) || 0) + 1);
+        }
+    }
+
+    const topSingles = [...counts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([word]) => word.toUpperCase());
+
+    return [...new Set(topSingles)].slice(0, 3);
+}
+
 async function generateKeywords(longTags, apiKey) {
     const prompt = `Extract exactly 3 concise keywords (maximum 2 words each) from these required skills lines:\n`
         + longTags.join('\n')
         + `\nReturn ONLY a comma-separated list of keywords, nothing else. Format: KEYWORD1, KEYWORD2, KEYWORD3`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }]
-        })
-    });
-    const data = await response.json();
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
+        });
 
-    if (data.candidates && data.candidates[0].content.parts[0].text) {
-        let text = data.candidates[0].content.parts[0].text.trim();
-        text = text.replace(/[*_]/g, '').replace(/\n/g, ', ');
-        return text.split(',').map(k => k.trim().toUpperCase()).filter(k => k);
+        const rawBody = await response.text();
+        let data = {};
+        if (rawBody) {
+            try {
+                data = JSON.parse(rawBody);
+            } catch {
+                throw new Error('Gemini returned invalid JSON');
+            }
+        }
+
+        if (!response.ok) {
+            const apiMessage = data?.error?.message || `Gemini HTTP ${response.status}`;
+            throw new Error(apiMessage);
+        }
+
+        const llmText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+        const parsed = parseCommaSeparatedKeywords(llmText);
+        if (parsed.length > 0) {
+            return { keywords: parsed, source: 'gemini' };
+        }
+        throw new Error('Gemini response had no usable keyword output');
+    } catch (err) {
+        const fallback = extractFallbackKeywords(longTags);
+        if (fallback.length > 0) {
+            return {
+                keywords: fallback,
+                source: 'fallback',
+                warning: err?.message || 'Gemini request failed'
+            };
+        }
+        throw err;
     }
-    return [];
 }
 
 async function runFixer() {
@@ -82,25 +158,66 @@ async function runFixer() {
     const fixOnce = async () => {
         try {
             let fixedCount = 0;
+            let fallbackCount = 0;
             let job;
+            const claimExpiry = new Date(Date.now() - CLAIM_TIMEOUT_MS);
             // Atomic claim: one job at a time
             while ((job = await db.collection('jobs').findOneAndUpdate(
-                { tagTileStatus: 'NEEDS_SHORTENING', _claimedBy: { $exists: false } },
+                {
+                    $and: [
+                        {
+                            $or: [
+                                { tagTileStatus: 'NEEDS_SHORTENING' },
+                                {
+                                    tagTileStatus: 'FAILED',
+                                    longTagsToFix: { $exists: true, $ne: [] },
+                                    $or: [
+                                        { proposedTags: { $exists: false } },
+                                        { proposedTags: { $size: 0 } }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            $or: [
+                                { _claimedBy: { $exists: false } },
+                                { _claimedAt: { $lt: claimExpiry } }
+                            ]
+                        }
+                    ]
+                },
                 { $set: { _claimedBy: 'bot2-fixer', _claimedAt: new Date() } },
-                { returnDocument: 'after' }
+                { returnDocument: 'after', sort: { updatedAt: 1 } }
             ))) {
+                if (job.tagTileStatus === 'FAILED') {
+                    const reopenUpdate = buildStatusUpdate('FAILED', 'NEEDS_SHORTENING', 'bot2-fixer');
+                    reopenUpdate.$unset = { proposedTags: '' };
+                    await db.collection('jobs').updateOne({ _id: job._id }, reopenUpdate);
+                    job.tagTileStatus = 'NEEDS_SHORTENING';
+                }
+
                 console.log(`  -> Processing LLM rewrite for: ${job.title}...`);
                 try {
-                    const newKeywords = await generateKeywords(job.longTagsToFix || job.tags, apiKey);
+                    const sourceTags = (Array.isArray(job.longTagsToFix) && job.longTagsToFix.length > 0)
+                        ? job.longTagsToFix
+                        : (Array.isArray(job.tags) ? job.tags : []);
+                    const keywordResult = await generateKeywords(sourceTags, apiKey);
+                    const newKeywords = keywordResult.keywords;
+
+                    if (keywordResult.source === 'fallback') {
+                        fallbackCount++;
+                        console.warn(`     Gemini unavailable. Fallback keywords used. Reason: ${keywordResult.warning}`);
+                    }
 
                     if (newKeywords.length > 0) {
-                        const goodTags = job.tags.filter(tag => !(tag.length > 25 || tag.split(' ').length > 3));
+                        const existingTags = Array.isArray(job.tags) ? job.tags : [];
+                        const goodTags = existingTags.filter(tag => !(tag.length > 25 || tag.split(' ').length > 3));
                         const finalTags = [...new Set([...goodTags, ...newKeywords])];
 
                         const update = buildStatusUpdate('NEEDS_SHORTENING', 'PENDING_REVIEW', 'bot2-fixer', { proposedTags: finalTags });
                         update.$unset = { _claimedBy: '', _claimedAt: '' };
                         await db.collection('jobs').updateOne({ _id: job._id }, update);
-                        console.log(`     Proposed tags for review: ${finalTags.join(', ')}`);
+                        console.log(`     Proposed tags for review (${keywordResult.source}): ${finalTags.join(', ')}`);
                         fixedCount++;
                     } else {
                         const update = buildStatusUpdate('NEEDS_SHORTENING', 'FAILED', 'bot2-fixer');
@@ -118,6 +235,10 @@ async function runFixer() {
             if (fixedCount > 0) {
                 await incrementStat(db, 'fixesMade', fixedCount);
                 await logInsight(db, 'bot2-fixer', 'Fixer', `🤖 Generated new tags for ${fixedCount} jobs (AI Review Pending)`, fixedCount);
+            }
+
+            if (fallbackCount > 0) {
+                await logInsight(db, 'bot2-fixer', 'Fixer', `⚠️ Gemini quota/rate limit hit. Used fallback keyword extraction for ${fallbackCount} jobs`, fallbackCount);
             }
         } catch (err) {
             console.error('Fixer Error:', err);

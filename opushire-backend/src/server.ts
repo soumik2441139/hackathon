@@ -50,7 +50,7 @@ app.use(cors(corsOptions));
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     limit: 100, // Limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again after 15 minutes',
+    message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes' },
     standardHeaders: true,
     legacyHeaders: false,
     // Use express-rate-limit helper for IPv6-safe key generation.
@@ -170,14 +170,14 @@ async function shutdown(signal: string) {
     if (shuttingDown) return;
     shuttingDown = true;
 
-  logger.info(`${signal} received — closing Redis connections and exiting`);
+    logger.info(`${signal} received — closing Redis connections and exiting`);
 
-  try {
-    const { closeQueues } = await import('./services/queue/queue.service');
-    await closeQueues();
-  } catch (err) {
-    logger.error({ err }, 'Error during queue shutdown');
-  }
+    try {
+        const { closeQueues } = await import('./services/queue/queue.service');
+        await closeQueues();
+    } catch (err) {
+        logger.error({ err }, 'Error during queue shutdown');
+    }
 
     try {
         if (httpServer) {
@@ -197,10 +197,10 @@ async function shutdown(signal: string) {
         logger.error({ err }, 'Error while closing MongoDB connection');
     }
 
-  process.exit(0);
+    process.exit(0);
 }
 
 process.once('SIGTERM', () => shutdown('SIGTERM'));
-process.once('SIGINT',  () => shutdown('SIGINT'));
+process.once('SIGINT', () => shutdown('SIGINT'));
 
 export default app;
