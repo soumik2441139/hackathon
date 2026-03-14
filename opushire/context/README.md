@@ -12,7 +12,7 @@ React Context providing authentication state across the app.
   token: string | null     // JWT token
   loading: boolean         // Auth state loading
   login(email, password)   // Login and redirect by role
-  register(data)           // Register with role selection
+  register(data)           // Register a student account and start verification
   refreshUser()            // Re-fetch profile from server
   logout()                 // Clear session and redirect
 }

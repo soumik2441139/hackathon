@@ -16,10 +16,7 @@ export const LandingPage = () => {
 
   const handleStartTrajectory = () => {
     if (user) {
-      const dashboardHref =
-        user.role === 'admin' ? '/dashboard/admin' :
-        user.role === 'recruiter' ? '/dashboard/recruiter' :
-        '/dashboard/student';
+      const dashboardHref = user.role === 'admin' ? '/dashboard/admin' : '/dashboard/student';
       router.push(dashboardHref);
     } else {
       router.push('/register');

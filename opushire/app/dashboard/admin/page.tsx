@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Shield, Users, Briefcase, Trash2,
-    ExternalLink, Search, ShieldAlert,
+    Search, ShieldAlert,
     Activity, Zap, Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -64,10 +64,10 @@ export default function AdminDashboard() {
         );
     }
 
-    const filteredUsers = users.filter(u =>
-        u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
+    const normalizedSearchTerm = searchTerm.toLowerCase();
+    const filteredUsers = users.filter((u) =>
+        [u.name, u.email, u.college, u.degree, u.year]
+            .some((value) => (value ?? '').toLowerCase().includes(normalizedSearchTerm))
     );
 
     return (
@@ -88,7 +88,7 @@ export default function AdminDashboard() {
                         <h1 className="text-6xl md:text-7xl font-black uppercase tracking-tighter leading-none mb-4">
                             Admin <span className="text-gradient">Console</span>
                         </h1>
-                        <p className="text-white/40 text-lg max-w-2xl font-medium">Monitoring platform-wide activity and managing authority across student and recruiter collectives.</p>
+                        <p className="text-white/40 text-lg max-w-2xl font-medium">Monitoring platform-wide activity and managing authority across student and administrator accounts.</p>
                     </div>
                     <div className="flex flex-col items-end gap-3">
                         <div className="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-xl">
@@ -173,14 +173,14 @@ export default function AdminDashboard() {
                 <div className="space-y-8">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/[0.02] p-6 rounded-3xl border border-white/5 backdrop-blur-md">
                         <div className="flex flex-wrap items-center gap-4 text-sm font-bold">
-                            <button onClick={() => setFilter('all')} className={`px-4 py-2 rounded-xl transition-all ${filter === 'all' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}>All Entities</button>
+                            <button onClick={() => setFilter('all')} className={`px-4 py-2 rounded-xl transition-all ${filter === 'all' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}>All Users</button>
                             <button onClick={() => setFilter('student')} className={`px-4 py-2 rounded-xl transition-all ${filter === 'student' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}>Students</button>
                         </div>
                         <div className="relative group">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-cyan transition-colors" size={18} />
                             <input
                                 type="text"
-                                placeholder="Search by name, email or company..."
+                                placeholder="Search by name, email, college or degree..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-3 w-full md:w-[400px] outline-none focus:border-brand-cyan/50 focus:bg-white/[0.08] transition-all text-sm font-medium"
@@ -193,9 +193,9 @@ export default function AdminDashboard() {
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="border-b border-white/5 text-[10px] uppercase font-black tracking-[0.2em] text-white/30 bg-white/[0.01]">
-                                        <th className="px-8 py-6">Entity Identity</th>
-                                        <th className="px-8 py-6">Role / Collective</th>
-                                        <th className="px-8 py-6">Affiliation / Details</th>
+                                        <th className="px-8 py-6">User Identity</th>
+                                        <th className="px-8 py-6">Role</th>
+                                        <th className="px-8 py-6">Profile Snapshot</th>
                                         <th className="px-8 py-6 text-right">Action Authority</th>
                                     </tr>
                                 </thead>
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
                                                     </div>
                                                 </td>
                                                 <td className="px-8 py-6">
-                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${u.role === 'recruiter' ? 'bg-[#FF9A9E]/10 border-[#FF9A9E]/20 text-[#FF9A9E]' : 'bg-[#A1FFCE]/10 border-[#A1FFCE]/20 text-[#A1FFCE]'}`}>
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${u.role === 'admin' ? 'bg-brand-violet/10 border-brand-violet/20 text-brand-violet' : 'bg-[#A1FFCE]/10 border-[#A1FFCE]/20 text-[#A1FFCE]'}`}>
                                                         {u.role}
                                                     </span>
                                                 </td>
@@ -232,15 +232,9 @@ export default function AdminDashboard() {
                                                             <p className="text-[10px] font-black uppercase text-brand-cyan tracking-widest">{u.degree || 'General'}</p>
                                                         </div>
                                                     ) : (
-                                                        <div className="text-sm font-medium flex items-center gap-2">
-                                                            {u.companyName ? (
-                                                                <>
-                                                                    {u.companyName}
-                                                                    <a href={u.companyWebsite} target="_blank" className="text-white/20 hover:text-white"><ExternalLink size={12} /></a>
-                                                                </>
-                                                            ) : (
-                                                                <span className="text-white/20 italic">No Affiliation</span>
-                                                            )}
+                                                        <div className="space-y-1">
+                                                            <p className="text-sm font-medium">Platform administrator</p>
+                                                            <p className="text-[10px] font-black uppercase text-brand-violet tracking-widest">Full access</p>
                                                         </div>
                                                     )}
                                                 </td>
@@ -256,7 +250,7 @@ export default function AdminDashboard() {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={4} className="px-8 py-20 text-center text-white/20 font-medium">No entities detected matching the search parameters.</td>
+                                            <td colSpan={4} className="px-8 py-20 text-center text-white/20 font-medium">No users matched the current search parameters.</td>
                                         </tr>
                                     )}
                                 </tbody>

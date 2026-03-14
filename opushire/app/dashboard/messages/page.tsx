@@ -138,7 +138,7 @@ export default function MessagesDashboard() {
                                 <div className="h-full flex flex-col items-center justify-center text-center p-8 text-white/40">
                                     <User className="w-12 h-12 mb-4 opacity-20" />
                                     <p>No active conversations yet.</p>
-                                    <p className="text-sm mt-2 opacity-60">Chats will appear here when you message recruiters or students.</p>
+                                    <p className="text-sm mt-2 opacity-60">Chats will appear here when you message other users on the platform.</p>
                                 </div>
                             ) : (
                                 <div className="flex flex-col">

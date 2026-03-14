@@ -8,7 +8,7 @@ Next.js 14 App Router pages. Each folder maps to a URL route.
 |-------|------|--------|-------------|
 | `/` | `page.tsx` | Public | Landing page with hero, featured jobs, AI showcase |
 | `/login` | `(auth)/login/page.tsx` | Public | Email/password login with glassmorphic UI |
-| `/register` | `(auth)/register/page.tsx` | Public | Registration with role selection (student/recruiter) |
+| `/register` | `(auth)/register/page.tsx` | Public | Student registration with email verification |
 | `/jobs` | `jobs/page.tsx` | Public | Job listing with filters, search, pagination |
 | `/jobs/create` | `jobs/create/page.tsx` | Admin | Job creation form |
 | `/jobs/[id]` | `jobs/[id]/page.tsx` | Public | Job detail with apply modal and save/share |

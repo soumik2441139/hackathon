@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { Button } from './Button';
-import { Briefcase, Menu, X, LogOut, Shield, Zap } from 'lucide-react';
+import { Menu, X, LogOut, Shield, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -9,10 +9,7 @@ export const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const { user, logout, loading } = useAuth();
 
-    const dashboardHref =
-        user?.role === 'admin' ? '/dashboard/admin' :
-            user?.role === 'recruiter' ? '/dashboard/recruiter' :
-                '/dashboard/student';
+    const dashboardHref = user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/student';
 
     return (
         <nav className="fixed top-0 left-0 w-full z-50 glass-morphism border-b border-white/5">
@@ -29,14 +26,6 @@ export const Navbar = () => {
                 {/* Desktop Nav */}
                 <div className="hidden md:flex items-center gap-8">
                     <Link href="/jobs" className="text-brand-text/70 hover:text-brand-text transition-colors">Jobs</Link>
-                    {(user?.role === 'recruiter' || user?.role === 'admin') && (
-                        <Link
-                            href="/dashboard/recruiter/post-job"
-                            className="text-brand-cyan font-bold hover:text-brand-cyan/80 transition-colors flex items-center gap-1"
-                        >
-                            <Briefcase size={16} /> Post a Job
-                        </Link>
-                    )}
                 </div>
 
                 <div className="hidden md:flex items-center gap-4">
@@ -79,9 +68,6 @@ export const Navbar = () => {
                     <Link href="/jobs" className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>Jobs</Link>
                     {user ? (
                         <>
-                            {(user.role === 'recruiter' || user.role === 'admin') && (
-                                <Link href="/dashboard/recruiter/post-job" className="text-lg py-2 border-b border-white/5 font-bold text-brand-cyan" onClick={() => setIsOpen(false)}>Post a Job</Link>
-                            )}
                             <Link href={dashboardHref} className="text-lg py-2 border-b border-white/5" onClick={() => setIsOpen(false)}>
                                 {user.role === 'admin' ? 'Admin Console' : 'Dashboard'}
                             </Link>

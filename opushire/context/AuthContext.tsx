@@ -36,6 +36,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const clearRoleThemes = useCallback(() => {
+        const root = document.documentElement;
+        Array.from(root.classList)
+            .filter((className) => className.startsWith('theme-'))
+            .forEach((className) => root.classList.remove(className));
+    }, []);
+
     const setPendingVerificationEmail = useCallback((email: string) => {
         if (typeof window !== 'undefined') {
             sessionStorage.setItem(PENDING_VERIFICATION_EMAIL_KEY, email);
@@ -50,7 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const routeByRole = useCallback((nextUser: User) => {
         if (nextUser.role === 'admin') router.push('/dashboard/admin');
-        else if (nextUser.role === 'recruiter') router.push('/dashboard/recruiter');
         else router.push('/dashboard/student');
     }, [router]);
 
@@ -122,21 +128,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Apply theme based on role
     useEffect(() => {
         const root = document.documentElement;
-        root.classList.remove('theme-recruiter', 'theme-student', 'theme-admin');
-        if (user?.role === 'recruiter') root.classList.add('theme-recruiter');
-        else if (user?.role === 'student') root.classList.add('theme-student');
+        clearRoleThemes();
+        if (user?.role === 'student') root.classList.add('theme-student');
         else if (user?.role === 'admin') root.classList.add('theme-admin');
-    }, [user?.role]);
+    }, [clearRoleThemes, user?.role]);
 
     const logout = useCallback(() => {
         localStorage.removeItem('opushire_token');
         localStorage.removeItem('opushire_user');
-        document.documentElement.classList.remove('theme-recruiter', 'theme-student', 'theme-admin');
+        clearRoleThemes();
         setToken(null);
         setUser(null);
         clearPendingVerificationEmail();
         router.push('/');
-    }, [clearPendingVerificationEmail, router]);
+    }, [clearPendingVerificationEmail, clearRoleThemes, router]);
 
     const refreshUser = useCallback(async () => {
         try {

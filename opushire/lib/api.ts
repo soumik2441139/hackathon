@@ -223,7 +223,6 @@ export const admin = {
                 totalJobs: number;
                 totalApplicants: number;
                 totalStudents: number;
-                totalRecruiters: number;
                 activeUsers: number;
             }
         }>('/admin/stats'),

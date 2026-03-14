@@ -1,4 +1,4 @@
-export type UserRole = 'student' | 'admin' | 'recruiter';
+export type UserRole = 'student' | 'admin';
 
 export interface User {
     _id: string;
@@ -11,9 +11,6 @@ export interface User {
     year?: string;
     skills: string[];
     bio?: string;
-    companyName?: string;
-    companyWebsite?: string;
-    companyLogo?: string;
     avatar: string;
     savedJobs?: string[] | Job[];
     createdAt: string;
@@ -43,7 +40,6 @@ export interface Job {
     featured: boolean;
     posted: string;
     postedBy: string | Partial<User>;
-    postedByModel?: 'Recruiter' | 'Admin';
     externalUrl?: string;
     createdAt: string;
     updatedAt: string;
