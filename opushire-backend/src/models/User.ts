@@ -5,15 +5,12 @@ export interface IUser extends Document {
     name: string;
     email: string;
     passwordHash: string;
-    role: 'student' | 'admin' | 'recruiter';
+    role: 'student' | 'admin';
     college?: string;
     degree?: string;
     year?: string;
     skills: string[];
     bio?: string;
-    companyName?: string;
-    companyWebsite?: string;
-    companyLogo?: string;
     avatar: string;
     phone?: string;
     linkedin?: string;
@@ -46,9 +43,6 @@ export const UserSchema = new Schema<IUser>(
         year: { type: String, trim: true },
         skills: [{ type: String, trim: true }],
         bio: { type: String, trim: true },
-        companyName: { type: String, trim: true },
-        companyWebsite: { type: String, trim: true },
-        companyLogo: { type: String, trim: true, default: '🏢' },
         avatar: { type: String },
         savedJobs: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
         refreshToken: { type: String, select: false },

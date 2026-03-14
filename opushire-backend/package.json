@@ -29,6 +29,7 @@
     "geoip-lite": "^1.4.10",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
+    "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.1.0",
     "mongoose": "^9.2.3",

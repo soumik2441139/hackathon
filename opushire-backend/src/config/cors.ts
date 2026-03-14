@@ -6,6 +6,8 @@ const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
     'https://opushire.vercel.app',
+    'https://opushire.in',
+    'https://www.opushire.in',
     'https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net',
 ];
 

@@ -8,7 +8,7 @@ const envSchema = z.object({
     MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
     JWT_SECRET: z.string().min(10, 'JWT_SECRET must be at least 10 chars'),
     JWT_EXPIRES_IN: z.string().default('7d'),
-    FRONTEND_URL: z.string().default('http://localhost:3000'),
+    FRONTEND_URL: z.string().default('https://opushire.in'),
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
     // AI / LLM
@@ -43,6 +43,13 @@ const envSchema = z.object({
     SECONDARY_REDIS_PORT: z.string().optional(),
     SECONDARY_REDIS_PASSWORD: z.string().optional(),
     SECONDARY_REDIS_TLS: z.string().default('false'),
+
+    // BullMQ tuning
+    BULLMQ_WORKERS_ENABLED: z.string().default('true'),
+    BULLMQ_WORKER_CONCURRENCY: z.string().default('1'),
+    BULLMQ_ENABLE_QUEUE_EVENTS: z.string().default('false'),
+    BULLMQ_SHARED_QUEUE_NAME: z.string().default('opushire-jobs'),
+    BULLMQ_INIT_RETRY_MS: z.string().default('15000'),
 
     // Misc
     LOG_LEVEL: z.string().default('info'),

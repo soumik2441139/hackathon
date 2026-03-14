@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import rateLimit from 'express-rate-limit';
+import { baseRateLimitConfig } from './config/rateLimit';
 import mongoose from 'mongoose';
 import { connectDB } from './config/db';
 import { corsOptions } from './config/cors';
@@ -48,17 +49,10 @@ app.use(cors(corsOptions));
 
 // Rate Limiting (Global)
 const limiter = rateLimit({
+    ...baseRateLimitConfig,
     windowMs: 15 * 60 * 1000, // 15 minutes
     limit: 100, // Limit each IP to 100 requests per windowMs
     message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes' },
-    standardHeaders: true,
-    legacyHeaders: false,
-    // Use express-rate-limit helper for IPv6-safe key generation.
-    keyGenerator: (req) => ipKeyGenerator(req.ip || req.socket.remoteAddress || 'unknown'),
-    validate: { 
-        xForwardedForHeader: false,
-        ip: false 
-    }, 
 });
 app.use('/api', limiter);
 

@@ -7,16 +7,10 @@ import {
     verifyEmailSchema,
     resendVerificationSchema,
 } from '../services/auth.service';
-import { imageToBase64 } from '../services/image.service';
 
 export const register = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const data = registerSchema.parse(req.body);
-
-        // If company logo is provided, convert URL to Base64
-        if (data.companyLogo && !data.companyLogo.startsWith('data:')) {
-            data.companyLogo = await imageToBase64(data.companyLogo);
-        }
 
         const result = await AuthService.registerUser(data);
         res.status(201).json({ success: true, data: result, message: result.message });
@@ -66,13 +60,7 @@ export const getMe = async (req: AuthRequest, res: Response, next: NextFunction)
 
 export const updateProfile = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-        const body = { ...req.body };
-        // If updating logo, convert to Base64
-        if (body.companyLogo && !body.companyLogo.startsWith('data:')) {
-            body.companyLogo = await imageToBase64(body.companyLogo);
-        }
-
-        const user = await AuthService.updateProfile(req.user!.id, body);
+        const user = await AuthService.updateProfile(req.user!.id, req.body);
         res.json({ success: true, data: user });
     } catch (err) {
         next(err);

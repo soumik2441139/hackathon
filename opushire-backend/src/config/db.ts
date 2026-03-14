@@ -7,23 +7,33 @@ let connectPromise: Promise<void> | null = null;
 const runPostConnectTasks = async (conn: Awaited<ReturnType<typeof mongoose.connect>>) => {
     console.log(`✅ MongoDB connected: ${conn.connection.host} / ${conn.connection.name}`);
 
-    // Auto-migration check: If students/recruiters are empty but users exist, split them
+    // Auto-migration check: If students/admins are empty but legacy users exist, split them
     const db = conn.connection.db;
     if (db) {
         const studentCount = await db.collection('students').countDocuments();
-        const recruiterCount = await db.collection('recruiters').countDocuments();
+        const adminCount = await db.collection('admins').countDocuments();
 
-        if (studentCount === 0 && recruiterCount === 0) {
+        if (studentCount === 0 && adminCount === 0) {
             console.log('🔍 [Auto-Migration] Checking for users to reorganize...');
             const usersCol = db.collection('users');
             const users = await usersCol.find({}).toArray();
 
             if (users.length > 0) {
                 console.log(`🚀 [Auto-Migration] Detected ${users.length} users to reorganize into split collections...`);
+                let skippedCount = 0;
                 for (const user of users) {
-                    const target = user.role === 'recruiter' ? 'recruiters' :
-                        user.role === 'admin' ? 'admins' : 'students';
+                    const target = user.role === 'admin' ? 'admins' :
+                        user.role === 'student' ? 'students' : null;
+
+                    if (!target) {
+                        skippedCount += 1;
+                        continue;
+                    }
+
                     await db.collection(target).updateOne({ _id: user._id }, { $set: user }, { upsert: true });
+                }
+                if (skippedCount > 0) {
+                    console.warn(`⚠️  [Auto-Migration] Skipped ${skippedCount} legacy users with unsupported roles.`);
                 }
                 console.log('✅ [Auto-Migration] Data successfully reorganized.');
             } else {

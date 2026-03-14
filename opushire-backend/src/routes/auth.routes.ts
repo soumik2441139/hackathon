@@ -2,8 +2,10 @@ import { Router } from 'express';
 import * as AuthController from '../controllers/auth.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import rateLimit from 'express-rate-limit';
+import { baseRateLimitConfig } from '../config/rateLimit';
 
 const authLimiter = rateLimit({
+    ...baseRateLimitConfig,
     windowMs: 10 * 60 * 1000, // 10 minutes
     max: 10, // Limit each IP to 10 requests per windowMs for auth routes
     message: 'Too many login/register attempts from this IP, please try again after 10 minutes',

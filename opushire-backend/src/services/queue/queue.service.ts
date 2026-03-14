@@ -1,4 +1,6 @@
 import { Queue, Worker, QueueEvents } from 'bullmq';
+import IORedis from 'ioredis';
+import { env } from '../../config/env';
 import { SystemConfig } from '../../config/system.config';
 import { log, logError } from '../../utils/logger';
 
@@ -11,6 +13,15 @@ type RedisConnectionOptions = {
   password?: string;
   tls?: { servername: string; rejectUnauthorized: boolean };
   maxRetriesPerRequest: null;
+  enableOfflineQueue: boolean;
+  connectionName: string;
+};
+
+type RedisBaseConfig = {
+  host: string;
+  port: number;
+  password?: string;
+  tls: boolean;
 };
 
 let sharedConnection: any = null;
@@ -21,6 +32,35 @@ let sharedQueueEvents: QueueEvents | null = null;
 let sharedWorker: Worker | null = null;
 let secondaryWorker: Worker | null = null;
 
+function buildRedisOptions(
+  config: RedisBaseConfig,
+  connectionName: string,
+  target: 'producer' | 'worker',
+): RedisConnectionOptions {
+  return {
+    host: config.host,
+    port: config.port,
+    ...(config.password ? { password: config.password } : {}),
+    ...(config.tls ? { tls: { servername: config.host, rejectUnauthorized: false } } : {}),
+    maxRetriesPerRequest: null,
+    // Producers fail fast; workers should recover through reconnects.
+    enableOfflineQueue: target === 'worker',
+    connectionName,
+  };
+}
+
+function getWorkerConnectionOptions(isSecondary = false): RedisConnectionOptions {
+  if (isSecondary && !SystemConfig.redisSecondary) {
+    return getWorkerConnectionOptions(false);
+  }
+
+  if (isSecondary) {
+    return buildRedisOptions(SystemConfig.redisSecondary!, 'bullmq-secondary-worker', 'worker');
+  }
+
+  return buildRedisOptions(SystemConfig.redis, 'bullmq-primary-worker', 'worker');
+}
+
 function getConnection(isSecondary = false): any {
   if (isSecondary && !SystemConfig.redisSecondary) {
     // Fallback to primary if secondary not configured
@@ -29,43 +69,25 @@ function getConnection(isSecondary = false): any {
 
   if (isSecondary) {
     if (!secondaryConnection) {
-      const IORedis = require('ioredis');
       const config = SystemConfig.redisSecondary!;
-      secondaryConnection = new IORedis({
-        host: config.host,
-        port: config.port,
-        ...(config.password ? { password: config.password } : {}),
-        ...(config.tls ? { tls: { servername: config.host, rejectUnauthorized: false } } : {}),
-        maxRetriesPerRequest: null,
-        enableOfflineQueue: false,   // fail-fast; don't buffer commands while disconnected
-        connectionName: 'bullmq-secondary',
-      });
+      secondaryConnection = new IORedis(buildRedisOptions(config, 'bullmq-secondary', 'producer'));
       secondaryConnection.on('error', (err: any) => logError('REDIS_SECONDARY', 'Connection error', err));
     }
     return secondaryConnection;
   }
 
   if (!sharedConnection) {
-    const IORedis = require('ioredis');
-    sharedConnection = new IORedis({
-      host: SystemConfig.redis.host,
-      port: SystemConfig.redis.port,
-      ...(SystemConfig.redis.password ? { password: SystemConfig.redis.password } : {}),
-      ...(SystemConfig.redis.tls ? { tls: { servername: SystemConfig.redis.host, rejectUnauthorized: false } } : {}),
-      maxRetriesPerRequest: null,
-      enableOfflineQueue: false,   // fail-fast; don't buffer commands while disconnected
-      connectionName: 'bullmq-primary',
-    });
+    sharedConnection = new IORedis(buildRedisOptions(SystemConfig.redis, 'bullmq-primary', 'producer'));
     sharedConnection.on('error', (err: any) => logError('REDIS_PRIMARY', 'Connection error', err));
   }
   return sharedConnection;
 }
 
-const PHYSICAL_QUEUE_NAME = process.env.BULLMQ_SHARED_QUEUE_NAME || 'opushire-jobs';
+const PHYSICAL_QUEUE_NAME = env.BULLMQ_SHARED_QUEUE_NAME;
 const JOB_NAME_SEPARATOR = '::';
-const WORKER_CONCURRENCY = Math.max(1, Number(process.env.BULLMQ_WORKER_CONCURRENCY || '1'));
-const ENABLE_QUEUE_EVENTS = process.env.BULLMQ_ENABLE_QUEUE_EVENTS === 'true';
-const WORKERS_ENABLED = process.env.BULLMQ_WORKERS_ENABLED !== 'false';
+const WORKER_CONCURRENCY = Math.max(1, Number(env.BULLMQ_WORKER_CONCURRENCY || '1'));
+const ENABLE_QUEUE_EVENTS = env.BULLMQ_ENABLE_QUEUE_EVENTS === 'true';
+const WORKERS_ENABLED = env.BULLMQ_WORKERS_ENABLED !== 'false';
 
 function buildLogicalJobName(queueName: QueueName, jobName: string): string {
   return `${queueName}${JOB_NAME_SEPARATOR}${jobName}`;
@@ -108,6 +130,17 @@ function attachSharedEvents() {
   });
 }
 
+function attachWorkerEvents(worker: Worker, scope: 'WORKER_PRIMARY' | 'WORKER_SECONDARY') {
+  worker.on('error', (err) => {
+    logError(scope, 'Worker runtime error', err);
+  });
+
+  worker.on('failed', (job, err) => {
+    const id = job?.id ?? 'unknown';
+    logError(scope, `Worker job ${id} failed`, err);
+  });
+}
+
 // ─── Lazy Queue Registry ─────────────────────────────────────────
 // Queues are created lazily on first use so the server boots even
 // when Redis is down. Only queue operations fail, not the HTTP API.
@@ -141,8 +174,15 @@ export async function probeRedis(): Promise<{ primary: boolean; secondary: boole
     const primary = getConnection(false);
     await primary.ping();
     result.primary = true;
-  } catch (err) {
-    logError('REDIS_PRIMARY', 'Unreachable', err);
+  } catch (err: any) {
+    // If Redis is unreachable and offline queue is disabled, ioredis throws "Stream isn't writeable".
+    // We catch this here so the health check returns 'false' instead of crashing with a stack trace.
+    const isOfflineError = err.message?.includes("Stream isn't writeable");
+    if (isOfflineError) {
+      log('REDIS_PRIMARY', 'Unreachable (Stream not writeable)');
+    } else {
+      logError('REDIS_PRIMARY', 'Unreachable', err);
+    }
   }
 
   if (SystemConfig.redisSecondary) {
@@ -150,8 +190,13 @@ export async function probeRedis(): Promise<{ primary: boolean; secondary: boole
       const secondary = getConnection(true);
       await secondary.ping();
       result.secondary = true;
-    } catch (err) {
-      logError('REDIS_SECONDARY', 'Unreachable', err);
+    } catch (err: any) {
+      const isOfflineError = err.message?.includes("Stream isn't writeable");
+      if (isOfflineError) {
+        log('REDIS_SECONDARY', 'Unreachable (Stream not writeable)');
+      } else {
+        logError('REDIS_SECONDARY', 'Unreachable', err);
+      }
     }
   } else {
     // If not configured, we consider it "null" or skip, but for the health check 'false' is fine
@@ -269,7 +314,11 @@ export function startRegisteredWorkers(): { primary: Worker | null; secondary: W
       const processor = logicalQueue ? primaryProcessors.get(logicalQueue) : null;
       if (!processor) throw new Error(`No primary processor for ${job.name}`);
       return processor(job.data);
-    }, { connection: getConnection(false), concurrency: WORKER_CONCURRENCY });
+    }, {
+      connection: getWorkerConnectionOptions(false),
+      concurrency: WORKER_CONCURRENCY,
+    });
+    attachWorkerEvents(sharedWorker, 'WORKER_PRIMARY');
     result.primary = sharedWorker;
     log('WORKER', `Primary worker started on ${PHYSICAL_QUEUE_NAME}`);
   }
@@ -281,7 +330,11 @@ export function startRegisteredWorkers(): { primary: Worker | null; secondary: W
       const processor = logicalQueue ? secondaryProcessors.get(logicalQueue) : null;
       if (!processor) throw new Error(`No secondary processor for ${job.name}`);
       return processor(job.data);
-    }, { connection: getConnection(true), concurrency: WORKER_CONCURRENCY });
+    }, {
+      connection: getWorkerConnectionOptions(true),
+      concurrency: WORKER_CONCURRENCY,
+    });
+    attachWorkerEvents(secondaryWorker, 'WORKER_SECONDARY');
     result.secondary = secondaryWorker;
     log('WORKER', `Secondary worker started on ${PHYSICAL_QUEUE_NAME} (Heavy jobs)`);
   }

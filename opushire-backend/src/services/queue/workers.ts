@@ -5,6 +5,7 @@ import {
   startRegisteredWorkers,
   enqueue,
 } from './queue.service';
+import { env } from '../../config/env';
 import { log, logError } from '../../utils/logger';
 import JobModel from '../../models/Job';
 import Resume from '../../models/Resume';
@@ -17,7 +18,7 @@ import { recordEpisode, buildMemoryContext } from '../memory/agent.memory';
 let workersRegistered = false;
 let workersStarted = false;
 let initRetryTimer: ReturnType<typeof setTimeout> | null = null;
-const INIT_RETRY_MS = Math.max(5000, Number(process.env.BULLMQ_INIT_RETRY_MS || '15000'));
+const INIT_RETRY_MS = Math.max(5000, Number(env.BULLMQ_INIT_RETRY_MS || '15000'));
 
 const FIXER_STOP_WORDS = new Set([
   'and', 'or', 'the', 'with', 'for', 'from', 'into', 'onto', 'your', 'you', 'our', 'their',
