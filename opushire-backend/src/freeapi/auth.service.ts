@@ -7,54 +7,74 @@ export class FreeApiAuthService {
         return `OpusHire!${Buffer.from(email).toString('base64').slice(0, 10)}`;
     }
 
+    private static getShadowUsername(username: string, email: string): string {
+        const cleanedUsername = (username || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        const emailPrefix = (email.split('@')[0] || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        const base = (cleanedUsername || emailPrefix || 'user').slice(0, 18);
+        const suffix = Buffer.from(email.toLowerCase()).toString('hex').slice(0, 6);
+        const candidate = `${base}${suffix}`;
+        return candidate.length >= 4 ? candidate : `${candidate}user`;
+    }
+
+    private static parseAuthResponse(payload: any): { token: string; freeApiUserId: string } {
+        const token = payload?.data?.accessToken;
+        const freeApiUserId = payload?.data?.user?._id;
+
+        if (!token || !freeApiUserId) {
+            throw new Error('FreeAPI auth response missing token or user id');
+        }
+
+        return { token, freeApiUserId };
+    }
+
     /**
      * Creates a shadow account on FreeAPI or logs in if it already exists.
      * Returns the FreeAPI Bearer token and the FreeAPI User ID needed for Chat App.
      */
     static async getFreeApiAuthUser(email: string, username: string): Promise<{ token: string, freeApiUserId: string }> {
         const password = this.getShadowPassword(email);
+        const shadowUsername = this.getShadowUsername(username, email);
 
-        try {
-            // Attempt to login first
-            const loginRes = await freeApiClient.post('/users/login', {
-                username: username.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + Math.random().toString(36).slice(2, 6), // Fallback if email login needs username
-                email,
-                password,
-            });
-            return {
-                token: loginRes.data.data.accessToken,
-                freeApiUserId: loginRes.data.data.user._id
-            };
-        } catch (error: any) {
-            // If login fails, try to register
-            if (error.response?.status === 404 || error.response?.status === 401) {
-                try {
-                    // FreeAPI requires username, email, password
-                    const safeUsername = username.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-                    const finalUsername = safeUsername.length > 3 ? safeUsername : `user${Math.floor(Math.random() * 10000)}`;
+        // Handle 401/404 as expected first-time states to avoid noisy interceptor error logs.
+        const firstLogin = await freeApiClient.post('/users/login', {
+            email,
+            password,
+        }, {
+            validateStatus: (status) => status === 200 || status === 401 || status === 404,
+        });
 
-                    await freeApiClient.post('/users/register', {
-                        username: finalUsername + Math.floor(Math.random() * 10000).toString(),
-                        email,
-                        password,
-                    });
-
-                    // Login after successful registration
-                    const loginRes = await freeApiClient.post('/users/login', {
-                        email,
-                        password,
-                    });
-                    return {
-                        token: loginRes.data.data.accessToken,
-                        freeApiUserId: loginRes.data.data.user._id
-                    };
-                } catch (regError: any) {
-                    console.error('Failed to register shadow account on FreeAPI:', regError.response?.data);
-                    throw new Error('Could not establish FreeAPI session');
-                }
-            }
-            throw error;
+        if (firstLogin.status === 200) {
+            return this.parseAuthResponse(firstLogin.data);
         }
+
+        const registerRes = await freeApiClient.post('/users/register', {
+            username: shadowUsername,
+            email,
+            password,
+        }, {
+            validateStatus: (status) => status === 200 || status === 201 || status === 400 || status === 409,
+        });
+
+        const registerMessage = String(registerRes.data?.message || '').toLowerCase();
+        const alreadyExists = registerMessage.includes('already') && registerMessage.includes('exist');
+        const canProceedToLogin = registerRes.status === 200 || registerRes.status === 201 || registerRes.status === 409 || alreadyExists;
+
+        if (!canProceedToLogin) {
+            throw new Error(`Could not establish FreeAPI session (register status ${registerRes.status})`);
+        }
+
+        const secondLogin = await freeApiClient.post('/users/login', {
+            email,
+            password,
+        }, {
+            validateStatus: (status) => status === 200 || status === 401 || status === 404,
+        });
+
+        if (secondLogin.status !== 200) {
+            throw new Error(`Could not establish FreeAPI session (login status ${secondLogin.status})`);
+        }
+
+        return this.parseAuthResponse(secondLogin.data);
     }
 
     /**

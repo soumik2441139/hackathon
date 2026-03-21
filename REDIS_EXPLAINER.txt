@@ -1,0 +1,38 @@
+REDIS IN THIS PROJECT (LAYMAN EXPLANATION)
+
+What Redis is:
+Redis is like a very fast task board.
+When the app has heavy work, it puts a task on this board instead of doing everything immediately.
+
+What Redis does in this project:
+1. It stores background jobs for the Node backend (BullMQ queue system).
+2. It stores background jobs for the Python agents (RQ queue system).
+
+Examples of jobs sent to Redis:
+- Scan new job posts
+- Fix and review job tags
+- Match resumes with jobs
+- Run career advice steps
+- Run cleanup jobs on schedule
+
+Why this helps:
+- The website stays fast for users.
+- Heavy work runs in the background.
+- Failed jobs can retry automatically.
+- Work can be spread across workers.
+
+Primary and secondary Redis:
+This project can use a primary Redis and an optional secondary Redis.
+Some heavier jobs can be routed to secondary Redis to reduce load.
+
+What Redis is NOT doing here:
+- Redis is not the main long-term database.
+- MongoDB is the main database for real records.
+- Redis mainly holds temporary queue jobs and processing state.
+
+If Redis is down:
+- The API can still start and respond.
+- Background queue processing is delayed or skipped until Redis is available again.
+
+Simple summary:
+Redis is the project's high-speed background work queue, so user-facing requests stay responsive while bigger tasks run behind the scenes.

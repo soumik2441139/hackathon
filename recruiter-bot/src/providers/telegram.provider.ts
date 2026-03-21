@@ -16,7 +16,7 @@ const DEFAULT_CHANNELS = [
     'getjobss', 'jobwithmayra', 'cryptojobslist', 'jobs_and_internships_updates', 'thinkcareers',
     'jobhuntcamp', 'internfreak', 'offcampusjobsandinternships', 'gocareers',
     'internshala_jobs', 'jobs_and_internships',
-    'remote_jobs_feed', 'workintech',
+    'remote_jobs_feed', 'workintech', 'Jobs_global_startups',
 ];
 
 const JUNIOR_KEYWORDS = [
