@@ -246,9 +246,11 @@ export async function deepScrapeJob(url: string): Promise<ScrapedJob> {
         let portalType = 'generic';
 
         const hostname = new URL(url).hostname.toLowerCase();
-        if (hostname.endsWith('greenhouse.io') || html.includes('greenhouse')) portalType = 'greenhouse';
-        else if (hostname.endsWith('lever.co') || html.includes('lever-jobs')) portalType = 'lever';
-        else if (hostname.endsWith('linkedin.com')) portalType = 'linkedin';
+        const matches = (target: string) => hostname === target || hostname.endsWith('.' + target);
+
+        if (matches('greenhouse.io') || html.includes('greenhouse')) portalType = 'greenhouse';
+        else if (matches('lever.co') || html.includes('lever-jobs')) portalType = 'lever';
+        else if (matches('linkedin.com')) portalType = 'linkedin';
 
         console.log(`🔍 [Scraper] Portal: ${portalType} | URL: ${url.slice(0, 60)}...`);
 

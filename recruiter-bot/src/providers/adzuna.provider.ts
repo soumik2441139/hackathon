@@ -1,4 +1,5 @@
 import axios from 'axios';
+import he from 'he';
 import fs from 'fs';
 import path from 'path';
 import { NormalizedJob } from './remotive.provider';
@@ -73,16 +74,11 @@ function timeAgo(dateStr: string): string {
 
 function stripHtml(html: string): string {
     if (!html) return '';
-    return html
+    const stripped = html
         .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/?[^>]+(>|$)/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .trim();
+        .replace(/<\/?[^>]+(>|$)/g, '');
+    
+    return he.decode(stripped).trim();
 }
 
 // Countries to search (Adzuna supports these country codes)

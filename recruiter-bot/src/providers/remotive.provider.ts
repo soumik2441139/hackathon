@@ -1,4 +1,5 @@
 import axios from 'axios';
+import he from 'he';
 
 interface RawRemotiveJob {
     id: number;
@@ -67,16 +68,11 @@ function timeAgo(dateStr: string): string {
 
 function stripHtml(html: string): string {
     if (!html) return '';
-    return html
+    const stripped = html
         .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/?[^>]+(>|$)/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .trim();
+        .replace(/<\/?[^>]+(>|$)/g, '');
+    
+    return he.decode(stripped).trim();
 }
 
 export async function fetchRemotiveJobs(): Promise<NormalizedJob[]> {
