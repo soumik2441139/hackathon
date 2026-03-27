@@ -7,7 +7,10 @@ export const getBotStatuses = async (req: AuthRequest, res: Response, next: Next
         if (req.user?.role !== 'admin') {
             return res.status(403).json({ success: false, message: 'Forbidden: Admin only' });
         }
-        const statuses = BotService.getAllBotStatuses();
+        if (req.user?.role !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Forbidden: Admin only' });
+        }
+        const statuses = await BotService.getAllBotStatuses();
         res.json({ success: true, data: statuses });
     } catch (err) {
         next(err);
@@ -21,7 +24,7 @@ export const startBot = async (req: AuthRequest, res: Response, next: NextFuncti
         }
         const id = req.params.id as string;
         await BotService.startBot(id);
-        const status = BotService.getBotStatus(id);
+        const status = await BotService.getBotStatus(id);
         res.json({ success: true, data: status });
     } catch (err: any) {
         res.status(400).json({ success: false, message: err.message });
@@ -34,7 +37,7 @@ export const stopBot = async (req: AuthRequest, res: Response, next: NextFunctio
             return res.status(403).json({ success: false, message: 'Forbidden: Admin only' });
         }
         const id = req.params.id as string;
-        const status = BotService.stopBot(id);
+        const status = await BotService.stopBot(id);
         res.json({ success: true, data: status });
     } catch (err) {
         next(err);

@@ -101,11 +101,15 @@ async function generateKeywords(longTags, apiKey) {
         + `\nReturn ONLY a comma-separated list of keywords, nothing else. Format: KEYWORD1, KEYWORD2, KEYWORD3`;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
+                model: 'llama-3.3-70b-versatile',
+                messages: [{ role: 'user', content: prompt }]
             })
         });
 
@@ -115,28 +119,28 @@ async function generateKeywords(longTags, apiKey) {
             try {
                 data = JSON.parse(rawBody);
             } catch {
-                throw new Error('Gemini returned invalid JSON');
+                throw new Error('Groq returned invalid JSON');
             }
         }
 
         if (!response.ok) {
-            const apiMessage = data?.error?.message || `Gemini HTTP ${response.status}`;
+            const apiMessage = data?.error?.message || `Groq HTTP ${response.status}`;
             throw new Error(apiMessage);
         }
 
-        const llmText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+        const llmText = data?.choices?.[0]?.message?.content?.trim() || '';
         const parsed = parseCommaSeparatedKeywords(llmText);
         if (parsed.length > 0) {
-            return { keywords: parsed, source: 'gemini' };
+            return { keywords: parsed, source: 'groq' };
         }
-        throw new Error('Gemini response had no usable keyword output');
+        throw new Error('Groq response had no usable keyword output');
     } catch (err) {
         const fallback = extractFallbackKeywords(longTags);
         if (fallback.length > 0) {
             return {
                 keywords: fallback,
                 source: 'fallback',
-                warning: err?.message || 'Gemini request failed'
+                warning: err?.message || 'Groq request failed'
             };
         }
         throw err;
@@ -145,9 +149,9 @@ async function generateKeywords(longTags, apiKey) {
 
 async function runFixer() {
     const uri = process.env.MONGODB_URI;
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
 
-    if (!uri || !apiKey) throw new Error('Missing environment variables MONGODB_URI or GEMINI_API_KEY');
+    if (!uri || !apiKey) throw new Error('Missing environment variables MONGODB_URI or GROQ_API_KEY');
 
     const client = new MongoClient(uri);
     await client.connect();
@@ -206,7 +210,7 @@ async function runFixer() {
 
                     if (keywordResult.source === 'fallback') {
                         fallbackCount++;
-                        console.warn(`     Gemini unavailable. Fallback keywords used. Reason: ${keywordResult.warning}`);
+                        console.warn(`     Groq unavailable. Fallback keywords used. Reason: ${keywordResult.warning}`);
                     }
 
                     if (newKeywords.length > 0) {
@@ -238,7 +242,7 @@ async function runFixer() {
             }
 
             if (fallbackCount > 0) {
-                await logInsight(db, 'bot2-fixer', 'Fixer', `⚠️ Gemini quota/rate limit hit. Used fallback keyword extraction for ${fallbackCount} jobs`, fallbackCount);
+                await logInsight(db, 'bot2-fixer', 'Fixer', `⚠️ Groq quota/rate limit hit. Used fallback keyword extraction for ${fallbackCount} jobs`, fallbackCount);
             }
         } catch (err) {
             console.error('Fixer Error:', err);

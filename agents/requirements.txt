@@ -9,3 +9,4 @@ pymongo
 motor
 redis
 rq
+langchain-groq

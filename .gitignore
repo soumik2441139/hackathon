@@ -18,6 +18,13 @@ opushire-backend/dist/
 recruiter-bot/dist/
 *.tsbuildinfo
 
+# ─── Docker Orchestration Volumes ────────────────────────────────
+qdrant_storage/
+minio_storage/
+mongodb_data/
+redis_data*/
+redis-insight/
+
 # ─── Environment Variables ───────────────────────────────────────
 .env
 .env.local
@@ -82,6 +89,18 @@ bots/scanner/mismatched_jobs.json
 *.faiss
 *.pkl
 faiss_index/
+
+# ─── Framework Caches & Telemetry ───────────────────────────────
+.vercel/
+.turbo/
+.eslintcache
+.npm/
+
+# ─── OS Process Locks ───────────────────────────────────────────
+pids/
+*.pid
+*.seed
+*.pid.lock
 
 # ─── Azure Specific ─────────────────────────────────────────────
 azure-settings.json

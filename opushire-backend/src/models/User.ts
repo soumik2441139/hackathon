@@ -15,6 +15,7 @@ export interface IUser extends Document {
     phone?: string;
     linkedin?: string;
     savedJobs: mongoose.Types.ObjectId[];
+    emailedJobs: mongoose.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
     refreshToken?: string;
@@ -45,6 +46,7 @@ export const UserSchema = new Schema<IUser>(
         bio: { type: String, trim: true },
         avatar: { type: String },
         savedJobs: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
+        emailedJobs: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
         refreshToken: { type: String, select: false },
         resetToken: { type: String },
         resetTokenExpiry: { type: Date },

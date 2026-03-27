@@ -1,4 +1,6 @@
 import { Options, ipKeyGenerator } from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
+import { CacheService } from '../services/cache/cache.service';
 import { Request } from 'express';
 
 /**
@@ -21,6 +23,12 @@ export const baseRateLimitConfig: Partial<Options> = {
     keyGenerator: (req) => ipKeyGenerator(getCleanIp(req)),
     validate: {
         xForwardedForHeader: false,
-        ip: false, // Disabling strict IP validation because Azure/Proxies often append ports or unusual formats.
+        ip: false,
     },
+    // Distributed Rate Limiting (Enterprise Pattern)
+    ...(CacheService.isEnabled && CacheService.getClient() ? {
+        store: new RedisStore({
+            sendCommand: (...args: string[]) => CacheService.getClient()!.call(args[0], ...args.slice(1)) as any,
+        }),
+    } : {})
 };

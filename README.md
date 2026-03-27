@@ -1,187 +1,122 @@
 <div align="center">
   <br />
   <h1>OpusHire 🚀</h1>
-  <p><strong>Elevate your Career from Campus.</strong></p>
-  <p>The premium <strong>Autonomous Career Protocol</strong> designed explicitly for high-growth students, top-tier tech startups, and autonomous AI micro-agents. Leveraging advanced orchestration to secure elite professional placement.</p>
+  <p><strong>Enterprise-Grade Autonomous Career Protocol.</strong></p>
+  <p>An elite, cloud-native orchestration ecosystem connecting high-growth student talent with top-tier tech startups using localized Vector Search, Triple-Redis Job Queuing, and specialized AI Micro-Agents.</p>
   <br />
 
   [![Deploy on Azure](https://img.shields.io/badge/Deploy_on_Azure-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white)](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
-  [![Frontend Tech](https://img.shields.io/badge/Next.js_14-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](#)
-  [![Styling](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](#)
-  [![Agents](https://img.shields.io/badge/Groq_Llama3-F55036?style=for-the-badge&logo=groq&logoColor=white)](#)
-  [![Agents](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
+  [![Container Orchestration](https://img.shields.io/badge/Docker_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](#)
+  [![Storage](https://img.shields.io/badge/MinIO_S3-C7202C?style=for-the-badge&logo=minio&logoColor=white)](#)
+  [![Vector Search](https://img.shields.io/badge/Qdrant_VectorDB-1D0A4F?style=for-the-badge&logo=qdrant&logoColor=white)](#)
 
 </div>
 
 ---
 
-## 🌟 Overview
+## 🌟 God-Tier Cloud Architecture
 
-OpusHire is a high-stakes professional protocol and autonomous career ecosystem. It connects top-tier student talent with world-class technology companies through a sophisticated, agent-driven orchestration layer.
+OpusHire transcends traditional job platforms through a sophisticated, event-driven microservices architecture. Designed for 100% horizontal scalability, the entire ecosystem is flawlessly orchestrated using Docker Compose.
 
-Beyond standard job portal features, OpusHire implements an **Autonomous AI Ecosystem** consisting of several micro-agents that scrape jobs, clean data using LLMs, supervise each other to prevent hallucinations, and automatically archive expired roles.
-
----
-
-## 📁 Monorepo Structure
-
-OpusHire now utilizes **npm workspaces** for centralized dependency management and a cleaner root structure.
-
-```
-hackathon/
-├── bots/                   ← Centralized AI Micro-agents
-│   ├── scanner/            ← Detection: Flags messy job tags
-│   ├── fixer/              ← LLM: Gemini Flash rewrites tags
-│   ├── supervisor/         ← QA: Groq Llama-3 verifies outputs
-│   ├── cleanup/            ← Core: Expired record rotation
-│   └── archiver/           ← Core: Ghost job detector (Puppeteer)
-├── opushire/               ← Frontend (Next.js 14 + Tailwind v4)
-├── opushire-backend/       ← Backend API (Express.js + MongoDB)
-├── recruiter-bot/          ← Autonomous Scraper (Telegram/APIs)
-├── start-bots.js           ← Ecosystem orchestration script
-├── package.json            ← Root Workspace Configuration
-├── .github/workflows/      ← CI/CD pipelines (Azure deployment)
-└── README.md
-```
+### Core Engineering Feats:
+- ⚡ **Triple-Redis Queue Intelligence:** Utilizes a highly-available caching layer split into three routing domains (Core Routing, Background AI Workers, and Caching) using strict `BullMQ` idempotency.
+- 🧠 **Cosine Vector Search Engine:** Directly embeds Google Gemini API generated 768-D mathematically dense representations into `Qdrant`, calculating cosine similarity matrixes instantly to trigger Auto-Match emails for high-scoring applicants.
+- 🗄️ **Service-Repository Design Pattern:** Rigidly decouples Express.js API logic from MongoDB `Mongoose` abstractions, enabling pure domain-driven unit testing.
+- 🔐 **Advanced Container Security:** Engineered entirely against Privileged Escalation bugs by safely dropping to a `USER node` sandbox context within Docker, securely obscured via custom `Helmet` directives and 10min/10req authentication Rate Limiters.
 
 ---
 
-## 🗺️ User Journey
-
-```mermaid
-graph LR
-    User((User)) -->|Auth| Dashboard{Role?}
-    Dashboard -->|Student| S_Profile["Build Profile"]
-    S_Profile --> S_Search["Search Jobs"]
-    S_Search --> S_Apply["Apply for Role"]
-    S_Apply --> S_Track["Track Application"]
-    
-    Dashboard -->|Recruiter| R_Org["Manage Org"]
-    R_Org --> R_Post["Post Jobs"]
-    R_Post --> R_Review["Review Applicants"]
-    R_Review --> R_Status["Update Status"]
-    
-    Dashboard -->|Admin| A_Panel["Admin Bot Hub"]
-    A_Panel --> A_Manage["Manage Bots"]
-    A_Manage --> A_Logs["View Live Micro-agent Logs"]
-```
-
----
-
-## 🏗 System Architecture & AI Ecosystem
-
-The architecture handles core portal logic alongside a background swarm of micro-agents organized into a unified workspace.
+## 🏗 Full-Stack Ecosystem Map
 
 ```mermaid
 graph TD
-    subgraph Frontend["Frontend — Next.js 14"]
-        AppRouter["App Router"]
-        TW["Tailwind CSS v4"]
-        AdminDashboard["Admin AI Bot Hub"]
+    subgraph Client["Next.js 14 Web Ecosystem"]
+        Frontend["Server-Side Rendered Client"]
+        WebSocket["Bidirectional Real-Time Subscriptions"]
     end
 
-    subgraph Backend["Backend — Express.js"]
-        API["REST API (JWT)"]
-        BotSpawner["Bot Process Manager"]
+    subgraph Controller["Express.js Service-Repository Layer"]
+        API["REST Interface + Helmet + CORS"]
+        Services["Business Logic (Idempotent)"]
+        Repo["Data Access Abstraction"]
     end
 
-    subgraph Database["MongoDB Atlas"]
-        Jobs[(Jobs Collection)]
+    subgraph State["Persistent Orchestration"]
+        Mongo[(MongoDB Atlas)]
+        Qdrant[(Qdrant Vector DB)]
+        S3[(MinIO / Azure Blob)]
     end
 
-    subgraph AI_Ecosystem["Autonomous Micro-agents"]
-        Bot0["Recruiter Bot (Scraper)"]
-        Bot1["Scanner (Detection)"]
-        Bot2["Fixer (Gemini Flash)"]
-        Bot3["Supervisor (Groq Llama-3)"]
-        Bot4["Cleanup & Archiver"]
+    subgraph Workers["BullMQ AI Micro-Agent Swarm"]
+        Scan["Anomaly Detection Node"]
+        Groq["Groq Hallucination QA Evaluator"]
+        Match["Semantic Qdrant Candidate Matcher"]
+        Mail["Idempotent Nodemailer SMTP"]
     end
 
-    Frontend -->|"REST API"| API
-    AdminDashboard -->|"Start/Stop/Logs"| BotSpawner
-    BotSpawner -->|"Spawns Child Processes"| AI_Ecosystem
-    API -->|"CRUD"| Jobs
-    AI_Ecosystem -->|"Read/Write (poll interval)"| Jobs
-    
-    Bot2 -->|"LLM Call"| Gemini["Google Gemini API"]
-    Bot3 -->|"LLM Call"| Groq["Groq API"]
+    Frontend <-->|"wss://"| WebSocket
+    Frontend -->|"HTTPS"| API
+    API --> Services --> Repo --> Mongo
+    Services -->|"enqueue()"| Workers
+    Workers -->|"Semantic Search"| Qdrant
+    Repo -->|"Save File"| S3
 ```
 
 ---
 
-## 🔒 The Multi-Agent Data Pipeline
+## ⚙️ The Multi-Agent Data Pipeline
 
-OpusHire uses a chained agent architecture to ensure data quality without human intervention:
-
-1. **Recruiter Bot**: Ingests messy, unformatted job postings from Telegram and external APIs.
-2. **Scanner Bot**: Watches the DB. Flags jobs with excessively long or messy tags (`tagTileStatus: NEEDS_SHORTENING`).
-3. **Fixer Bot**: Picks up flagged jobs. Uses **Gemini 1.5 Flash** to extract concise, 3-keyword summaries (`tagTileStatus: PENDING_REVIEW`).
-4. **Supervisor Bot**: QA Agent. Uses **Groq Llama-3 70B** to verify Gemini's output against the original text. Overrides hallucinations and approves clean data (`tagTileStatus: VETTED`).
-5. **Cleanup Bot**: Manages record rotation (soft-archives @ 1 week, hard-deletes @ 3 weeks).
-6. **Archiver (Ghost Detector)**: Uses **Puppeteer** to visit external links and verify job availability, automatically archiving "ghost" postings.
+OpusHire's AI automation executes completely stripped of `child_process` overhead, instead leveraging scalable native BullMQ threads.
+1. **Anomaly Detector**: A lightweight, aggressive queue worker sweeping up newly-posted data.
+2. **LLM QA Matrix**: Automatically forces `Gemini 1.5 Flash` processing summaries to pass through a highly-scrutinized validation script generated by `Groq Llama-3`.
+3. **Ghost Purger**: Gracefully auto-archives job postings older than strict threshold TTLs to guarantee an impeccably fresh Applicant Sandbox.
+4. **Auto-Match Emailer**: Pings Qdrant to find resume vectors `>80%` similar to new job vectors, dispatching rich HTML emails securely without triggering SMTP spam traps.
 
 ---
 
-## ✨ Core UI/UX Features
+## 💻 Elite Tech Stack
 
-- **Premium Glassmorphism**: Deep dark oceanic themes with frosted glass cards (`backdrop-blur`).
-- **Tactile Interactions**: Smooth, physics-based spring animations using Framer Motion.
-- **Real-time Bot Hub**: Admins can start, stop, and monitor live streaming stdout/stderr terminal logs from the AI swarm.
-- **Audio Visualizers**: Animated bar visualizers that pulse when an AI agent is actively online and processing.
-
----
-
-## 💻 Tech Stack
-
-| Layer | Technology |
+| Layer | Enterprise Technology Applied |
 |-------|-----------|
-| **Frontend** | Next.js 14, TypeScript, Tailwind CSS v4, Framer Motion |
-| **Backend** | Node.js, Express.js, TypeScript, Mongoose ODM |
-| **Database** | MongoDB Atlas |
-| **Agent LLMs** | Google Gemini 1.5 Flash, Groq Llama-3 70B |
-| **Workspace** | npm Workspaces (Monorepo Management) |
-| **Micro-agents** | Native Node.js `child_process` (cross-platform) |
-| **CI/CD** | GitHub Actions (Zip-deployment strategy) |
-| **Hosting** | Microsoft Azure App Service |
+| **Orchestration** | Docker Compose, GitHub Actions |
+| **Object Storage** | S3 API Protocol (Local MinIO & Azure Blob) |
+| **Data Layers** | MongoDB Atlas, Qdrant (HNSW Cosine Math) |
+| **Caching/Queueing** | Redis (`ioredis`), `bullmq` |
+| **Frontend Platform** | Next.js 14, App Router, SSR, Framer Motion |
+| **Backend Cluster** | Node.js, Express.js (Service-Repo pattern) |
 
 ---
 
-## 🚀 Live Deployments
+## 🚀 Live Production Deployment
 
-| Service | URL |
-|---------|-----|
-| **Frontend Platform** | [opushire-frontend-app.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net) |
-| **Backend API** | [opushire-backend-app.azurewebsites.net](https://opushire-backend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net/api/health) |
+OpusHire is strictly automated across Microsoft Azure infrastructure:
+
+| Service | Geographic Location | Endpoint URL |
+|---------|-----|-----|
+| **Next.js Edge Cluster** | Central India | [opushire-frontend-app.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net) |
+| **Express Backend Core** | Central India | [opushire-backend-app.azurewebsites.net/api/health](https://opushire-backend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net/api/health) |
 
 ---
 
-## 🛠 Local Development
+## 🛠 Zero-Friction Setup
 
-OpusHire uses **npm Workspaces**. You can manage the entire project from the root.
+You can spin up the entire multi-container enterprise ecosystem on your localhost with a single standard shell command.
 
-### Prerequisites
-- Node.js 20+
-- MongoDB Atlas connection string
-- Gemini & Groq API Keys
+### 1. Requirements
+Ensure you possess a `.env` configured properly and Docker Engine actively polling.
 
-### 1. Setup
+### 2. Ignition Protocol
 ```bash
+# Clone the repository
 git clone https://github.com/soumik2441139/hackathon.git
 cd hackathon
-npm install  # Installs dependencies for ALL sub-projects at once
+
+# Launch the God-Tier 9-Container Orchestrator
+# (Deploys: Nginx, Frontend, Backend, primary/sec/tert Redis, Mongo, MinIO, Qdrant)
+docker compose up --build -d
 ```
-
-### 2. Environment Configuration
-Create a `.env` file in the root or specifically in `opushire-backend/` containing:
-`MONGODB_URI`, `JWT_SECRET`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `PORT=5000`
-
-### 3. Execution
-- **Full Ecosystem**: Run `node start-bots.js` from the root.
-- **Standalone TS Bot Dry Run**: Run `node start-bots.js --dry-run` to verify recruiter/matcher/advisor/enricher launch commands without starting them.
-- **Backend**: `cd opushire-backend && npm run dev`.
-- **Frontend**: `cd opushire && npm run dev`.
 
 ---
 
-> Built with 🩵 for high-growth students everywhere by **Soumik** and **Sagnik**.
+
 

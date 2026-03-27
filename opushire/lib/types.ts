@@ -57,6 +57,22 @@ export interface Application {
     updatedAt: string;
 }
 
+export interface ResumeMatch {
+    job: Job;
+    rerankScore: number;
+    explanation: string;
+}
+
+export interface LearningStep {
+    skill: string;
+    steps: string[];
+}
+
+export interface CareerInsight {
+    gaps: string[];
+    learningPath: LearningStep[];
+}
+
 export interface ApiResponse<T> {
     success: boolean;
     data: T;

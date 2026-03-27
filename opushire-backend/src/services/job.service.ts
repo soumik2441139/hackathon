@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Job } from '../models/Job';
+import { JobRepo } from '../repositories/job.repository';
 import { Student } from '../models/Student';
 import { Admin } from '../models/Admin';
 import { Application } from '../models/Application';
@@ -59,10 +59,7 @@ export const getJobs = async (filters: z.infer<typeof jobFilterSchema>) => {
     if (filters.featured === 'true') query.featured = true;
     if (filters.postedBy) query.postedBy = filters.postedBy;
 
-    const [jobs, total] = await Promise.all([
-        Job.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).populate('postedBy', 'name email'),
-        Job.countDocuments(query),
-    ]);
+    const { jobs, total } = await JobRepo.findJobsWithCount(query, skip, limit);
 
     return {
         jobs,
@@ -71,7 +68,7 @@ export const getJobs = async (filters: z.infer<typeof jobFilterSchema>) => {
 };
 
 export const getJobById = async (id: string) => {
-    const job = await Job.findById(id).populate('postedBy', 'name email');
+    const job = await JobRepo.findById(id);
     if (!job) throw createError('Job not found', 404);
     return job;
 };
@@ -82,7 +79,7 @@ export const createJob = async (data: z.infer<typeof createJobSchema>, userId: s
         logo = await imageToBase64(logo);
     }
 
-    const job = await Job.create({
+    const job = await JobRepo.create({
         ...data,
         companyLogo: logo,
         posted: 'Just now',
@@ -99,13 +96,13 @@ export const updateJob = async (id: string, rawData: unknown) => {
         data.companyLogo = await imageToBase64(data.companyLogo);
     }
 
-    const job = await Job.findByIdAndUpdate(id, data, { returnDocument: 'after', runValidators: true });
+    const job = await JobRepo.updateById(id, data);
     if (!job) throw createError('Job not found', 404);
     return job;
 };
 
 export const deleteJob = async (id: string) => {
-    const job = await Job.findByIdAndDelete(id);
+    const job = await JobRepo.deleteById(id);
     if (!job) throw createError('Job not found', 404);
     return { message: 'Job deleted' };
 };

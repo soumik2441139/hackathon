@@ -15,6 +15,8 @@ type RedisConnectionOptions = {
   maxRetriesPerRequest: null;
   enableOfflineQueue: boolean;
   connectionName: string;
+  retryStrategy?: (times: number) => number;
+  reconnectOnError?: (err: Error) => boolean;
 };
 
 type RedisBaseConfig = {
@@ -26,11 +28,14 @@ type RedisBaseConfig = {
 
 let sharedConnection: any = null;
 let secondaryConnection: any = null;
+let tertiaryConnection: any = null;
 let sharedQueue: Queue | null = null;
-let secondaryQueue: Queue | null = null;  // cached singleton — prevents multiple Queue instances on Upstash
+let secondaryQueue: Queue | null = null;
+let tertiaryQueue: Queue | null = null;
 let sharedQueueEvents: QueueEvents | null = null;
 let sharedWorker: Worker | null = null;
 let secondaryWorker: Worker | null = null;
+let tertiaryWorker: Worker | null = null;
 
 function buildRedisOptions(
   config: RedisBaseConfig,
@@ -46,6 +51,9 @@ function buildRedisOptions(
     // Producers fail fast; workers should recover through reconnects.
     enableOfflineQueue: target === 'worker',
     connectionName,
+    // Enterprise Pattern: Exponential Backoff Reconnection & Circuit Awareness
+    retryStrategy: (times: number) => Math.min(times * 100, 3000),
+    reconnectOnError: (err: Error) => true,
   };
 }
 
@@ -83,6 +91,25 @@ function getConnection(isSecondary = false): any {
   return sharedConnection;
 }
 
+function getTertiaryConnectionOptions(target: 'producer' | 'worker') {
+  return {
+    connectionName: target === 'worker' ? 'bullmq-tertiary-worker' : 'bullmq-tertiary',
+    maxRetriesPerRequest: null,
+    enableOfflineQueue: target === 'worker',
+    retryStrategy: (times: number) => Math.min(times * 100, 3000),
+    reconnectOnError: (err: Error) => true,
+  };
+}
+
+function getTertiaryConnection(): any {
+  if (!SystemConfig.redisTertiaryUrl) return getConnection(false); // fallback to primary
+  if (!tertiaryConnection) {
+    tertiaryConnection = new IORedis(SystemConfig.redisTertiaryUrl, getTertiaryConnectionOptions('producer'));
+    tertiaryConnection.on('error', (err: any) => logError('REDIS_TERTIARY', 'Connection error', err));
+  }
+  return tertiaryConnection;
+}
+
 const PHYSICAL_QUEUE_NAME = env.BULLMQ_SHARED_QUEUE_NAME;
 const JOB_NAME_SEPARATOR = '::';
 const WORKER_CONCURRENCY = Math.max(1, Number(env.BULLMQ_WORKER_CONCURRENCY || '1'));
@@ -103,20 +130,48 @@ function parseLogicalQueueName(fullJobName: string): QueueName | null {
 }
 
 function getSharedQueue(isSecondary = false): Queue {
+  // Enterprise Pattern: Strict limits to prevent Database RAM overflow on Free Tiers
+  const defaultJobOptions = {
+    removeOnComplete: { count: 100 },
+    removeOnFail: { count: 300 },
+    attempts: 3,
+    backoff: { type: 'exponential', delay: 2000 }
+  };
+
   if (isSecondary) {
-    // Reuse a single secondary Queue instance so BullMQ only duplicates the
-    // Upstash connection once — each new Queue() costs an extra connection.
     if (!secondaryQueue) {
-      secondaryQueue = new Queue(PHYSICAL_QUEUE_NAME, { connection: getConnection(true) });
+      secondaryQueue = new Queue(PHYSICAL_QUEUE_NAME, { 
+        connection: getConnection(true),
+        defaultJobOptions 
+      });
     }
     return secondaryQueue;
   }
 
   if (!sharedQueue) {
-    sharedQueue = new Queue(PHYSICAL_QUEUE_NAME, { connection: getConnection(false) });
+    sharedQueue = new Queue(PHYSICAL_QUEUE_NAME, { 
+      connection: getConnection(false),
+      defaultJobOptions 
+    });
     attachSharedEvents();
   }
   return sharedQueue;
+}
+
+function getTertiaryQueue(): Queue {
+  if (!SystemConfig.redisTertiaryUrl) return getSharedQueue(false);
+  if (!tertiaryQueue) {
+    tertiaryQueue = new Queue(PHYSICAL_QUEUE_NAME, { 
+      connection: getTertiaryConnection(),
+      defaultJobOptions: {
+        removeOnComplete: { count: 100 },
+        removeOnFail: { count: 300 },
+        attempts: 5,
+        backoff: { type: 'exponential', delay: 1000 }
+      }
+    });
+  }
+  return tertiaryQueue;
 }
 
 function attachSharedEvents() {
@@ -130,7 +185,7 @@ function attachSharedEvents() {
   });
 }
 
-function attachWorkerEvents(worker: Worker, scope: 'WORKER_PRIMARY' | 'WORKER_SECONDARY') {
+function attachWorkerEvents(worker: Worker, scope: 'WORKER_PRIMARY' | 'WORKER_SECONDARY' | 'WORKER_TERTIARY') {
   worker.on('error', (err) => {
     logError(scope, 'Worker runtime error', err);
   });
@@ -154,6 +209,8 @@ const QUEUE_NAMES = [
   'match-resumes',
   'career-advisor',
   'linkedin-enrich',
+  'match-candidates',
+  'email-notifications',
 ] as const;
 
 export type QueueName = (typeof QUEUE_NAMES)[number];
@@ -222,11 +279,22 @@ export function getQueue(name: QueueName): Queue | null {
   if (_redisAvailable === false) return null;
 
   if (!queueMap.has(name)) {
-    // Routing Logic: Specific heavy queues go to the secondary instance if available
-    const isHeavy = ['scan-jobs', 'fix-tags', 'supervise-tags', 'linkedin-enrich'].includes(name);
+    // Routing Logic: Specific heavy queues go to secondary (Upstash), core logic goes to tertiary (Render)
+    const isCore = ['match-resumes', 'career-advisor', 'email-notifications'].includes(name);
+    const isHeavy = ['scan-jobs', 'fix-tags', 'supervise-tags', 'linkedin-enrich', 'match-candidates'].includes(name);
+    
+    const useTertiary = isCore && !!SystemConfig.redisTertiaryUrl;
     const useSecondary = isHeavy && !!SystemConfig.redisSecondary && _secondaryRedisAvailable !== false;
 
-    const q = getSharedQueue(useSecondary);
+    let q: Queue;
+    if (useTertiary) {
+      q = getTertiaryQueue();
+    } else if (useSecondary) {
+      q = getSharedQueue(true);
+    } else {
+      q = getSharedQueue(false);
+    }
+    
     queueMap.set(name, q);
   }
   return queueMap.get(name)!;
@@ -243,6 +311,8 @@ export const archiveQueue = () => getQueue('archive-check');
 export const matchQueue   = () => getQueue('match-resumes');
 export const advisorQueue = () => getQueue('career-advisor');
 export const enrichQueue  = () => getQueue('linkedin-enrich');
+export const matchCandidatesQueue = () => getQueue('match-candidates');
+export const emailNotificationsQueue = () => getQueue('email-notifications');
 
 // ─── Safe enqueue helper ─────────────────────────────────────────
 // Wraps queue.add() — silently skips if Redis is unavailable.
@@ -288,19 +358,26 @@ export function createWorker(
   return sharedWorker;
 }
 
-export function startRegisteredWorkers(): { primary: Worker | null; secondary: Worker | null } {
-  const result = { primary: null as Worker | null, secondary: null as Worker | null };
+export function startRegisteredWorkers(): any {
+  const result = { primary: null as Worker | null, secondary: null as Worker | null, tertiary: null as Worker | null };
 
   if (!WORKERS_ENABLED || _redisAvailable === false) return result;
 
   // Separate processors by target instance
   const primaryProcessors = new Map<QueueName, ProcessorFn>();
   const secondaryProcessors = new Map<QueueName, ProcessorFn>();
+  const tertiaryProcessors = new Map<QueueName, ProcessorFn>();
+  
   const canUseSecondary = !!SystemConfig.redisSecondary && _secondaryRedisAvailable === true;
+  const canUseTertiary = !!SystemConfig.redisTertiaryUrl;
 
   for (const [name, proc] of processorMap.entries()) {
-    const isHeavy = name === 'scan-jobs' || name === 'linkedin-enrich';
-    if (isHeavy && canUseSecondary) {
+    const isCore = ['match-resumes', 'career-advisor', 'email-notifications'].includes(name);
+    const isHeavy = ['scan-jobs', 'fix-tags', 'supervise-tags', 'linkedin-enrich', 'match-candidates'].includes(name);
+    
+    if (isCore && canUseTertiary) {
+      tertiaryProcessors.set(name, proc);
+    } else if (isHeavy && canUseSecondary) {
       secondaryProcessors.set(name, proc);
     } else {
       primaryProcessors.set(name, proc);
@@ -339,6 +416,22 @@ export function startRegisteredWorkers(): { primary: Worker | null; secondary: W
     log('WORKER', `Secondary worker started on ${PHYSICAL_QUEUE_NAME} (Heavy jobs)`);
   }
 
+  // Start Tertiary Worker
+  if (tertiaryProcessors.size > 0 && !tertiaryWorker) {
+    tertiaryWorker = new Worker(PHYSICAL_QUEUE_NAME, async (job) => {
+      const logicalQueue = parseLogicalQueueName(job.name);
+      const processor = logicalQueue ? tertiaryProcessors.get(logicalQueue) : null;
+      if (!processor) throw new Error(`No tertiary processor for ${job.name}`);
+      return processor(job.data);
+    }, {
+      connection: new IORedis(SystemConfig.redisTertiaryUrl!, getTertiaryConnectionOptions('worker')) as any,
+      concurrency: WORKER_CONCURRENCY,
+    });
+    attachWorkerEvents(tertiaryWorker, 'WORKER_TERTIARY');
+    result.tertiary = tertiaryWorker;
+    log('WORKER', `Tertiary worker started on ${PHYSICAL_QUEUE_NAME} (Core jobs)`);
+  }
+
   return result;
 }
 
@@ -373,6 +466,16 @@ export async function closeQueues(): Promise<void> {
     secondaryQueue = null;
   }
 
+  if (tertiaryWorker) {
+    closeTasks.push(tertiaryWorker.close());
+    tertiaryWorker = null;
+  }
+
+  if (tertiaryQueue) {
+    closeTasks.push(tertiaryQueue.close());
+    tertiaryQueue = null;
+  }
+
   await Promise.all(closeTasks);
   queueMap.clear();
   processorMap.clear();
@@ -387,6 +490,10 @@ export async function closeQueues(): Promise<void> {
   if (secondaryConnection) {
     disconnectTasks.push(Promise.resolve(secondaryConnection.disconnect()));
     secondaryConnection = null;
+  }
+  if (tertiaryConnection) {
+    disconnectTasks.push(Promise.resolve(tertiaryConnection.disconnect()));
+    tertiaryConnection = null;
   }
   await Promise.allSettled(disconnectTasks);
 

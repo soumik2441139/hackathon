@@ -1,0 +1,30 @@
+# npm audit report
+
+brace-expansion  <1.1.13 || >=2.0.0 <2.0.3
+Severity: moderate
+brace-expansion: Zero-step sequence causes process hang and memory exhaustion - https://github.com/advisories/GHSA-f886-m6hf-6m8v
+brace-expansion: Zero-step sequence causes process hang and memory exhaustion - https://github.com/advisories/GHSA-f886-m6hf-6m8v
+fix available via `npm audit fix`
+node_modules/brace-expansion
+node_modules/glob/node_modules/brace-expansion
+
+nodemailer  <8.0.4
+Nodemailer has SMTP command injection due to unsanitized `envelope.size` parameter - https://github.com/advisories/GHSA-c7w3-x93f-qmm8
+fix available via `npm audit fix --force`
+Will install nodemailer@8.0.4, which is a breaking change
+node_modules/nodemailer
+
+picomatch  <=2.3.1
+Severity: high
+Picomatch: Method Injection in POSIX Character Classes causes incorrect Glob Matching - https://github.com/advisories/GHSA-3v7f-55p6-f55p
+Picomatch has a ReDoS vulnerability via extglob quantifiers - https://github.com/advisories/GHSA-c2c7-rcm5-vvqj
+fix available via `npm audit fix`
+node_modules/picomatch
+
+3 vulnerabilities (1 low, 1 moderate, 1 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force

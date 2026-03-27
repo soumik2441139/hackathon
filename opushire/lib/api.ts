@@ -271,3 +271,45 @@ export const admin = {
         getByDate: (date: string) => request<{ success: boolean; data: any[] }>(`/admin/reports/${date}`),
     }
 };
+
+// ─── Resume ───────────────────────────────────────────────────────────────────
+export const resume = {
+    upload: (file: File) => {
+        const formData = new FormData();
+        formData.append('resume', file);
+        return request<{ success: boolean; resumeId: string; message: string }>('/resume/upload', {
+            method: 'POST',
+            body: formData,
+        });
+    },
+
+    getMyFile: () =>
+        request<{ success: boolean; url: string }>('/files/my-resume'),
+};
+
+// ─── Resume Score ─────────────────────────────────────────────────────────────
+export const resumeScore = {
+    getMine: () =>
+        request<{ score: number; breakdown: string[] }>('/resume-score/my'),
+};
+
+// ─── AI Job Matching ──────────────────────────────────────────────────────────
+export const match = {
+    getMine: () =>
+        request<{ matches: import('./types').ResumeMatch[] }>('/match/my'),
+};
+
+// ─── Career Advisor ───────────────────────────────────────────────────────────
+export const careerAdvisor = {
+    getMine: () =>
+        request<import('./types').CareerInsight>('/career-advisor/my'),
+};
+
+// ─── LinkedIn Enrichment ──────────────────────────────────────────────────────
+export const linkedin = {
+    enrich: (linkedinUrl: string) =>
+        request<{ success: boolean; extraData: Record<string, any> }>('/linkedin/enrich', {
+            method: 'POST',
+            body: JSON.stringify({ linkedinUrl }),
+        }),
+};

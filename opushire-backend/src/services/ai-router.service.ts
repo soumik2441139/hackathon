@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Required interface for prompts
 interface RouterOptions {
@@ -47,10 +46,11 @@ export async function routeAIExtraction(options: RouterOptions): Promise<any> {
         console.log(`[AI Router] ❌ Primary Model Failed/Crashed (${e.message}). Escalating...`);
     }
 
-    // Step 2: The Fallback Model (Gemini 2.5 Flash)
-    console.log('[AI Router] 🛡️ Triggering Fallback Heavy Model (Gemini 2.5 Flash)...');
+    // Step 2: The Fallback Model (Llama-3.3-70B Versatile)
+    console.log('[AI Router] 🛡️ Triggering Fallback Heavy Model (llama-3.3-70b-versatile)...');
     try {
-        const fallbackResult = await queryGemini(
+        const fallbackResult = await queryGroq(
+            'llama-3.3-70b-versatile',
             options.systemPrompt,
             options.userPrompt,
             0.2 // Lower temp for maximum strictness on fallback
@@ -63,26 +63,6 @@ export async function routeAIExtraction(options: RouterOptions): Promise<any> {
         console.log(`[AI Router] ❌ Fallback Model Failed/Crashed (${e.message}).`);
         throw new Error('AI Router failed on all models.');
     }
-}
-
-async function queryGemini(systemPrompt: string, userPrompt: string, temperature = 0.2): Promise<string> {
-    const geminiKey = process.env.GEMINI_API_KEY;
-    if (!geminiKey) {
-        throw new Error('GEMINI_API_KEY is not defined in environment variables.');
-    }
-
-    const genAI = new GoogleGenerativeAI(geminiKey);
-    const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
-        systemInstruction: systemPrompt,
-        generationConfig: {
-            temperature: temperature,
-            responseMimeType: "application/json"
-        }
-    });
-
-    const result = await model.generateContent(userPrompt);
-    return result.response.text();
 }
 
 async function queryGroq(model: string, systemPrompt: string, userPrompt: string, temperature = 0.5): Promise<string> {

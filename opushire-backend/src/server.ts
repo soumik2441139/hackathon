@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import promBundle from 'express-prom-bundle';
 import { baseRateLimitConfig } from './config/rateLimit';
 import mongoose from 'mongoose';
 import { connectDB } from './config/db';
@@ -36,6 +37,9 @@ import { isEmailVerificationConfigured } from './services/email.service';
 import { initWorkers } from './services/queue/workers';
 import { probeRedis } from './services/queue/queue.service';
 
+// WebSockets (Real-time Streaming)
+import { WebSocketService } from './services/websocket.service';
+
 const app = express();
 let httpServer: ReturnType<typeof app.listen> | null = null;
 let shuttingDown = false;
@@ -44,7 +48,17 @@ let shuttingDown = false;
 app.set('trust proxy', 1);
 
 // Security & parsing
-app.use(helmet());
+app.disable('x-powered-by');
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "https:"],
+        },
+    },
+}));
 app.use(cors(corsOptions));
 
 // Rate Limiting (Global)
@@ -59,6 +73,18 @@ app.use('/api', limiter);
 app.use(express.json({ limit: '10kb' })); // Limit body payload to 10kb against DOS
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(mongoSanitize); // MongoDB injection protection (Express 5-compatible)
+
+// Prometheus Metrics Endpoint (Exposes GET /metrics)
+const metricsMiddleware = promBundle({
+    includeMethod: true,
+    includePath: true,
+    includeStatusCode: true,
+    includeUp: true,
+    promClient: {
+        collectDefaultMetrics: {}
+    }
+});
+app.use(metricsMiddleware);
 
 // Per-request trace ID & structured HTTP logging
 app.use((req, res, next) => {
@@ -146,15 +172,21 @@ const start = async () => {
     httpServer = app.listen(env.PORT, () => {
         logger.info({ port: env.PORT, env: env.NODE_ENV }, `Opushire API running on http://localhost:${env.PORT}`);
     });
+
+    // Mount Bidirectional WebSockets to the raw HTTP server instance
+    WebSocketService.init(httpServer);
+
     // Connect to DB in background (auto-retries)
     connectDB();
     // Probe Redis & start BullMQ workers (non-blocking — API works without Redis)
     initWorkers().catch((err) => logger.error({ err }, 'BullMQ worker init failed'));
     // Start the autonomous bot scheduler
-    initScheduler();
 };
 
-start().catch(console.error);
+// Start only if not imported by Jest
+if (process.env.NODE_ENV !== 'test') {
+    start().catch(console.error);
+}
 
 // ─── Graceful Shutdown ───────────────────────────────────────────
 // Must call closeQueues() so IORedis TCP sockets are released immediately.

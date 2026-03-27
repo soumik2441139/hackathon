@@ -15,10 +15,18 @@ const envSchema = z.object({
     GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY is required'),
     GROQ_API_KEY: z.string().min(1, 'GROQ_API_KEY is required'),
 
-    // Azure Blob Storage
+    // Azure Blob Storage & MinIO (S3 Compatible)
     AZURE_STORAGE_CONNECTION_STRING: z.string().optional(),
     AZURE_STORAGE_ACCOUNT: z.string().optional(),
     AZURE_STORAGE_KEY: z.string().optional(),
+    STORAGE_URL: z.string().optional(),
+    STORAGE_ACCESS_KEY: z.string().optional(),
+    STORAGE_SECRET_KEY: z.string().optional(),
+    STORAGE_BUCKET: z.string().default('opushire-assets'),
+
+    // Vector DB (Qdrant)
+    VECTOR_DB_URL: z.string().optional(),
+    VECTOR_DB_API_KEY: z.string().optional(),
 
     // Email (Resend)
     RESEND_API_KEY: z.string().optional(),
@@ -43,6 +51,9 @@ const envSchema = z.object({
     SECONDARY_REDIS_PORT: z.string().optional(),
     SECONDARY_REDIS_PASSWORD: z.string().optional(),
     SECONDARY_REDIS_TLS: z.string().default('false'),
+
+    // Redis (BullMQ - Tertiary for Core Match logic)
+    TERTIARY_REDIS_URL: z.string().optional(),
 
     // BullMQ tuning
     BULLMQ_WORKERS_ENABLED: z.string().default('true'),

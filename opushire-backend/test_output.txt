@@ -1,0 +1,53 @@
+FAIL tests/health.test.ts
+  ΓùÅ Test suite failed to run
+
+    tests/health.test.ts:4:1 - error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+
+    4 describe('API Health Checks', () => {
+      ~~~~~~~~
+    tests/health.test.ts:5:3 - error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+
+    5   it('GET / should return alive status', async () => {
+        ~~
+    tests/health.test.ts:7:5 - error TS2304: Cannot find name 'expect'.
+
+    7     expect(res.status).toBe(200);
+          ~~~~~~
+    tests/health.test.ts:8:5 - error TS2304: Cannot find name 'expect'.
+
+    8     expect(res.body).toEqual({ status: 'alive', message: 'Opushire Backend API' });
+          ~~~~~~
+    tests/health.test.ts:11:3 - error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+
+    11   it('GET /health should return environmental variables', async () => {
+         ~~
+    tests/health.test.ts:13:5 - error TS2304: Cannot find name 'expect'.
+
+    13     expect(res.status).toBe(200);
+           ~~~~~~
+    tests/health.test.ts:14:5 - error TS2304: Cannot find name 'expect'.
+
+    14     expect(res.body.env).toBeDefined();
+           ~~~~~~
+    tests/health.test.ts:15:5 - error TS2304: Cannot find name 'expect'.
+
+    15     expect(res.body.status).toBe('ok');
+           ~~~~~~
+    tests/health.test.ts:19:3 - error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+
+    19   it('GET /invalid-route should return 404', async () => {
+         ~~
+    tests/health.test.ts:21:5 - error TS2304: Cannot find name 'expect'.
+
+    21     expect(res.status).toBe(404);
+           ~~~~~~
+    tests/health.test.ts:22:5 - error TS2304: Cannot find name 'expect'.
+
+    22     expect(res.body.success).toBe(false);
+           ~~~~~~
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        4.323 s
+Ran all test suites.

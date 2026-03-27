@@ -44,34 +44,8 @@ jobs:
           # Final sanity check rebuild for production-only dependencies
           npm rebuild
           
-          # Install dependencies for each bot directory so they work on Azure
-          for botdir in recruiter-bot bots/scanner bots/fixer bots/supervisor bots/cleanup bots/archiver bots/matcher bots/advisor bots/linkedin-enricher; do
-            if [ -d "../$botdir" ]; then
-              echo "Preparing $botdir..."
-              if [ "$botdir" = "recruiter-bot" ]; then
-                # Build recruiter-bot CLI and then prune dev deps so runtime uses dist/cli.js.
-                (cd "../$botdir" && npm install --no-workspaces && npm run build && npm prune --omit=dev)
-              else
-                (cd "../$botdir" && npm install --production --no-workspaces)
-              fi
-            fi
-          done
-
-          # Bundle backend + all bot dirs into one zip
+          # Bundle purely the backend orchestrator (bots are now native BullMQ workers inside src/services/queue)
           zip -r ../backend.zip .
-          
-          cd ..
-          for botdir in recruiter-bot bots/scanner bots/fixer bots/supervisor bots/cleanup bots/archiver bots/matcher bots/advisor bots/linkedin-enricher; do
-            if [ -d "$botdir" ]; then
-              zip -r backend.zip "$botdir/"
-              echo "Added $botdir to deployment package"
-            fi
-          done
-          
-          if [ -d "agents" ]; then
-            zip -r backend.zip agents/ -x "agents/venv/*" -x "agents/**/__pycache__/*"
-            echo "Added agents to deployment package"
-          fi
 
 
       - name: Upload artifact for deployment job
