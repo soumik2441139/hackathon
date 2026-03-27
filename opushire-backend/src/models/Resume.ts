@@ -71,4 +71,10 @@ const ResumeSchema = new Schema<IResume>({
 
 }, { timestamps: true });
 
+// ─── Compound indexes ─────────────────────────────────────────────────────────
+// match-resumes worker: find unprocessed uploaded resumes quickly
+ResumeSchema.index({ matched: 1, userId: 1 });
+// Career advisor: check if user already has a learning path
+ResumeSchema.index({ userId: 1, 'extraData.learningPath': 1 }, { sparse: true });
+
 export default mongoose.model<IResume>('Resume', ResumeSchema);

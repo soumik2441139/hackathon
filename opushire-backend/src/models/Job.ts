@@ -105,6 +105,16 @@ JobSchema.index({ createdAt: -1 });
 // Bot indexes
 JobSchema.index({ source: 1 });
 
+// ─── Compound indexes for production query patterns ───────────────────────────
+// Cleanup worker: find old unarchived jobs → fastest with compound
+JobSchema.index({ createdAt: -1, isArchived: 1 });
+// BullMQ workers: scan for jobs needing LLM processing
+JobSchema.index({ tagTileStatus: 1, isArchived: 1 });
+// Dashboard: live featured non-archived listings, sorted by recency
+JobSchema.index({ featured: -1, isArchived: 1, createdAt: -1 });
+// Bot deduplication: source + externalId uniqueness check
+JobSchema.index({ source: 1, externalId: 1 }, { sparse: true });
+
 const JobModel = mongoose.model<IJob>('Job', JobSchema);
 export { JobModel as Job };
 export default JobModel;

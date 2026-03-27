@@ -40,6 +40,11 @@ import { probeRedis } from './services/queue/queue.service';
 // WebSockets (Real-time Streaming)
 import { WebSocketService } from './services/websocket.service';
 
+// Swagger API Docs
+import swaggerUi from 'swagger-ui-express';
+import { existsSync } from 'fs';
+import { join } from 'path';
+
 const app = express();
 let httpServer: ReturnType<typeof app.listen> | null = null;
 let shuttingDown = false;
@@ -136,6 +141,18 @@ app.get('/api/health', async (_req, res) => {
         },
     });
 });
+
+// API Docs — served only if swagger-output.json has been generated (npm run swagger)
+const swaggerPath = join(__dirname, '..', 'swagger-output.json');
+if (existsSync(swaggerPath)) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const swaggerDocument = require(swaggerPath);
+    app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+        customSiteTitle: 'OpusHire API Explorer',
+        customCss: '.swagger-ui .topbar { background: #0f172a; }',
+    }));
+    app.get('/api/docs.json', (_req, res) => res.json(swaggerDocument));
+}
 
 // API Routes
 app.use('/api/auth', authRoutes);

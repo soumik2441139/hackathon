@@ -72,6 +72,7 @@ backend_run_summary.txt
 failed_log.txt
 runs.json
 runs.txt
+REDIS_EXPLAINER.txt
 backend_logs_extracted*/
 temp_*/
 opushire-backend/debug-redis.js

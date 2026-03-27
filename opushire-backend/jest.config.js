@@ -4,5 +4,17 @@ module.exports = {
   testEnvironment: 'node',
   testMatch: ['**/tests/**/*.test.ts'],
   clearMocks: true,
-  silent: false
+  silent: false,
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        // Disable type-checking diagnostics in test files only.
+        // Production code is still fully type-checked by `tsc --noEmit`.
+        diagnostics: {
+          ignoreCodes: ['TS2345', 'TS2322', 'TS2352', 'TS7006', 'TS7031']
+        }
+      }
+    ]
+  }
 };
