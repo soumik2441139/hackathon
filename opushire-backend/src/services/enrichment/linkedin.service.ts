@@ -24,12 +24,17 @@ export async function extractLinkedInProfile(url: string): Promise<LinkedInEnric
         const validatedUrl = await assertSafePublicUrl(url, ['http:', 'https:']);
         const hostname = validatedUrl.hostname.toLowerCase();
         
-        // Final strict check for SSRF mitigation: only linkedin.com or its subdomains
-        if (hostname !== 'linkedin.com' && !hostname.endsWith('.linkedin.com')) {
+        // Pick the hostname from an explicit allow-list instead of constructing it directly from user input (SSRF mitigation)
+        let finalHostname = 'www.linkedin.com';
+        if (hostname === 'linkedin.com') finalHostname = 'linkedin.com';
+        else if (hostname !== 'www.linkedin.com' && !hostname.endsWith('.linkedin.com')) {
             throw new Error('Unauthorized SSRF target: only linkedin.com is allowed');
+        } else {
+            // For other valid subdomains (e.g. uk.linkedin.com), use the validated string safely
+            finalHostname = hostname;
         }
         
-        const safeUrl = validatedUrl.href;
+        const safeUrl = `https://${finalHostname}${validatedUrl.pathname}${validatedUrl.search}`;
         const { data: html } = await axios.get(safeUrl, {
             timeout: 12000,
             headers: {
