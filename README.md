@@ -1,8 +1,8 @@
 <div align="center">
   <br />
   <h1>🚀 OpusHire</h1>
-  <p><strong>The Enterprise-Grade Autonomous Career Protocol</strong></p>
-  <p>An elite, cloud-native orchestration ecosystem connecting high-growth student talent with top-tier tech startups using localized Vector Search, Triple-Redis Job Queuing, and specialized AI Micro-Agents.</p>
+  <p><strong>Enterprise-Grade Autonomous Career Protocol</strong></p>
+  <p>A high-performance, cloud-native orchestration ecosystem connecting student talent with leading tech companies using localized Vector Search, Triple-Redis Job Queuing, and specialized AI Micro-Agents.</p>
   <br />
 
   [![Deploy on Azure](https://img.shields.io/badge/Deploy_on_Azure-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white)](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
@@ -16,9 +16,9 @@
 
 ---
 
-## 🌟 Overview & Core Engineering Feats
+## 🌟 Overview & Core Engineering
 
-OpusHire transcends traditional job platforms through a sophisticated, event-driven microservices architecture. Designed for horizontal scalability, the entire ecosystem relies on intelligent AI agents, vector matching, and robust asynchronous queues.
+OpusHire provides a sophisticated, event-driven microservices architecture designed for horizontal scalability. The entire ecosystem relies on intelligent AI agents, vector matching, and robust asynchronous queues.
 
 - ⚡ **Triple-Redis Queue Intelligence:** Utilizes a highly-available caching layer split into domains (Core Routing, Background AI Workers, and Caching) using strict `BullMQ` idempotency.
 - 🧠 **Cosine Vector Search Engine:** Embeds Google Gemini 768-D mathematically dense representations into `Qdrant`, calculating cosine similarity matrixes instantly to trigger Auto-Match emails for high-scoring applicants.
@@ -72,7 +72,7 @@ graph TD
 
 ## 🤖 The AI Autonomous Pipeline
 
-OpusHire's secret sauce is its **State-Machine Driven Content Vetting**. Jobs and resumes aren't just uploaded; they are refined through a multi-agent validation loop.
+OpusHire's core logic is its **State-Machine Driven Content Vetting**. Jobs and resumes aren't just uploaded; they are refined through a multi-agent validation loop.
 
 ### Job Vetting State Machine
 ```mermaid
@@ -89,7 +89,7 @@ stateDiagram-v2
 ### Intelligent Enrichment Layer
 - **SSR-Safe LinkedIn Enrichment:** Scrapes certifications and headlines using specialized SSRF-protected `cheerio` extractors.
 - **Resume Insight Engine:** Uses `pdf-parse` and `pdf-lib` to extract text, which is then vectorized for 80%+ semantic similarity matching in `Qdrant`.
-- **Learning Path Advisor:** Generates customized skill-gap roadmaps for students based on their resume vs. top-tier job requirements.
+- **Learning Path Advisor:** Generates customized skill-gap roadmaps for students based on their resume vs. leading job requirements.
 
 ---
 
@@ -140,7 +140,7 @@ Advanced Python orchestration layer:
 
 ### Local Ignition
 ```bash
-# Launch the God-Tier multi-container ecosystem
+# Launch the production-ready multi-container ecosystem
 docker compose up --build -d
 ```
 
@@ -149,6 +149,4 @@ docker compose up --build -d
 - `.env` configured with `GEMINI_API_KEY` and `MONGODB_URI`.
 
 ---
-<div align="center">
-  <sub>Built with ❤️ for Top-Tier Tech Placements.</sub>
-</div>
+

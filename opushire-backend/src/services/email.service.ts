@@ -174,7 +174,7 @@ export const sendAutoMatchEmail = async ({
             
             <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;" />
             <p style="margin:0;color:#64748b;font-size:12px;text-align:center;">
-                You are receiving this email because your OpusHire profile represents an elite match for this position. If you wish to stop receiving Auto-Match alerts, you can update your notification preferences in your dashboard.
+                You are receiving this email because your OpusHire profile represents a strong match for this position. If you wish to stop receiving Auto-Match alerts, you can update your notification preferences in your dashboard.
             </p>
         </div>
     `;

@@ -26,7 +26,7 @@ export const FeaturedJobs = () => {
                     <div>
                         <h2 className="text-4xl md:text-5xl font-bold mb-4">Featured Opportunities</h2>
                         <p className="text-white/50 max-w-lg">
-                            Hand-picked roles from top-tier companies actively looking for student talent like you.
+                            Hand-picked roles from verified companies actively looking for student talent like you.
                         </p>
                     </div>
                 </ScrollReveal>

@@ -15,7 +15,7 @@ This is the front-end application for the **Opushire** premium student job porta
 
 ## 🎨 Premium UI/UX Design
 
-The Opushire frontend is designed with an immersive "Glassmorphism" aesthetic intended to target elite students and tier-1 tech startups. 
+The Opushire frontend is designed with an immersive "Glassmorphism" aesthetic intended to target ambitious students and innovative tech startups. 
 
 Key design elements include:
 - Frosted glass cards using Tailwind's `backdrop-blur`.

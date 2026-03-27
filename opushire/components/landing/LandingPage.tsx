@@ -147,7 +147,7 @@ export const LandingPage = () => {
           </h1>
           
           <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-light leading-relaxed opacity-0" id="hero-desc">
-            The high-stakes career protocol. Leveraging autonomous AI orchestration to bypass market noise and secure elite professional placement.
+            The career protocol. Leveraging autonomous AI orchestration to bypass market noise and secure professional placement.
           </p>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 opacity-0" id="hero-cta">
@@ -319,7 +319,7 @@ export const LandingPage = () => {
               </div>
               <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-4">Strategic Bridge</div>
               <p className="text-xs text-gray-600 leading-relaxed font-medium">
-                Autonomous agents initiate high-level protocol handshakes with elite engineering nodes and decision-makers.
+                Autonomous agents initiate high-level protocol handshakes with leading engineering nodes and decision-makers.
               </p>
             </div>
             
@@ -331,7 +331,7 @@ export const LandingPage = () => {
                 <h3 className="text-sm font-bold uppercase tracking-widest text-white">Boardroom</h3>
                 <span className="text-green-600 text-[10px] font-bold tracking-widest uppercase">Phase 04</span>
               </div>
-              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-4">Elite Placement</div>
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-4">Professional Placement</div>
               <p className="text-xs text-gray-600 leading-relaxed font-medium">
                 Final deployment into high-stakes leadership or architectural roles with optimized compensation packages.
               </p>
@@ -349,7 +349,7 @@ export const LandingPage = () => {
           </div>
           <div className="stat-item">
             <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">140+</div>
-            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Elite Partners</div>
+            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Global Partners</div>
           </div>
           <div className="stat-item">
             <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">$420M+</div>

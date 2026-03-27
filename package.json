@@ -1,7 +1,7 @@
 {
   "name": "hackathon",
   "version": "1.0.0",
-  "description": "<div align=\"center\">\r   <br />\r   <h1>OpusHire 🚀</h1>\r   <p><strong>Elevate your Career from Campus.</strong></p>\r   <p>The premium job portal designed explicitly for high-growth students and top-tier tech startups.</p>\r   <br />",
+  "description": "<div align=\"center\">\r   <br />\r   <h1>OpusHire 🚀</h1>\r   <p><strong>Career Protocol for Students.</strong></p>\r   <p>The premium job portal designed explicitly for ambitious students and innovative tech companies.</p>\r   <br />",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

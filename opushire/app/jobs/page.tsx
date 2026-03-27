@@ -8,7 +8,7 @@ export default function JobsPage() {
                 <ScrollReveal direction="down">
                     <header className="mb-12">
                         <h1 className="text-4xl md:text-6xl font-bold mb-4">Find your <span className="text-gradient">next role</span></h1>
-                        <p className="text-white/50 text-xl">Explore 2,500+ active opportunities from top-tier startups.</p>
+                        <p className="text-white/50 text-xl">Explore 2,500+ active opportunities from leading companies.</p>
                     </header>
                 </ScrollReveal>
 
