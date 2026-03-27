@@ -24,17 +24,30 @@ export async function extractLinkedInProfile(url: string): Promise<LinkedInEnric
         const validatedUrl = await assertSafePublicUrl(url, ['http:', 'https:']);
         const hostname = validatedUrl.hostname.toLowerCase();
         
-        // Pick the hostname from an explicit allow-list instead of constructing it directly from user input (SSRF mitigation)
-        let finalHostname = 'www.linkedin.com';
-        if (hostname === 'linkedin.com') finalHostname = 'linkedin.com';
-        else if (hostname !== 'www.linkedin.com' && !hostname.endsWith('.linkedin.com')) {
+        // Only allow LinkedIn public profile URLs under linkedin.com
+        if (hostname !== 'www.linkedin.com' && hostname !== 'linkedin.com' && !hostname.endsWith('.linkedin.com')) {
             throw new Error('Unauthorized SSRF target: only linkedin.com is allowed');
-        } else {
-            // For other valid subdomains (e.g. uk.linkedin.com), use the validated string safely
-            finalHostname = hostname;
         }
-        
-        const safeUrl = `https://${finalHostname}${validatedUrl.pathname}${validatedUrl.search}`;
+
+        // Extract the LinkedIn profile slug from the path, enforcing a tight allow-list
+        // Examples of supported paths: /in/john-doe-123456/ or /in/john-doe-123456
+        const path = validatedUrl.pathname || '';
+        const match = path.match(/^\/in\/([^/]+)(?:\/.*)?$/);
+        if (!match) {
+            // Not a standard public profile URL — do not perform any outbound request
+            return result;
+        }
+
+        const rawSlug = match[1].trim();
+        // Allow only safe characters in the slug (letters, numbers, dashes) and a reasonable length
+        if (!/^[a-zA-Z0-9-]{3,100}$/.test(rawSlug)) {
+            return result;
+        }
+
+        const encodedSlug = encodeURIComponent(rawSlug);
+
+        // Use a canonical LinkedIn host and drop any user-controlled query string (SSRF mitigation)
+        const safeUrl = `https://www.linkedin.com/in/${encodedSlug}/`;
         const { data: html } = await axios.get(safeUrl, {
             timeout: 12000,
             headers: {
