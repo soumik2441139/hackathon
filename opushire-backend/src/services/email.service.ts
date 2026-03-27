@@ -21,7 +21,7 @@ const getTransporter = () => {
     const smtpUser = (env.SMTP_USER || '').trim();
     const smtpPass = (env.SMTP_PASS || '').trim();
 
-    if (smtpHost && smtpUser && smtpPass && !smtpHostLower.includes('resend.com')) {
+    if (smtpHost && smtpUser && smtpPass && !smtpHostLower.endsWith('resend.com')) {
         smtpTransporter = nodemailer.createTransport({
             host: smtpHost,
             port: parseInt(env.SMTP_PORT || '587', 10),

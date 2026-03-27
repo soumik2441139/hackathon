@@ -5,7 +5,10 @@ import { extractResumeText } from '../utils/resumeTextExtractor';
 import { uploadToBlob } from '../services/storage/blob.service';
 import { watermarkPdf } from '../services/media/pdfWatermark.service';
 import { eventBus } from '../events/eventBus';
+import { assertSafePath } from '../utils/pathSafety';
 import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 function hasPdfSignature(filePath: string): boolean {
     let fd: number | null = null;
@@ -33,7 +36,8 @@ export const uploadResume = async (req: AuthRequest, res: Response): Promise<voi
             return;
         }
 
-        localPath = req.file.path;
+        // Validate that Multer-provided path is within the OS temp directory
+        localPath = assertSafePath(req.file.path, os.tmpdir());
 
         if (!hasPdfSignature(localPath)) {
             res.status(400).json({ error: 'Only valid PDF files are allowed' });
@@ -45,6 +49,9 @@ export const uploadResume = async (req: AuthRequest, res: Response): Promise<voi
           localPath,
           `PRIVATE • ${req.user?.id} • ${new Date().toISOString().split('T')[0]}`
         );
+
+        // Security check for the newly generated watermarked path
+        assertSafePath(wmPath, os.tmpdir());
 
         // 2. Upload to Azure Blob Storage
         const blobUrl = await uploadToBlob(wmPath);

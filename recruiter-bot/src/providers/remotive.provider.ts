@@ -66,6 +66,7 @@ function timeAgo(dateStr: string): string {
 }
 
 function stripHtml(html: string): string {
+    if (!html) return '';
     return html
         .replace(/<br\s*\/?>/gi, '\n')
         .replace(/<\/?[^>]+(>|$)/g, '')
@@ -73,6 +74,8 @@ function stripHtml(html: string): string {
         .replace(/&amp;/g, '&')
         .replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
         .trim();
 }
 

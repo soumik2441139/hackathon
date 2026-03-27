@@ -40,8 +40,8 @@ export const getMyApplications = async (userId: string) => {
 };
 
 export const getAllApplications = async (jobId?: string) => {
-    const query = jobId ? { job: jobId } : {};
-    return Application.find(query)
+    const jobQuery = typeof jobId === 'string' ? { job: jobId } : {};
+    return Application.find(jobQuery)
         .populate('job', 'title company')
         .populate('applicant', 'name email college degree year')
         .sort({ appliedAt: -1 });

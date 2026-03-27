@@ -62,7 +62,8 @@ if (!fs.existsSync(LOG_DIR)) {
 }
 
 function getLogFilePath(botId: string): string {
-    return path.join(LOG_DIR, `${botId}.log`);
+    const safeBotId = path.basename(botId);
+    return path.join(LOG_DIR, `${safeBotId}.log`);
 }
 
 function writeLog(botId: string, lines: string[]) {
@@ -209,7 +210,8 @@ export const getAllBotStatuses = async () => {
 };
 
 export const getBotLogs = (botId: string) => {
-    const filePath = getLogFilePath(botId);
+    const safeBotId = path.basename(botId);
+    const filePath = getLogFilePath(safeBotId);
     if (!fs.existsSync(filePath)) return ['[SYSTEM] This bot has no logs yet. Click Start Agent to begin.'];
     try {
         const content = fs.readFileSync(filePath, 'utf-8');

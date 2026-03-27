@@ -22,9 +22,11 @@ function isPrivateIpv4(address: string): boolean {
     a === 10 ||
     a === 127 ||
     a === 0 ||
-    (a === 169 && b === 254) ||
-    (a === 172 && b >= 16 && b <= 31) ||
-    (a === 192 && b === 168)
+    (a === 169 && b === 254) || // Link-local
+    (a === 172 && b >= 16 && b <= 31) || // Private Class B
+    (a === 192 && b === 168) || // Private Class C
+    (a === 100 && b >= 64 && b <= 127) || // CGNAT
+    (a === 198 && (b === 18 || b === 19)) // Benchmark Testing
   );
 }
 

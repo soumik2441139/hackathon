@@ -1,12 +1,15 @@
 import fs from "fs";
 import { PDFDocument, rgb, degrees } from "pdf-lib";
+import { assertSafePath } from "../../utils/pathSafety";
+import os from "os";
 
 /**
  * Iterates through every page of a Resume PDF and natively burns a translucent
  * confidential attribution watermark diagonally to discourage leaks via screenshots.
  */
 export async function watermarkPdf(inputPath: string, text: string): Promise<string> {
-  const bytes = fs.readFileSync(inputPath);
+  const safeInput = assertSafePath(inputPath, os.tmpdir());
+  const bytes = fs.readFileSync(safeInput);
   const pdf = await PDFDocument.load(bytes);
   const pages = pdf.getPages();
 
@@ -25,6 +28,7 @@ export async function watermarkPdf(inputPath: string, text: string): Promise<str
 
   const outBytes = await pdf.save();
   const outPath = inputPath.replace(".pdf", "-wm.pdf");
-  fs.writeFileSync(outPath, outBytes);
-  return outPath;
+  const safeOutput = assertSafePath(outPath, os.tmpdir());
+  fs.writeFileSync(safeOutput, outBytes);
+  return safeOutput;
 }

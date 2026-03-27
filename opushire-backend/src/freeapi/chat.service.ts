@@ -29,6 +29,7 @@ export class FreeApiChatService {
      * Gets messages for a specific chat.
      */
     public static async getChatMessages(userToken: string, chatId: string): Promise<any[]> {
+        if (!/^[a-zA-Z0-9_\-]+$/.test(chatId)) throw new Error('Invalid chat ID format');
         const res = await freeApiClient.get(`/chat-app/messages/${chatId}`, {
             headers: {
                 Authorization: `Bearer ${userToken}`,
@@ -41,6 +42,7 @@ export class FreeApiChatService {
      * Sends a text message to a specific chat.
      */
     public static async sendMessage(userToken: string, chatId: string, content: string): Promise<any> {
+        if (!/^[a-zA-Z0-9_\-]+$/.test(chatId)) throw new Error('Invalid chat ID format');
         // According to FreeAPI docs, this endpoint expects multipart/form-data or json
         // We will send JSON for text-only messages
         const res = await freeApiClient.post(`/chat-app/messages/${chatId}`, {

@@ -245,9 +245,10 @@ export async function deepScrapeJob(url: string): Promise<ScrapedJob> {
         const $ = cheerio.load(html);
         let portalType = 'generic';
 
-        if (url.includes('greenhouse.io') || html.includes('greenhouse')) portalType = 'greenhouse';
-        else if (url.includes('lever.co') || html.includes('lever-jobs')) portalType = 'lever';
-        else if (url.includes('linkedin.com')) portalType = 'linkedin';
+        const hostname = new URL(url).hostname.toLowerCase();
+        if (hostname.endsWith('greenhouse.io') || html.includes('greenhouse')) portalType = 'greenhouse';
+        else if (hostname.endsWith('lever.co') || html.includes('lever-jobs')) portalType = 'lever';
+        else if (hostname.endsWith('linkedin.com')) portalType = 'linkedin';
 
         console.log(`🔍 [Scraper] Portal: ${portalType} | URL: ${url.slice(0, 60)}...`);
 
