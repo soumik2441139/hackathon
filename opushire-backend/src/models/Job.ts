@@ -31,6 +31,7 @@ export interface IJob extends Document {
     tagTileStatus?: 'OK' | 'NEEDS_SHORTENING' | 'PENDING_REVIEW' | 'READY_TO_APPLY' | 'FAILED' | 'VETTED';
     verifiedTags?: string[];
     statusHistory?: { from: string; to: string; actor: string; timestamp: Date }[];
+    proposedTags?: string[];
     isArchived?: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -83,6 +84,7 @@ const JobSchema = new Schema<IJob>(
             default: 'OK',
         },
         verifiedTags: [{ type: String, trim: true }],
+        proposedTags: [{ type: String, trim: true }],
         statusHistory: [{
             from: String,
             to: String,

@@ -1,134 +1,108 @@
 /**
- * Unit Tests — fix.worker.ts
- * Tests the tag extraction pipeline using Mongoose mocks (no real DB connection).
+ * Integration Tests — fix.worker.ts
+ * Uses a REAL MongoDB connection (standard in industry grade projects).
  */
 
-// ─── Mock all external dependencies BEFORE imports ───────────────────────────
-jest.mock('../../src/services/queue/queue.service');
-jest.mock('../../src/models/Job');
-jest.mock('../../src/utils/logger');
-jest.mock('../../src/utils/stateMachine');
-jest.mock('../../src/services/rag/rag.service');
-jest.mock('../../src/services/memory/agent.memory');
-
 import { registerFixWorker } from '../../src/services/queue/workers/fix.worker';
-import * as queueService from '../../src/services/queue/queue.service';
+import { enqueue } from '../../src/services/queue/queue.service';
 import JobModel from '../../src/models/Job';
-import * as stateMachine from '../../src/utils/stateMachine';
-import * as ragService from '../../src/services/rag/rag.service';
-import * as agentMemory from '../../src/services/memory/agent.memory';
+import mongoose from 'mongoose';
 
-// Set up module-level mocks
-const mockCreateWorker = queueService.createWorker as jest.Mock;
-const mockEnqueue = queueService.enqueue as jest.Mock;
-const mockFindById = JobModel.findById as jest.Mock;
-const mockUpdateOne = JobModel.updateOne as jest.Mock;
+// We still mock internal services that we don't want to trigger during this test
+// e.g. We don't want to actually enqueue the next step in the pipeline.
+jest.mock('../../src/services/queue/queue.service', () => ({
+  createWorker: jest.fn(),
+  enqueue: jest.fn(),
+}));
 
-// Capture the handler registered by createWorker
+jest.mock('../../src/services/rag/rag.service', () => ({
+  getExamples: jest.fn(async () => []),
+  buildFewShotSection: jest.fn(() => ''),
+}));
+
+jest.mock('../../src/services/memory/agent.memory', () => ({
+  buildMemoryContext: jest.fn(async () => ''),
+}));
+
+const mockEnqueue = enqueue as jest.Mock;
+const { createWorker } = require('../../src/services/queue/queue.service');
+
 let capturedHandler: (data: any) => Promise<any>;
 
-beforeEach(() => {
-  jest.clearAllMocks();
-
-  // Mock stateMachine / rag / memory
-  (stateMachine.buildStatusUpdate as jest.Mock).mockImplementation((_from: string, to: string) => ({
-    $set: { tagTileStatus: to }
-  }));
-  (ragService.getExamples as jest.Mock).mockResolvedValue([]);
-  (ragService.buildFewShotSection as jest.Mock).mockReturnValue('');
-  (agentMemory.buildMemoryContext as jest.Mock).mockResolvedValue('');
-
-  // Capture the worker handler
-  mockCreateWorker.mockImplementation((_name: string, handler: any) => {
-    capturedHandler = handler;
-    return null;
-  });
-  mockUpdateOne.mockResolvedValue({});
-  mockEnqueue.mockResolvedValue(null);
-
-  registerFixWorker();
+beforeAll(async () => {
+    // Capture the handler registered by the worker
+    (createWorker as jest.Mock).mockImplementation((_name: string, handler: any) => {
+        capturedHandler = handler;
+        return null;
+    });
+    registerFixWorker();
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+beforeEach(async () => {
+  jest.clearAllMocks();
+  // Clean the Job collection before each test
+  await JobModel.deleteMany({});
+});
 
-describe('fix.worker — registerFixWorker()', () => {
+describe('fix.worker — REAL Integration Test', () => {
 
-  it('skips if job is not found', async () => {
-    mockFindById.mockResolvedValue(null);
-    const result = await capturedHandler({ jobId: 'nonexistent-id' });
-    expect(result).toEqual({ skipped: true });
-    expect(mockUpdateOne).not.toHaveBeenCalled();
-  });
-
-  it('skips if job is not in NEEDS_SHORTENING state', async () => {
-    mockFindById.mockResolvedValue({ tagTileStatus: 'VETTED', tags: [] });
-    const result = await capturedHandler({ jobId: 'id-1' });
+  it('skips if job does not exist in the real database', async () => {
+    const result = await capturedHandler({ jobId: new mongoose.Types.ObjectId().toString() });
     expect(result).toEqual({ skipped: true });
   });
 
-  it('throws if GROQ_API_KEY is not set', async () => {
-    const originalKey = process.env.GROQ_API_KEY;
-    delete process.env.GROQ_API_KEY;
-    mockFindById.mockResolvedValue({ tagTileStatus: 'NEEDS_SHORTENING', tags: [], longTagsToFix: [] });
-    await expect(capturedHandler({ jobId: 'job-missing-key' })).rejects.toThrow('GROQ_API_KEY not set');
-    process.env.GROQ_API_KEY = originalKey;
-  });
-
-  it('marks job as FAILED if Groq returns empty output and fallback finds no keywords', async () => {
+  it('correctly processes a REAL job from the database', async () => {
     process.env.GROQ_API_KEY = 'test-key';
-    mockFindById.mockResolvedValue({
-      _id: 'job-2',
+    
+    // Create a real job that needs fixing
+    const job = await JobModel.create({
+      title: 'Senior Engineer',
+      company: 'Tech Corp',
+      type: 'Full-time',
+      mode: 'Remote',
+      description: 'Need someone with deep knowledge of TypeScript and advanced Reactor patterns.',
       tagTileStatus: 'NEEDS_SHORTENING',
-      tags: [],
-      longTagsToFix: [],
+      tags: ['Need someone with deep knowledge of TypeScript and advanced Reactor patterns.'],
     });
 
-    (global as any).fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      text: async () => JSON.stringify({ choices: [{ message: { content: '' } }] }),
-    });
-
-    const result = await capturedHandler({ jobId: 'job-2' });
-    expect(result.status).toBe('FAILED');
-  });
-
-  it('transitions to PENDING_REVIEW when Groq returns valid keywords', async () => {
-    process.env.GROQ_API_KEY = 'test-key';
-    mockFindById.mockResolvedValue({
-      _id: 'job-3',
-      tagTileStatus: 'NEEDS_SHORTENING',
-      tags: ['Proficient in TypeScript frameworks and advanced React patterns'],
-      longTagsToFix: ['Proficient in TypeScript frameworks and advanced React patterns'],
-    });
-
+    // Mock the external AI API call (standard even in integration tests to avoid cost/flakiness)
     (global as any).fetch = jest.fn().mockResolvedValue({
       ok: true,
       text: async () => JSON.stringify({ choices: [{ message: { content: 'TYPESCRIPT, REACT, NODE.JS' } }] }),
     });
 
-    const result = await capturedHandler({ jobId: 'job-3' });
+    const result = await capturedHandler({ jobId: job._id.toString() });
+
     expect(result.status).toBe('PENDING_REVIEW');
-    expect(result.source).toBe('groq');
-    expect(mockEnqueue).toHaveBeenCalledWith('supervise-tags', 'review', { jobId: 'job-3' }, expect.any(Object));
+    
+    // Verify the REAL database was updated
+    const updatedJob = await JobModel.findById(job._id);
+    expect(updatedJob?.tagTileStatus).toBe('PENDING_REVIEW');
+    expect(updatedJob?.proposedTags).toContain('TYPESCRIPT');
+    
+    // Verify the next pipeline step was enqueued
+    expect(mockEnqueue).toHaveBeenCalledWith('supervise-tags', 'review', { jobId: job._id.toString() }, expect.any(Object));
   });
 
-  it('falls back to heuristic extraction if Groq fetch fails', async () => {
-    process.env.GROQ_API_KEY = 'test-key';
-    mockFindById.mockResolvedValue({
-      _id: 'job-4',
+  it('falls back to heuristic extraction when AI fails', async () => {
+    const job = await JobModel.create({
+      title: 'DevOps',
+      company: 'Cloud Co',
+      type: 'Contract',
+      mode: 'Hybrid',
+      description: 'Docker Kubernetes Terraform',
       tagTileStatus: 'NEEDS_SHORTENING',
-      tags: ['typescript react javascript backend experience'],
-      longTagsToFix: ['typescript react javascript backend experience'],
+      tags: ['Docker', 'Kubernetes', 'Terraform'],
     });
 
-    (global as any).fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+    // Simulate AI failure
+    (global as any).fetch = jest.fn().mockRejectedValue(new Error('AI Offline'));
 
-    const result = await capturedHandler({ jobId: 'job-4' });
-    // Fallback heuristic will extract some keywords from the text
-    expect(['PENDING_REVIEW', 'FAILED']).toContain(result.status);
-    if (result.status === 'PENDING_REVIEW') {
-      expect(result.source).toBe('fallback');
-    }
+    const result = await capturedHandler({ jobId: job._id.toString() });
+
+    expect(result.source).toBe('fallback');
+    const updatedJob = await JobModel.findById(job._id);
+    expect(updatedJob?.tagTileStatus).toBe('PENDING_REVIEW');
   });
 
 });

@@ -246,4 +246,15 @@ async function shutdown(signal: string) {
 process.once('SIGTERM', () => shutdown('SIGTERM'));
 process.once('SIGINT', () => shutdown('SIGINT'));
 
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error({ reason, promise }, 'Unhandled Rejection at Promise');
+});
+
+process.on('uncaughtException', (err) => {
+    logger.error({ err }, 'Uncaught Exception thrown');
+    // For industry-grade safety, usually we shutdown after uncaughtException
+    // to avoid inconsistent state, but given this is a hackathon project
+    // we just log it for now to keep the service alive if possible.
+});
+
 export default app;

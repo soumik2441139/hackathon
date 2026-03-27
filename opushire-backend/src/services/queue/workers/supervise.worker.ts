@@ -39,7 +39,7 @@ export function registerSuperviseWorker() {
       await storeExample('fix-worker', originalTags.join(', '), proposedTags.join(', '));
       await recordEpisode('supervise-worker', 'approve-tags', originalTags.join(', '), `Approved: ${proposedTags.join(', ')}`, true);
       
-      await enqueue('match-candidates', 'hunt', { jobId: job._id });
+      await enqueue('match-candidates', 'hunt', { jobId: job._id.toString() });
       return { status: 'READY_TO_APPLY' };
     }
 
