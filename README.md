@@ -1,124 +1,154 @@
 <div align="center">
   <br />
-  <h1>OpusHire 🚀</h1>
-  <p><strong>Enterprise-Grade Autonomous Career Protocol.</strong></p>
+  <h1>🚀 OpusHire</h1>
+  <p><strong>The Enterprise-Grade Autonomous Career Protocol</strong></p>
   <p>An elite, cloud-native orchestration ecosystem connecting high-growth student talent with top-tier tech startups using localized Vector Search, Triple-Redis Job Queuing, and specialized AI Micro-Agents.</p>
   <br />
 
   [![Deploy on Azure](https://img.shields.io/badge/Deploy_on_Azure-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white)](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
   [![Container Orchestration](https://img.shields.io/badge/Docker_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](#)
-  [![Storage](https://img.shields.io/badge/MinIO_S3-C7202C?style=for-the-badge&logo=minio&logoColor=white)](#)
-  [![Vector Search](https://img.shields.io/badge/Qdrant_VectorDB-1D0A4F?style=for-the-badge&logo=qdrant&logoColor=white)](#)
+  [![Frontend](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](#)
+  [![Backend](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)](#)
+  [![Agents](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
+  [![Security](https://img.shields.io/badge/CodeQL_Hardened-Shield?style=for-the-badge&color=2ea44f)](#)
 
 </div>
 
 ---
 
-## 🌟 God-Tier Cloud Architecture
+## 🌟 Overview & Core Engineering Feats
 
-OpusHire transcends traditional job platforms through a sophisticated, event-driven microservices architecture. Designed for 100% horizontal scalability, the entire ecosystem is flawlessly orchestrated using Docker Compose.
+OpusHire transcends traditional job platforms through a sophisticated, event-driven microservices architecture. Designed for horizontal scalability, the entire ecosystem relies on intelligent AI agents, vector matching, and robust asynchronous queues.
 
-### Core Engineering Feats:
-- ⚡ **Triple-Redis Queue Intelligence:** Utilizes a highly-available caching layer split into three routing domains (Core Routing, Background AI Workers, and Caching) using strict `BullMQ` idempotency.
-- 🧠 **Cosine Vector Search Engine:** Directly embeds Google Gemini API generated 768-D mathematically dense representations into `Qdrant`, calculating cosine similarity matrixes instantly to trigger Auto-Match emails for high-scoring applicants.
-- 🧪 **Industry-Grade Integration Testing:** Features a robust test suite in `Jest` that exercises the worker pipeline against a **Real MongoDB** instance (no mocks), ensuring 100% reliability in Azure production.
-- 📖 **OpenAPI 3.0 (Swagger):** Fully documented RESTful interface hosted at `/api/docs`, providing recruiters with a professional API explorer.
-- 🏎️ **Compound MongoDB Indexes:** Optimized performance with strategic indexing on `Job` and `Resume` models, accelerating bot deduplication and candidate matching by up to 10x.
-- 🔐 **Advanced Container Security:** Engineered entirely against Privileged Escalation bugs by safely dropping to a `USER node` sandbox context within Docker, securely obscured via custom `Helmet` directives and 10min/10req authentication Rate Limiters.
+- ⚡ **Triple-Redis Queue Intelligence:** Utilizes a highly-available caching layer split into domains (Core Routing, Background AI Workers, and Caching) using strict `BullMQ` idempotency.
+- 🧠 **Cosine Vector Search Engine:** Embeds Google Gemini 768-D mathematically dense representations into `Qdrant`, calculating cosine similarity matrixes instantly to trigger Auto-Match emails for high-scoring applicants.
+- 🤖 **Multi-Agent Orchestration:** Deploys a hybrid Python (`CrewAI`) and Node.js swarm to maintain data quality, flag hallucinations, and scrape real-time job listings without human intervention.
+- 🔐 **Advanced Container Security:** Engineered against SSRF, NoSQL Injections, and Privileged Escalation, cleanly dropping into a `USER node` sandbox context within Docker.
 
 ---
 
-## 🏗 Full-Stack Ecosystem Map
+## 🏗 Full-Stack Ecosystem Architecture
 
 ```mermaid
 graph TD
-    subgraph Client["Next.js 14 Web Ecosystem"]
-        Frontend["Server-Side Rendered Client"]
-        WebSocket["Bidirectional Real-Time Subscriptions"]
+    subgraph Client ["Next.js 15 Web Ecosystem"]
+        Frontend["Server-Side Rendered App UI"]
+        WebSocket["Socket.io Real-Time Subscriptions"]
+        ThreeJS["3D Render Layer (Fiber + Drei)"]
     end
 
-    subgraph Controller["Express.js Service-Repository Layer"]
+    subgraph Backend ["Express.js Services Layer"]
         API["REST Interface + Helmet + CORS"]
-        Services["Business Logic (Idempotent)"]
-        Repo["Data Access Abstraction"]
+        BullMQ["BullMQ Idempotent Queues"]
+        Auth["JWT + bcryptjs Security"]
     end
 
-    subgraph State["Persistent Orchestration"]
+    subgraph Swarm ["Autonomous Swarm & Agents"]
+        JSBots["JS Micro-Agents (Scanner, Fixer, Archiver)"]
+        CrewAI["Python CrewAI Orchestrator"]
+        Recruiter["Recruiter-Bot (Adzuna/External)"]
+    end
+
+    subgraph Storage ["Persistent Data Layer"]
         Mongo[(MongoDB Atlas)]
         Qdrant[(Qdrant Vector DB)]
-        S3[(MinIO / Azure Blob)]
-    end
-
-    subgraph Workers["BullMQ AI Micro-Agent Swarm"]
-        Scan["Anomaly Detection Node"]
-        Groq["Groq Hallucination QA Evaluator"]
-        Match["Semantic Qdrant Candidate Matcher"]
-        Mail["Idempotent Nodemailer SMTP"]
+        Redis[(Redis Cache & Queues)]
+        S3[(Azure Blob / MinIO S3)]
     end
 
     Frontend <-->|"wss://"| WebSocket
     Frontend -->|"HTTPS"| API
-    API --> Services --> Repo --> Mongo
-    Services -->|"enqueue()"| Workers
-    Workers -->|"Semantic Search"| Qdrant
-    Repo -->|"Save File"| S3
+    API -->|"Read/Write"| Mongo
+    API -->|"Uploads"| S3
+    API -->|"Enqueue"| BullMQ
+    BullMQ -->|"Process Tasks"| JSBots
+    Mongo -.->|"Change Streams"| CrewAI
+    Recruiter -->|"Fetch & Ingest"| Mongo
+    JSBots -->|"Vector Sync"| Qdrant
+    CrewAI -->|"Semantic QA"| Mongo
 ```
 
 ---
 
-## ⚙️ The Multi-Agent Data Pipeline
+## 🤖 The AI Autonomous Pipeline
 
-OpusHire's AI automation executes completely stripped of `child_process` overhead, instead leveraging scalable native BullMQ threads.
-1. **Anomaly Detector**: A lightweight, aggressive queue worker sweeping up newly-posted data.
-2. **LLM QA Matrix**: Automatically forces `Gemini 1.5 Flash` processing summaries to pass through a highly-scrutinized validation script generated by `Groq Llama-3`.
-3. **Ghost Purger**: Gracefully auto-archives job postings older than strict threshold TTLs to guarantee an impeccably fresh Applicant Sandbox.
-4. **Auto-Match Emailer**: Pings Qdrant to find resume vectors `>80%` similar to new job vectors, dispatching rich HTML emails securely without triggering SMTP spam traps.
+OpusHire's secret sauce is its **State-Machine Driven Content Vetting**. Jobs and resumes aren't just uploaded; they are refined through a multi-agent validation loop.
 
----
+### Job Vetting State Machine
+```mermaid
+stateDiagram-v2
+    [*] --> Created
+    Created --> NeedsShortening : Scanner detects messy tags
+    NeedsShortening --> PendingReview : Fixer rewrites via Gemini
+    PendingReview --> ReadyToApply : Supervisor verifies via Groq
+    PendingReview --> NeedsShortening : Supervisor rejects hallucination
+    ReadyToApply --> Vetted : Admin Approval
+    Vetted --> [*]
+```
 
-## 💻 Elite Tech Stack
-
-| Layer | Enterprise Technology Applied |
-|-------|-----------|
-| **Orchestration** | Docker Compose, GitHub Actions |
-| **Object Storage** | S3 API Protocol (Local MinIO & Azure Blob) |
-| **Data Layers** | MongoDB Atlas, Qdrant (HNSW Cosine Math) |
-| **Caching/Queueing** | Redis (`ioredis`), `bullmq` |
-| **Frontend Platform** | Next.js 14, App Router, SSR, Framer Motion |
-| **Backend Cluster** | Node.js, Express.js (Service-Repo pattern) |
-
----
-
-## 🚀 Live Production Deployment
-
-OpusHire is strictly automated across Microsoft Azure infrastructure:
-
-| Service | Geographic Location | Endpoint URL |
-|---------|-----|-----|
-| **Next.js Edge Cluster** | Central India | [opushire-frontend-app.azurewebsites.net](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net) |
-| **Express Backend Core** | Central India | [opushire-backend-app.azurewebsites.net/api/health](https://opushire-backend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net/api/health) |
+### Intelligent Enrichment Layer
+- **SSR-Safe LinkedIn Enrichment:** Scrapes certifications and headlines using specialized SSRF-protected `cheerio` extractors.
+- **Resume Insight Engine:** Uses `pdf-parse` and `pdf-lib` to extract text, which is then vectorized for 80%+ semantic similarity matching in `Qdrant`.
+- **Learning Path Advisor:** Generates customized skill-gap roadmaps for students based on their resume vs. top-tier job requirements.
 
 ---
 
-## 🛠 Zero-Friction Setup
+## 📂 Project Directory Structure
 
-You can spin up the entire multi-container enterprise ecosystem on your localhost with a single standard shell command.
+### 1. `opushire/` (Next.js Frontend)
+The sleek client-facing web application built with **Next.js 15, React 19, TailwindCSS 4, and Framer Motion**.
+- **Visuals:** Immersive 3D interactions via `@react-three/fiber` and ultra-smooth scrolling using `lenis`.
+- **Real-time:** Live status updates via `socket.io-client`.
 
-### 1. Requirements
-Ensure you possess a `.env` configured properly and Docker Engine actively polling.
+### 2. `opushire-backend/` (Core API)
+The **Express.js API Node** following a Service-Repository pattern.
+- **Queues:** `BullMQ` for high-throughput job scheduling.
+- **Vectors:** `Qdrant` integrations for high-performance similarity search.
+- **Storage:** Multi-provider S3/Azure Blob support for resume persistence.
 
-### 2. Ignition Protocol
+### 3. `bots/` (JS Autonomous Micro-Agents)
+A swarm of 8 independent workers:
+- **Scanner/Fixer/Supervisor:** The AI "Editorial" team.
+- **Cleanup/Archiver:** Data lifecycle management with `Puppeteer` for URL health checks.
+- **Matcher/Advisor:** High-level AI insights and candidate matching.
+
+### 4. `agents/` (Python CrewAI)
+Advanced Python orchestration layer:
+- Hooks into **MongoDB Change Streams** for real-time reactivity.
+- Employs **Redis Queue (RQ)** for inter-process communication between Python and Node.
+
+### 5. `infrastructure/` (DevOps)
+- **Terraform:** `main.tf` for Azure Resource orchestration.
+- **Docker:** Production-ready 9-container orchestrator.
+- **Nginx:** Reverse proxy configuration with hardened headers.
+
+---
+
+## 🔐 Security & Observability
+
+- **CodeQL Hardened:** Remedied critical vulnerabilities including SSRF, NoSQL Injection, and Path Traversal.
+- **Custom Sanitization:** Replaced deprecated middlewares with a high-performance custom `mongoSanitize` layer for Express 5 compatibility.
+- **Observability:** Centralized logging with `pino` and `pino-pretty`, complemented by Prometheus metrics via `prom-client`.
+
+---
+
+## 🚀 Deployment & Local Setup
+
+### Live Production
+- **Frontend:** [Azure App Service](https://opushire-frontend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net)
+- **Backend:** [Azure App Service (Central India)](https://opushire-backend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net/api/health)
+
+### Local Ignition
 ```bash
-# Clone the repository
-git clone https://github.com/soumik2441139/hackathon.git
-cd hackathon
-
-# Launch the God-Tier 9-Container Orchestrator
-# (Deploys: Nginx, Frontend, Backend, primary/sec/tert Redis, Mongo, MinIO, Qdrant)
+# Launch the God-Tier multi-container ecosystem
 docker compose up --build -d
 ```
 
+### Prerequisites
+- Node.js (v20+), Python (v3.10+), Docker Engine.
+- `.env` configured with `GEMINI_API_KEY` and `MONGODB_URI`.
+
 ---
-
-
-
+<div align="center">
+  <sub>Built with ❤️ for Top-Tier Tech Placements.</sub>
+</div>
