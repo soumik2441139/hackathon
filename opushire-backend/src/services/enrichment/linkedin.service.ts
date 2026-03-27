@@ -22,10 +22,14 @@ export async function extractLinkedInProfile(url: string): Promise<LinkedInEnric
 
     try {
         const validatedUrl = await assertSafePublicUrl(url, ['http:', 'https:']);
-        if (!validatedUrl.hostname.endsWith('linkedin.com')) {
+        const hostname = validatedUrl.hostname.toLowerCase();
+        
+        // Final strict check for SSRF mitigation: only linkedin.com or its subdomains
+        if (hostname !== 'linkedin.com' && !hostname.endsWith('.linkedin.com')) {
             throw new Error('Unauthorized SSRF target: only linkedin.com is allowed');
         }
-        const safeUrl = validatedUrl.toString();
+        
+        const safeUrl = validatedUrl.href;
         const { data: html } = await axios.get(safeUrl, {
             timeout: 12000,
             headers: {
