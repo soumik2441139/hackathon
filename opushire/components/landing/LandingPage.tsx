@@ -116,14 +116,15 @@ export const LandingPage = () => {
       btn.addEventListener('mousemove', moveHandler);
       btn.addEventListener('mouseleave', leaveHandler);
       
-      (btn as any)._moveHandler = moveHandler;
-      (btn as any)._leaveHandler = leaveHandler;
+      (btn as unknown as { _moveHandler: (e: Event) => void })._moveHandler = moveHandler;
+      (btn as unknown as { _leaveHandler: () => void })._leaveHandler = leaveHandler;
     });
 
     return () => {
       magneticBtns.forEach(btn => {
-        if ((btn as any)._moveHandler) btn.removeEventListener('mousemove', (btn as any)._moveHandler);
-        if ((btn as any)._leaveHandler) btn.removeEventListener('mouseleave', (btn as any)._leaveHandler);
+        const b = btn as unknown as { _moveHandler?: (e: Event) => void; _leaveHandler?: () => void };
+        if (b._moveHandler) btn.removeEventListener('mousemove', b._moveHandler);
+        if (b._leaveHandler) btn.removeEventListener('mouseleave', b._leaveHandler);
       });
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
@@ -175,7 +176,7 @@ export const LandingPage = () => {
             <span className="text-electric-blue text-[10px] font-bold tracking-[0.4em] uppercase mb-4 block">Phase One</span>
             <h2 className="text-4xl md:text-6xl font-bold mb-6">The Protocol</h2>
             <p className="text-gray-400 max-w-xl text-lg font-light leading-relaxed">
-              Our algorithmic sequence defines the new standard for professional advancement. We don't apply for jobs; we architect entry points.
+              Our algorithmic sequence defines the new standard for professional advancement. We don&apos;t apply for jobs; we architect entry points.
             </p>
           </div>
           
@@ -344,11 +345,11 @@ export const LandingPage = () => {
       <section className="py-20 border-y border-white/5 bg-vantablack">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
           <div className="stat-item">
-            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">2.4k+</div>
+            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">50+</div>
             <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Active Members</div>
           </div>
           <div className="stat-item">
-            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">140+</div>
+            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">25+</div>
             <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Global Partners</div>
           </div>
           <div className="stat-item">
