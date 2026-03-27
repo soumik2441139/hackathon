@@ -7,6 +7,7 @@ import { registerFixWorker } from '../../src/services/queue/workers/fix.worker';
 import { enqueue } from '../../src/services/queue/queue.service';
 import JobModel from '../../src/models/Job';
 import mongoose from 'mongoose';
+import axios from 'axios';
 
 // We still mock internal services that we don't want to trigger during this test
 // e.g. We don't want to actually enqueue the next step in the pipeline.
@@ -23,6 +24,9 @@ jest.mock('../../src/services/rag/rag.service', () => ({
 jest.mock('../../src/services/memory/agent.memory', () => ({
   buildMemoryContext: jest.fn(async () => ''),
 }));
+
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const mockEnqueue = enqueue as jest.Mock;
 const { createWorker } = require('../../src/services/queue/queue.service');
@@ -66,9 +70,12 @@ describe('fix.worker — REAL Integration Test', () => {
     });
 
     // Mock the external AI API call (standard even in integration tests to avoid cost/flakiness)
-    (global as any).fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      text: async () => JSON.stringify({ choices: [{ message: { content: 'TYPESCRIPT, REACT, NODE.JS' } }] }),
+    mockedAxios.post.mockResolvedValueOnce({
+      data: { choices: [{ message: { content: 'TYPESCRIPT, REACT, NODE.JS' } }] },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any,
     });
 
     const result = await capturedHandler({ jobId: job._id.toString() });
@@ -96,7 +103,9 @@ describe('fix.worker — REAL Integration Test', () => {
     });
 
     // Simulate AI failure
-    (global as any).fetch = jest.fn().mockRejectedValue(new Error('AI Offline'));
+    mockedAxios.post.mockRejectedValueOnce(new Error('AI Offline'));
+    // And falling back to Gemini
+    mockedAxios.post.mockRejectedValueOnce(new Error('Gemini Offline'));
 
     const result = await capturedHandler({ jobId: job._id.toString() });
 

@@ -5,6 +5,7 @@ import { User, type IUser } from '../../../models/User';
 import { getMatches } from '../../matching/match.service';
 import { embedText } from '../../ai/embedding.service';
 import { VectorDB } from '../../vector.service';
+import BotStat from '../../../models/BotStat';
 
 export function registerMatchWorker() {
   createWorker('match-resumes', async (data: { resumeId: string }) => {
@@ -15,6 +16,10 @@ export function registerMatchWorker() {
     resume.matches = matches;
     resume.matched = true;
     await resume.save();
+
+    if (matches.length > 0) {
+      await (BotStat as any).incrementMetric('resumesMatched', 1);
+    }
 
     await enqueue('career-advisor', 'advise', { resumeId: data.resumeId });
     return { matched: matches.length };
@@ -51,6 +56,10 @@ export function registerMatchWorker() {
 
       await User.findByIdAndUpdate(user._id, { $addToSet: { emailedJobs: job._id } });
       notificationsTriggered++;
+    }
+
+    if (notificationsTriggered > 0) {
+      await (BotStat as any).incrementMetric('resumesMatched', notificationsTriggered);
     }
 
     return { candidatesScanned: results.length, notificationsTriggered };

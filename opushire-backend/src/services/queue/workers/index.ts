@@ -5,6 +5,7 @@ import { registerCleanupWorker } from './cleanup.worker';
 import { registerMatchWorker } from './match.worker';
 import { registerAdvisorWorker } from './advisor.worker';
 import { registerEmailWorker } from './email.worker';
+import { registerArchiveWorker } from './archive.worker';
 
 export function autoLoadWorkers() {
     registerScanWorker();
@@ -14,4 +15,5 @@ export function autoLoadWorkers() {
     registerMatchWorker();
     registerAdvisorWorker();
     registerEmailWorker();
+    registerArchiveWorker();
 }

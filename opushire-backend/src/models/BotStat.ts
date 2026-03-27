@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IBotStat extends Document {
     date: string; // Format: YYYY-MM-DD
@@ -8,6 +8,16 @@ export interface IBotStat extends Document {
     hallucinationsCaught: number;
     approvals: number;
     jobsArchived: number;
+    resumesMatched: number;
+    advisoriesGenerated: number;
+    profilesEnriched: number;
+    ghostJobsRemoved: number;
+}
+
+// Interface for static methods
+interface IBotStatModel extends Model<IBotStat> {
+    getToday(): Promise<IBotStat>;
+    incrementMetric(metric: keyof Omit<IBotStat, keyof Document | 'date'>, amount?: number): Promise<IBotStat>;
 }
 
 const botStatSchema = new Schema({
@@ -18,6 +28,10 @@ const botStatSchema = new Schema({
     hallucinationsCaught: { type: Number, default: 0 },
     approvals: { type: Number, default: 0 },
     jobsArchived: { type: Number, default: 0 },
+    resumesMatched: { type: Number, default: 0 },
+    advisoriesGenerated: { type: Number, default: 0 },
+    profilesEnriched: { type: Number, default: 0 },
+    ghostJobsRemoved: { type: Number, default: 0 },
 }, {
     timestamps: true
 });
@@ -33,7 +47,7 @@ botStatSchema.statics.getToday = async function () {
 };
 
 // Helper method to increment a specific metric for today
-botStatSchema.statics.incrementMetric = async function (metric: keyof IBotStat, amount: number = 1) {
+botStatSchema.statics.incrementMetric = async function (metric: string, amount: number = 1) {
     const today = new Date().toISOString().split('T')[0];
     const update: any = {};
     update[metric] = amount;
@@ -44,4 +58,5 @@ botStatSchema.statics.incrementMetric = async function (metric: keyof IBotStat, 
     );
 };
 
-export default mongoose.models.BotStat || mongoose.model<IBotStat>('BotStat', botStatSchema);
+const BotStat = mongoose.models.BotStat as IBotStatModel || mongoose.model<IBotStat, IBotStatModel>('BotStat', botStatSchema);
+export default BotStat;

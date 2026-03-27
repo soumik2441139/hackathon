@@ -7,6 +7,7 @@ import { registerSuperviseWorker } from '../../src/services/queue/workers/superv
 import { enqueue } from '../../src/services/queue/queue.service';
 import JobModel from '../../src/models/Job';
 import mongoose from 'mongoose';
+import axios from 'axios';
 
 // Mock queue to intercept next pipeline triggers
 jest.mock('../../src/services/queue/queue.service', () => ({
@@ -21,6 +22,9 @@ jest.mock('../../src/services/rag/rag.service', () => ({
 jest.mock('../../src/services/memory/agent.memory', () => ({
   recordEpisode: jest.fn(async () => {}),
 }));
+
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const mockEnqueue = enqueue as jest.Mock;
 const { createWorker } = require('../../src/services/queue/queue.service');
@@ -63,8 +67,12 @@ describe('supervise.worker — REAL Integration Test', () => {
     }) as any;
 
     // Mock AI approval
-    (global as any).fetch = jest.fn().mockResolvedValue({
-      json: async () => ({ choices: [{ message: { content: 'YES these look perfect' } }] }),
+    mockedAxios.post.mockResolvedValueOnce({
+      data: { choices: [{ message: { content: 'YES these look perfect' } }] },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any,
     });
 
     const result = await capturedHandler({ jobId: job._id.toString() });
@@ -92,8 +100,12 @@ describe('supervise.worker — REAL Integration Test', () => {
     }) as any;
 
     // Mock AI rejection
-    (global as any).fetch = jest.fn().mockResolvedValue({
-      json: async () => ({ choices: [{ message: { content: 'NO these are totally wrong' } }] }),
+    mockedAxios.post.mockResolvedValueOnce({
+      data: { choices: [{ message: { content: 'NO these are totally wrong' } }] },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any,
     });
 
     const result = await capturedHandler({ jobId: job._id.toString() });

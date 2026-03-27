@@ -3,6 +3,8 @@ import JobModel from '../../../models/Job';
 import { buildStatusUpdate } from '../../../utils/stateMachine';
 import { storeExample } from '../../rag/rag.service';
 import { recordEpisode } from '../../memory/agent.memory';
+import BotStat from '../../../models/BotStat';
+import axios from 'axios';
 
 export function registerSuperviseWorker() {
   createWorker('supervise-tags', async (data: { jobId: string }) => {
@@ -21,14 +23,14 @@ export function registerSuperviseWorker() {
       + proposedTags.join(', ')
       + `\n\nAre these proposed keywords an accurate representation? Answer ONLY with YES or NO.`;
 
-    const response = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: prompt }] }),
+    const response = await axios.post(`https://api.groq.com/openai/v1/chat/completions`, {
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }]
+    }, {
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
     });
     
-    const result = await response.json();
-    const isApproved = result?.choices?.[0]?.message?.content?.trim().toUpperCase().includes('YES');
+    const isApproved = response.data?.choices?.[0]?.message?.content?.trim().toUpperCase().includes('YES');
 
     if (isApproved) {
       await JobModel.updateOne({ _id: job._id }, {
@@ -47,6 +49,8 @@ export function registerSuperviseWorker() {
       ...buildStatusUpdate('PENDING_REVIEW', 'NEEDS_SHORTENING', 'supervise-worker'),
       $unset: { proposedTags: '' },
     });
+
+    await (BotStat as any).incrementMetric('hallucinationsCaught', 1);
 
     await recordEpisode('supervise-worker', 'reject-tags', originalTags.join(', '), `Rejected: ${proposedTags.join(', ')}`, false);
     await recordEpisode('fix-worker', 'generate-keywords', originalTags.join(', '), `Rejected by supervisor`, false);

@@ -30,10 +30,39 @@ interface PendingJob {
     verifiedTags: string[];
 }
 
+interface BotStats {
+    jobsAdded?: number;
+    anomaliesFound?: number;
+    fixesMade?: number;
+    hallucinationsCaught?: number;
+    jobsArchived?: number;
+    ghostJobsRemoved?: number;
+    resumesMatched?: number;
+    advisoriesGenerated?: number;
+    profilesEnriched?: number;
+}
+
+interface BotAction {
+    timestamp: string;
+    action: string;
+    count?: number;
+}
+
+interface BotReport {
+    botId: string;
+    botName: string;
+    actions: BotAction[];
+    summary: {
+        totalActions: number;
+        jobsProcessed: number;
+        errors: number;
+    };
+}
+
 export default function AdminBotsDashboard() {
     const { user: currentUser } = useAuth();
     const [bots, setBots] = useState<BotConfig[]>([]);
-    const [stats, setStats] = useState<any>({});
+    const [stats, setStats] = useState<BotStats>({});
     const [pendingJobs, setPendingJobs] = useState<PendingJob[]>([]);
     const [loading, setLoading] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
@@ -45,7 +74,7 @@ export default function AdminBotsDashboard() {
     const [isPollingLogs, setIsPollingLogs] = useState(false);
 
     // Reports state
-    const [reports, setReports] = useState<Record<string, any[]>>({});
+    const [reports, setReports] = useState<Record<string, BotReport[]>>({});
     const [expandedDay, setExpandedDay] = useState<string | null>(null);
     const [reportsLoading, setReportsLoading] = useState(false);
 
@@ -129,43 +158,52 @@ export default function AdminBotsDashboard() {
 
     const handleAction = async (id: string, action: 'start' | 'stop') => {
         try {
+            // Optimistic UI updates to make it feel industry-grade and responsive
             setBots(prev => prev.map(b => b.id === id ? { ...b, status: action === 'start' ? 'online' : 'stopped' } : b));
+            
             if (action === 'start') {
                 await adminApi.bots.start(id);
             } else {
                 await adminApi.bots.stop(id);
             }
+            // Trigger an immediate sync for real-time accuracy after the command completes
             await fetchBotStatuses();
-        } catch (err: any) {
-            alert(`Failed to ${action} bot: ${err.message}`);
+        } catch (err) {
+            const error = err as Error;
+            console.error(`Failed to ${action} bot`, error);
+            alert(`Failed to ${action} bot: ${error.message || 'Unknown error'}`);
             await fetchBotStatuses();
         }
     };
 
     const handlePipelineTrigger = async () => {
-        // If already running a pipeline/has online bots, user probably wants to STOP
+        // If already running a pipeline/online bots, user probably wants to STOP the swarm
+        const onlineCount = bots.filter(b => b.status === 'online').length;
         if (onlineCount > 0) {
             if (!confirm('This will stop ALL currently running bots in the ecosystem. Proceed?')) return;
             try {
-                // Stop all sequentially
+                // Stop all running bots sequentially
                 for (const bot of bots.filter(b => b.status === 'online')) {
                     await adminApi.bots.stop(bot.id);
                 }
-                alert('Ecosystem pipeline stopped.');
-                fetchBotStatuses();
-            } catch (err: any) {
-                alert(err.message || 'Failed to stop pipeline');
+                alert('Ecosystem swarm stopped.');
+                await fetchBotStatuses();
+            } catch (err) {
+                const error = err as Error;
+                alert(error.message || 'Failed to stop pipeline');
             }
             return;
         }
 
         if (!confirm('This will trigger the full autonomous sequence: Recruiter -> Scanner -> Fixer -> Supervisor -> Cleaner -> Archiver -> Matcher -> Advisor -> LinkedIn Enricher. Proceed?')) return;
         try {
+            // Non-awaited to let the swarm run asynchronously while UI stays reactive
             await adminApi.bots.pipeline();
-            alert('Pipeline sequence initiated. View live logs for progress.');
-            fetchBotStatuses();
-        } catch (err: any) {
-            alert(err.message || 'Failed to trigger pipeline');
+            alert('Swarm pipeline initiated. View live logs for real-time progress.');
+            await fetchBotStatuses();
+        } catch (err) {
+            const error = err as Error;
+            alert(error.message || 'Failed to trigger pipeline');
         }
     };
 
@@ -173,9 +211,10 @@ export default function AdminBotsDashboard() {
         try {
             setPendingJobs(prev => prev.filter(j => j._id !== id));
             await adminApi.resolvePendingJob(id, action);
-            fetchPendingJobs();
-        } catch (err: any) {
-            alert('Error reviewing job: ' + err.message);
+            await fetchPendingJobs();
+        } catch (err) {
+            const error = err as Error;
+            alert('Error reviewing job: ' + error.message);
         }
     };
 
@@ -194,20 +233,20 @@ export default function AdminBotsDashboard() {
     const onlineCount = bots.filter(b => b.status === 'online').length;
     const isPipelineRunning = onlineCount > 0;
 
-    // Map bot ID to the stat it tracks
+    // Map bot IDs to their industrial impact metrics for the enterprise dashboard
     const getBotStatMetric = (botId: string) => {
         if (!stats) return { label: 'Today\'s Impact', value: 0 };
         switch (botId) {
             case 'bot0-recruiter': return { label: 'Jobs Scraped Today', value: stats.jobsAdded || 0 };
             case 'bot1-scanner': return { label: 'Anomalies Identified', value: stats.anomaliesFound || 0 };
             case 'bot2-fixer': return { label: 'Fixes Proposed', value: stats.fixesMade || 0 };
-            case 'bot3-supervisor': return { label: 'Fixes Verified', value: stats.approvals || 0 };
-            case 'bot4-cleanup': return { label: 'Jobs Archived', value: stats.jobsArchived || 0 };
-            case 'bot6-archiver': return { label: 'Ghost Jobs Removed', value: stats.jobsArchived || 0 };
+            case 'bot3-supervisor': return { label: 'Hallucinations Caught', value: stats.hallucinationsCaught || 0 };
+            case 'bot4-cleanup': return { label: 'Jobs Rotating', value: stats.jobsArchived || 0 };
+            case 'bot6-archiver': return { label: 'Ghost Jobs Removed', value: stats.ghostJobsRemoved || 0 };
             case 'bot7-matcher': return { label: 'Resumes Matched', value: stats.resumesMatched || 0 };
             case 'bot8-advisor': return { label: 'Advisories Generated', value: stats.advisoriesGenerated || 0 };
             case 'bot9-linkedin-enricher': return { label: 'Profiles Enriched', value: stats.profilesEnriched || 0 };
-            default: return { label: 'No Data', value: 0 };
+            default: return { label: 'Impact Score', value: 0 };
         }
     };
 
@@ -228,7 +267,7 @@ export default function AdminBotsDashboard() {
                         <h1 className="text-6xl md:text-7xl font-black uppercase tracking-tighter leading-none mb-4">
                             AI Bot <span className="text-gradient">Manager</span>
                         </h1>
-                        <p className="text-white/40 text-lg max-w-2xl font-medium mb-6">Command center for the ecosystem's background micro-agents.</p>
+                        <p className="text-white/40 text-lg max-w-2xl font-medium mb-6">Command center for the ecosystem&apos;s background micro-agents.</p>
 
                         <motion.button
                             onClick={handlePipelineTrigger}
@@ -239,7 +278,7 @@ export default function AdminBotsDashboard() {
                             {isPipelineRunning ? (
                                 <><Square size={16} fill="currentColor" /> Stop Pipeline</>
                             ) : (
-                                <><Play size={16} fill="white" /> Initiate Autonomous Pipeline</>
+                                <><Play size={16} fill="white" /> Initiate Swarm Pipeline</>
                             )}
                         </motion.button>
                     </div>
@@ -257,7 +296,7 @@ export default function AdminBotsDashboard() {
                 {/* Bot Grid */}
                 {loading ? (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-20">
-                        {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-64 glass-card border-white/5 animate-pulse" />)}
+                        {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-64 glass-card border-white/5 animate-pulse" />)}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-20">
@@ -353,13 +392,13 @@ export default function AdminBotsDashboard() {
                 {/* AI Review Queue Section */}
                 <div className="mb-20">
                     <h2 className="text-3xl font-black uppercase tracking-tighter mb-2">AI Review Queue</h2>
-                    <p className="text-white/40 mb-6">Jobs whose tags have been re-written by the LLM and successfully verified by the Supervisor bot. They await your final approval to go live.</p>
+                    <p className="text-white/40 mb-6">Jobs whose tags have been re-written by the LLM and successfully verified by the Supervisor bot. They await final industrial approval.</p>
 
                     {pendingJobs.length === 0 ? (
                         <div className="p-12 glass-card border-white/5 text-center flex flex-col items-center justify-center">
                             <CheckCircle2 size={40} className="text-emerald-500/50 mb-4" />
-                            <h3 className="text-xl font-bold text-white/60">Queue is Empty</h3>
-                            <p className="text-white/40 text-sm">All AI fixes have been reviewed.</p>
+                            <h3 className="text-xl font-bold text-white/60">Queue is Clear</h3>
+                            <p className="text-white/40 text-sm">All AI improvements have been reviewed by supervisors.</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -370,7 +409,7 @@ export default function AdminBotsDashboard() {
 
                                         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="bg-red-500/5 border border-red-500/10 p-4 rounded-xl">
-                                                <p className="text-xs text-red-400/80 font-bold mb-2 uppercase tracking-wider">Original Long Tags</p>
+                                                <p className="text-xs text-red-400/80 font-bold mb-2 uppercase tracking-wider">Original Requirements</p>
                                                 <div className="flex flex-wrap gap-2">
                                                     {job.tags?.filter(t => t.length > 20).map((t, i) => (
                                                         <span key={i} className="text-xs bg-red-500/10 text-red-300 px-2 py-1 rounded-md max-w-full truncate">{t}</span>
@@ -378,7 +417,7 @@ export default function AdminBotsDashboard() {
                                                 </div>
                                             </div>
                                             <div className="bg-emerald-500/5 border border-emerald-500/10 p-4 rounded-xl">
-                                                <p className="text-xs text-emerald-400/80 font-bold mb-2 uppercase tracking-wider">Proposed Short Tags</p>
+                                                <p className="text-xs text-emerald-400/80 font-bold mb-2 uppercase tracking-wider">AI Simplified Keywords</p>
                                                 <div className="flex flex-wrap gap-2">
                                                     {job.verifiedTags?.map((t, i) => (
                                                         <span key={i} className="text-xs bg-emerald-500/10 text-emerald-300 px-2 py-1 rounded-md">{t}</span>
@@ -393,7 +432,7 @@ export default function AdminBotsDashboard() {
                                             onClick={() => handleJobReview(job._id, 'approve')}
                                             className="bg-emerald-500 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 flex-1 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-shadow"
                                         >
-                                            <CheckCircle2 size={18} /> Apply Fix
+                                            <CheckCircle2 size={18} /> Approve Keyword Extraction
                                         </motion.button>
                                         <motion.button
                                             whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
@@ -409,14 +448,14 @@ export default function AdminBotsDashboard() {
                     )}
                 </div>
 
-                {/* Weekly Bot Report */}
+                {/* Automation Log Feed */}
                 <div className="mb-20">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h2 className="text-3xl font-black uppercase tracking-tighter mb-2 flex items-center gap-3">
-                                <FileText size={28} className="text-brand-cyan" /> Weekly Report
+                                <FileText size={28} className="text-brand-cyan" /> Automation Flux
                             </h2>
-                            <p className="text-white/40">Rolling 7-day activity log. Each day shows what every bot accomplished automatically.</p>
+                            <p className="text-white/40">Real-time activity audit from the last 7 production days.</p>
                         </div>
                         <motion.button
                             onClick={fetchReports}
@@ -424,23 +463,23 @@ export default function AdminBotsDashboard() {
                             whileTap={{ scale: 0.95 }}
                             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/30 text-sm font-bold"
                         >
-                            <RefreshCcw size={14} className={reportsLoading ? 'animate-spin' : ''} /> Refresh
+                            <RefreshCcw size={14} className={reportsLoading ? 'animate-spin' : ''} /> Force Sync
                         </motion.button>
                     </div>
 
                     {Object.keys(reports).length === 0 ? (
                         <div className="p-12 glass-card border-white/5 text-center flex flex-col items-center justify-center">
                             <Clock size={40} className="text-white/20 mb-4" />
-                            <h3 className="text-xl font-bold text-white/60">No Reports Yet</h3>
-                            <p className="text-white/40 text-sm">Reports will appear here after bots run automatically.</p>
+                            <h3 className="text-xl font-bold text-white/60">Silence in the Flux</h3>
+                            <p className="text-white/40 text-sm">Activity logs will emerge here as bots process jobs.</p>
                         </div>
                     ) : (
                         <div className="space-y-3">
                             {Object.entries(reports).sort(([a], [b]) => b.localeCompare(a)).map(([date, dayReports]) => {
                                 const isExpanded = expandedDay === date;
-                                const totalActions = dayReports.reduce((sum: number, r: any) => sum + (r.summary?.totalActions || 0), 0);
-                                const totalErrors = dayReports.reduce((sum: number, r: any) => sum + (r.summary?.errors || 0), 0);
-                                const totalProcessed = dayReports.reduce((sum: number, r: any) => sum + (r.summary?.jobsProcessed || 0), 0);
+                                const totalActions = dayReports.reduce((sum: number, r: BotReport) => sum + (r.summary?.totalActions || 0), 0);
+                                const totalErrors = dayReports.reduce((sum: number, r: BotReport) => sum + (r.summary?.errors || 0), 0);
+                                const totalProcessed = dayReports.reduce((sum: number, r: BotReport) => sum + (r.summary?.jobsProcessed || 0), 0);
                                 const isToday = date === new Date().toISOString().split('T')[0];
 
                                 return (
@@ -455,21 +494,21 @@ export default function AdminBotsDashboard() {
                                                     <p className="font-bold text-lg">
                                                         {isToday && <span className="text-brand-cyan mr-2">●</span>}
                                                         {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-                                                        {isToday && <span className="ml-2 text-[10px] bg-brand-cyan/20 text-brand-cyan px-2 py-0.5 rounded-full font-black uppercase tracking-wider">Today</span>}
+                                                        {isToday && <span className="ml-2 text-[10px] bg-brand-cyan/20 text-brand-cyan px-2 py-0.5 rounded-full font-black uppercase tracking-wider">Production Today</span>}
                                                     </p>
-                                                    <p className="text-xs text-white/30 mt-1">{dayReports.length} bot(s) active</p>
+                                                    <p className="text-xs text-white/30 mt-1">{dayReports.length} agent swarms active</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4 text-xs">
                                                 <span className="bg-white/5 px-3 py-1 rounded-full border border-white/10">
-                                                    <span className="text-white/40">Actions:</span> <span className="text-white font-bold">{totalActions}</span>
+                                                    <span className="text-white/40">Events:</span> <span className="text-white font-bold">{totalActions}</span>
                                                 </span>
                                                 <span className="bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                                                    <span className="text-emerald-400/60">Processed:</span> <span className="text-emerald-400 font-bold">{totalProcessed}</span>
+                                                    <span className="text-emerald-400/60">Throughput:</span> <span className="text-emerald-400 font-bold">{totalProcessed}</span>
                                                 </span>
                                                 {totalErrors > 0 && (
                                                     <span className="bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">
-                                                        <span className="text-red-400/60">Errors:</span> <span className="text-red-400 font-bold">{totalErrors}</span>
+                                                        <span className="text-red-400/60">Anomalies:</span> <span className="text-red-400 font-bold">{totalErrors}</span>
                                                     </span>
                                                 )}
                                             </div>
@@ -485,34 +524,34 @@ export default function AdminBotsDashboard() {
                                                     className="overflow-hidden"
                                                 >
                                                     <div className="border-t border-white/5 p-5 space-y-4">
-                                                        {dayReports.map((report: any) => {
+                                                        {dayReports.map((report: BotReport) => {
                                                             const botColor = bots.find(b => b.id === report.botId)?.color || '#a78bfa';
                                                             return (
                                                                 <div key={report.botId} className="bg-white/[0.02] rounded-xl p-4 border border-white/5">
                                                                     <div className="flex items-center justify-between mb-3">
                                                                         <h4 className="font-bold text-sm uppercase tracking-wider" style={{ color: botColor }}>{report.botName}</h4>
                                                                         <div className="flex gap-3 text-[10px]">
-                                                                            <span className="text-white/40">Actions: <span className="text-white font-bold">{report.summary?.totalActions || 0}</span></span>
-                                                                            <span className="text-white/40">Processed: <span className="text-emerald-400 font-bold">{report.summary?.jobsProcessed || 0}</span></span>
+                                                                            <span className="text-white/40">Events: <span className="text-white font-bold">{report.summary?.totalActions || 0}</span></span>
+                                                                            <span className="text-white/40">Impact: <span className="text-emerald-400 font-bold">{report.summary?.jobsProcessed || 0}</span></span>
                                                                             {(report.summary?.errors || 0) > 0 && (
                                                                                 <span className="text-red-400">Errors: <span className="font-bold">{report.summary.errors}</span></span>
                                                                             )}
                                                                         </div>
                                                                     </div>
                                                                     <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar">
-                                                                        {(report.actions || []).map((action: any, idx: number) => (
+                                                                        {(report.actions || []).map((action: BotAction, idx: number) => (
                                                                             <div key={idx} className="flex items-start gap-3 text-xs py-1">
                                                                                 <span className="text-white/20 font-mono shrink-0 mt-0.5">
                                                                                     {new Date(action.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                                                                 </span>
                                                                                 <span className={action.action.includes('ERROR') || action.action.includes('❌') ? 'text-red-400' : action.action.includes('✅') ? 'text-emerald-400' : 'text-white/60'}>
                                                                                     {action.action}
-                                                                                    {action.count > 0 && <span className="ml-1 text-white/30">({action.count})</span>}
+                                                                                    {typeof action.count === 'number' && action.count > 0 && <span className="ml-1 text-white/30">({action.count})</span>}
                                                                                 </span>
                                                                             </div>
                                                                         ))}
                                                                         {(!report.actions || report.actions.length === 0) && (
-                                                                            <p className="text-white/20 text-xs italic">No detailed actions recorded.</p>
+                                                                            <p className="text-white/20 text-xs italic">Stream quiet.</p>
                                                                         )}
                                                                     </div>
                                                                 </div>
@@ -530,7 +569,7 @@ export default function AdminBotsDashboard() {
                 </div>
             </div>
 
-            {/* Terminal Modal */}
+            {/* Terminal Stream Overaly */}
             <AnimatePresence>
                 {selectedBotId && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
@@ -551,12 +590,12 @@ export default function AdminBotsDashboard() {
                             <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/5">
                                 <div className="flex items-center gap-3">
                                     <TerminalIcon size={16} className="text-white/40" />
-                                    <span className="text-xs font-mono text-white/60">{bots.find(b => b.id === selectedBotId)?.name} Terminal Stream</span>
+                                    <span className="text-xs font-mono text-white/60">{bots.find(b => b.id === selectedBotId)?.name} Terminal stream</span>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="flex items-center gap-2 text-[10px] text-white/30 uppercase tracking-widest">
                                         <RefreshCcw size={10} className={isPollingLogs ? "animate-spin text-emerald-400" : ""} />
-                                        {isPollingLogs ? 'Live Syncing' : 'Paused'}
+                                        {isPollingLogs ? 'Live Swarm Status' : 'Audit Mode'}
                                     </div>
                                     <button onClick={() => setSelectedBotId(null)} className="text-white/40 hover:text-white p-1 rounded-md hover:bg-white/10 transition-colors">
                                         <X size={16} />
@@ -566,7 +605,7 @@ export default function AdminBotsDashboard() {
 
                             <div className="flex-1 p-6 overflow-y-auto font-mono text-xs md:text-sm bg-black text-white/80 leading-relaxed custom-scrollbar">
                                 {logs.length === 0 ? (
-                                    <p className="text-white/20 italic">No logs available. Bot might be starting or has not emitted any output yet.</p>
+                                    <p className="text-white/20 italic">Awaiting agent handshake. No stream output yet.</p>
                                 ) : (
                                     <div className="space-y-1">
                                         {logs.map((log, i) => (
@@ -582,6 +621,7 @@ export default function AdminBotsDashboard() {
                                                 )}
                                             </div>
                                         ))}
+                                        {/* Auto-scroll anchor */}
                                         <div ref={(el) => { if (el) el.scrollIntoView({ behavior: 'smooth' }); }} />
                                     </div>
                                 )}

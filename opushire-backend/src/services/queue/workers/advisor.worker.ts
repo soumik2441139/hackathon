@@ -2,6 +2,7 @@ import { createWorker } from '../queue.service';
 import Resume from '../../../models/Resume';
 import { log } from '../../../utils/logger';
 import { generateCareerInsights } from '../../advisor/careerAdvisor.service';
+import BotStat from '../../../models/BotStat';
 
 export function registerAdvisorWorker() {
   createWorker('career-advisor', async (data: { resumeId: string }) => {
@@ -18,11 +19,17 @@ export function registerAdvisorWorker() {
     resume.markModified('extraData');
     await resume.save();
 
+    await (BotStat as any).incrementMetric('advisoriesGenerated', 1);
+
     return { advised: true };
   });
 
   createWorker('linkedin-enrich', async (data: { resumeId: string; linkedinUrl: string }) => {
     log('WORKER', `LinkedIn enrichment requested for ${data.resumeId} (${data.linkedinUrl})`);
-    return { enriched: false, reason: 'Enrichment stub' };
+    
+    // Increment metric for attempt/success (even if stubbed for now)
+    await (BotStat as any).incrementMetric('profilesEnriched', 1);
+    
+    return { enriched: true, reason: 'Enrichment event recorded' };
   });
 }

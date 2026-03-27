@@ -4,6 +4,7 @@ import { logError } from '../../../utils/logger';
 import { buildStatusUpdate } from '../../../utils/stateMachine';
 import { getExamples, buildFewShotSection } from '../../rag/rag.service';
 import { buildMemoryContext } from '../../memory/agent.memory';
+import axios from 'axios';
 
 const FIXER_STOP_WORDS = new Set([
   'and', 'or', 'the', 'with', 'for', 'from', 'into', 'onto', 'your', 'you', 'our', 'their',
@@ -55,18 +56,15 @@ export function registerFixWorker() {
     let keywordSource: 'groq' | 'fallback' = 'groq';
 
     try {
-      const response = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
-        method: 'POST',
+      const response = await axios.post(`https://api.groq.com/openai/v1/chat/completions`, {
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }]
+      }, {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-        body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: prompt }] }),
+        timeout: 10000
       });
 
-      const raw = await response.text();
-      let result: any = {};
-      if (raw) try { result = JSON.parse(raw); } catch { throw new Error('invalid JSON'); }
-      if (!response.ok) throw new Error(result?.error?.message || `Failed (${response.status})`);
-
-      const text = result?.choices?.[0]?.message?.content?.trim() || '';
+      const text = response.data?.choices?.[0]?.message?.content?.trim() || '';
       newKeywords = parseKeywordList(text);
       if (newKeywords.length === 0) throw new Error('no usable output');
     } catch (err) {

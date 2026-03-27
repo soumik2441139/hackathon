@@ -16,7 +16,11 @@ export const getTodayStats = async (req: Request, res: Response) => {
                 fixesMade: 0,
                 hallucinationsCaught: 0,
                 approvals: 0,
-                jobsArchived: 0
+                jobsArchived: 0,
+                resumesMatched: 0,
+                advisoriesGenerated: 0,
+                profilesEnriched: 0,
+                ghostJobsRemoved: 0
             } as any;
         }
 

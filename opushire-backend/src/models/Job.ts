@@ -33,6 +33,7 @@ export interface IJob extends Document {
     statusHistory?: { from: string; to: string; actor: string; timestamp: Date }[];
     proposedTags?: string[];
     isArchived?: boolean;
+    archiveReason?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -92,6 +93,7 @@ const JobSchema = new Schema<IJob>(
             timestamp: { type: Date, default: Date.now },
         }],
         isArchived: { type: Boolean, default: false },
+        archiveReason: { type: String, trim: true },
     },
     { timestamps: true }
 );

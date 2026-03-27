@@ -1,53 +1,1229 @@
-FAIL tests/health.test.ts
-  ΓùÅ Test suite failed to run
+  console.log
+    [dotenv@17.3.1] injecting env (31) from .env -- tip: ΓÜÖ∩╕Å  enable debug logging with { debug: true }
 
-    tests/health.test.ts:4:1 - error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+      at _log (../node_modules/dotenv/lib/main.js:139:11)
 
-    4 describe('API Health Checks', () => {
-      ~~~~~~~~
-    tests/health.test.ts:5:3 - error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+  console.log
+    Γ£à MongoDB connected: ac-nmj9lot-shard-00-02.qqmzp0o.mongodb.net / test
 
-    5   it('GET / should return alive status', async () => {
-        ~~
-    tests/health.test.ts:7:5 - error TS2304: Cannot find name 'expect'.
+      at runPostConnectTasks (src/config/db.ts:8:13)
 
-    7     expect(res.status).toBe(200);
-          ~~~~~~
-    tests/health.test.ts:8:5 - error TS2304: Cannot find name 'expect'.
+[23:46:56] [32mINFO[39m: [36mIntegration Test: Connected to MongoDB at test[39m
+    [35mservice[39m: "opushire-backend"
+[23:46:58] [31mERROR[39m: [36mGroq unavailable. Falling back.[39m
+    [35mservice[39m: "opushire-backend"
+    [35mscope[39m: "FIX-WORKER"
+    err: {
+      "code": "ERR_BAD_REQUEST",
+      "config": {
+        "adapter": [
+          "xhr",
+          "http",
+          "fetch"
+        ],
+        "allowAbsoluteUrls": true,
+        "data": "{\"model\":\"llama-3.3-70b-versatile\",\"messages\":[{\"role\":\"user\",\"content\":\"Extract exactly 3 concise keywords (maximum 2 words each) from these required skills lines:\\nNeed someone with deep knowledge of TypeScript and advanced Reactor patterns.\\nReturn ONLY a comma-separated list of keywords, nothing else. Format: KEYWORD1, KEYWORD2, KEYWORD3\"}]}",
+        "env": {},
+        "headers": {
+          "Accept": "application/json, text/plain, */*",
+          "Accept-Encoding": "gzip, compress, deflate, br",
+          "Authorization": "Bearer test-key",
+          "Content-Length": "347",
+          "Content-Type": "application/json",
+          "User-Agent": "axios/1.13.6"
+        },
+        "maxBodyLength": -1,
+        "maxContentLength": -1,
+        "method": "post",
+        "timeout": 10000,
+        "transformRequest": [
+          null
+        ],
+        "transformResponse": [
+          null
+        ],
+        "transitional": {
+          "clarifyTimeoutError": false,
+          "forcedJSONParsing": true,
+          "legacyInterceptorReqResOrdering": true,
+          "silentJSONParsing": true
+        },
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "xsrfCookieName": "XSRF-TOKEN",
+        "xsrfHeaderName": "X-XSRF-TOKEN"
+      },
+      "isAxiosError": true,
+      "message": "Request failed with status code 401",
+      "name": "AxiosError",
+      "request": {
+        "_closed": true,
+        "_contentLength": 347,
+        "_defaultKeepAlive": true,
+        "_ended": true,
+        "_events": {},
+        "_eventsCount": 7,
+        "_hasBody": true,
+        "_header": "POST /openai/v1/chat/completions HTTP/1.1\r\nAccept: application/json, text/plain, */*\r\nContent-Type: application/json\r\nAuthorization: Bearer test-key\r\nUser-Agent: axios/1.13.6\r\nContent-Length: 347\r\nAccept-Encoding: gzip, compress, deflate, br\r\nHost: api.groq.com\r\nConnection: keep-alive\r\n\r\n",
+        "_headerSent": true,
+        "_keepAliveTimeout": 0,
+        "_last": false,
+        "_redirectable": {
+          "_currentRequest": "[Circular]",
+          "_currentUrl": "https://api.groq.com/openai/v1/chat/completions",
+          "_ended": true,
+          "_ending": true,
+          "_events": {
+            "socket": [
+              null,
+              null
+            ]
+          },
+          "_eventsCount": 3,
+          "_options": {
+            "agents": {},
+            "beforeRedirects": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*",
+              "Accept-Encoding": "gzip, compress, deflate, br",
+              "Authorization": "Bearer test-key",
+              "Content-Length": "347",
+              "Content-Type": "application/json",
+              "User-Agent": "axios/1.13.6"
+            },
+            "hostname": "api.groq.com",
+            "maxBodyLength": null,
+            "maxRedirects": 21,
+            "method": "POST",
+            "nativeProtocols": {
+              "http:": "[Object]",
+              "https:": "[Object]"
+            },
+            "path": "/openai/v1/chat/completions",
+            "pathname": "/openai/v1/chat/completions",
+            "port": "",
+            "protocol": "https:"
+          },
+          "_redirectCount": 0,
+          "_redirects": [],
+          "_requestBodyBuffers": [],
+          "_requestBodyLength": 347,
+          "_timeout": null,
+          "_writableState": {
+            "bufferedIndex": 0,
+            "corked": 0,
+            "highWaterMark": 16384,
+            "length": 0,
+            "pendingcb": 0,
+            "writelen": 0
+          }
+        },
+        "_removedConnection": false,
+        "_removedContLen": false,
+        "_removedTE": false,
+        "_trailer": "",
+        "aborted": false,
+        "agent": {
+          "_events": {},
+          "_eventsCount": 2,
+          "_sessionCache": {
+            "list": [],
+            "map": {}
+          },
+          "defaultPort": 443,
+          "freeSockets": {
+            "api.groq.com:443:::::::::::::::::::::": [
+              "[Object]"
+            ]
+          },
+          "keepAlive": true,
+          "keepAliveMsecs": 1000,
+          "maxCachedSessions": 100,
+          "maxFreeSockets": 256,
+          "maxSockets": null,
+          "maxTotalSockets": null,
+          "options": {
+            "keepAlive": true,
+            "noDelay": true,
+            "path": null,
+            "scheduling": "lifo",
+            "timeout": 5000
+          },
+          "protocol": "https:",
+          "requests": {},
+          "scheduling": "lifo",
+          "sockets": {},
+          "totalSocketCount": 1
+        },
+        "chunkedEncoding": false,
+        "destroyed": true,
+        "finished": true,
+        "host": "api.groq.com",
+        "maxHeadersCount": null,
+        "maxRequestsOnConnectionReached": false,
+        "method": "POST",
+        "outputData": [],
+        "outputSize": 0,
+        "parser": null,
+        "path": "/openai/v1/chat/completions",
+        "protocol": "https:",
+        "res": {
+          "_consuming": false,
+          "_dumped": false,
+          "_events": {
+            "end": [
+              null,
+              null
+            ]
+          },
+          "_eventsCount": 4,
+          "_readableState": {
+            "awaitDrainWriters": null,
+            "buffer": [],
+            "bufferIndex": 0,
+            "highWaterMark": 16384,
+            "length": 0,
+            "pipes": []
+          },
+          "aborted": false,
+          "client": {
+            "_SNICallback": null,
+            "_closeAfterHandlingError": false,
+            "_controlReleased": true,
+            "_events": {
+              "close": "[Array]",
+              "newListener": "[Array]",
+              "timeout": "[Array]"
+            },
+            "_eventsCount": 9,
+            "_hadError": false,
+            "_host": "api.groq.com",
+            "_httpMessage": null,
+            "_newSessionPending": false,
+            "_parent": null,
+            "_pendingData": null,
+            "_pendingEncoding": "",
+            "_readableState": {
+              "awaitDrainWriters": null,
+              "buffer": [],
+              "bufferIndex": 0,
+              "highWaterMark": 16384,
+              "length": 0,
+              "pipes": []
+            },
+            "_rejectUnauthorized": true,
+            "_requestCert": true,
+            "_secureEstablished": true,
+            "_securePending": false,
+            "_server": null,
+            "_sockname": null,
+            "_tlsOptions": {
+              "isServer": false,
+              "pipe": false,
+              "rejectUnauthorized": true,
+              "requestCert": true,
+              "secureContext": "[Object]"
+            },
+            "_writableState": {
+              "bufferedIndex": 0,
+              "corked": 0,
+              "highWaterMark": 16384,
+              "length": 0,
+              "pendingcb": 0,
+              "writelen": 0
+            },
+            "allowHalfOpen": false,
+            "alpnProtocol": false,
+            "authorizationError": null,
+            "authorized": true,
+            "autoSelectFamilyAttemptedAddresses": [
+              "104.18.38.236:443",
+              "172.64.149.20:443"
+            ],
+            "connecting": false,
+            "encrypted": true,
+            "handle": {
+              "_parent": "[Object]",
+              "_parentWrap": null,
+              "_secureContext": "[Object]",
+              "reading": true
+            },
+            "parser": null,
+            "secureConnecting": false,
+            "servername": "api.groq.com",
+            "ssl": null,
+            "timeout": 5000
+          },
+          "complete": true,
+          "httpVersion": "1.1",
+          "httpVersionMajor": 1,
+          "httpVersionMinor": 1,
+          "method": null,
+          "rawHeaders": [
+            "Date",
+            "Fri, 27 Mar 2026 18:16:58 GMT",
+            "Content-Type",
+            "application/json",
+            "Content-Length",
+            "96",
+            "Connection",
+            "keep-alive",
+            "Cache-Control",
+            "private, max-age=0, no-store, no-cache, must-revalidate",
+            "Server",
+            "cloudflare",
+            "vary",
+            "Origin",
+            "x-groq-region",
+            "bom",
+            "x-request-id",
+            "req_01kmr8711ee8390pkky35h18bs",
+            "set-cookie",
+            "__cf_bm=2wtF6AxztgZsejCiiGNA9LupgF9pLgJKbFoSYRmLPf4-1774635418.608286-1.0.1.1-gnkqeDdQGYaDk0kHt2bRvIcXEYJxnDEgAl1yVmlFaNneC6Wro7PWR8R4LKIueQ7ZLuPz0vqi2Ee1Ai7iK4jm0T8qXDMLuUy.4Bt2RdlFo7XtRN5Vz035DveQyGjYtu7E; HttpOnly; Secure; Path=/; Domain=groq.com; Expires=Fri, 27 Mar 2026 18:46:58 GMT",
+            "via",
+            "1.1 google",
+            "Strict-Transport-Security",
+            "max-age=15552000",
+            "cf-cache-status",
+            "DYNAMIC",
+            "CF-RAY",
+            "9e3063a64bf50942-CCU",
+            "alt-svc",
+            "h3=\":443\"; ma=86400"
+          ],
+          "rawTrailers": [],
+          "redirects": [],
+          "req": "[Circular]",
+          "responseUrl": "https://api.groq.com/openai/v1/chat/completions",
+          "socket": null,
+          "statusCode": 401,
+          "statusMessage": "Unauthorized",
+          "upgrade": false,
+          "url": ""
+        },
+        "reusedSocket": false,
+        "sendDate": false,
+        "shouldKeepAlive": true,
+        "strictContentLength": false,
+        "timeoutCb": null,
+        "upgradeOrConnect": false,
+        "useChunkedEncodingByDefault": true,
+        "writable": true
+      },
+      "response": {
+        "config": {
+          "adapter": [
+            "xhr",
+            "http",
+            "fetch"
+          ],
+          "allowAbsoluteUrls": true,
+          "data": "{\"model\":\"llama-3.3-70b-versatile\",\"messages\":[{\"role\":\"user\",\"content\":\"Extract exactly 3 concise keywords (maximum 2 words each) from these required skills lines:\\nNeed someone with deep knowledge of TypeScript and advanced Reactor patterns.\\nReturn ONLY a comma-separated list of keywords, nothing else. Format: KEYWORD1, KEYWORD2, KEYWORD3\"}]}",
+          "env": {},
+          "headers": {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Encoding": "gzip, compress, deflate, br",
+            "Authorization": "Bearer test-key",
+            "Content-Length": "347",
+            "Content-Type": "application/json",
+            "User-Agent": "axios/1.13.6"
+          },
+          "maxBodyLength": -1,
+          "maxContentLength": -1,
+          "method": "post",
+          "timeout": 10000,
+          "transformRequest": [
+            null
+          ],
+          "transformResponse": [
+            null
+          ],
+          "transitional": {
+            "clarifyTimeoutError": false,
+            "forcedJSONParsing": true,
+            "legacyInterceptorReqResOrdering": true,
+            "silentJSONParsing": true
+          },
+          "url": "https://api.groq.com/openai/v1/chat/completions",
+          "xsrfCookieName": "XSRF-TOKEN",
+          "xsrfHeaderName": "X-XSRF-TOKEN"
+        },
+        "data": {
+          "error": {
+            "code": "invalid_api_key",
+            "message": "Invalid API Key",
+            "type": "invalid_request_error"
+          }
+        },
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate",
+          "cf-cache-status": "DYNAMIC",
+          "cf-ray": "9e3063a64bf50942-CCU",
+          "connection": "keep-alive",
+          "content-length": "96",
+          "content-type": "application/json",
+          "date": "Fri, 27 Mar 2026 18:16:58 GMT",
+          "server": "cloudflare",
+          "set-cookie": "__cf_bm=2wtF6AxztgZsejCiiGNA9LupgF9pLgJKbFoSYRmLPf4-1774635418.608286-1.0.1.1-gnkqeDdQGYaDk0kHt2bRvIcXEYJxnDEgAl1yVmlFaNneC6Wro7PWR8R4LKIueQ7ZLuPz0vqi2Ee1Ai7iK4jm0T8qXDMLuUy.4Bt2RdlFo7XtRN5Vz035DveQyGjYtu7E; HttpOnly; Secure; Path=/; Domain=groq.com; Expires=Fri, 27 Mar 2026 18:46:58 GMT",
+          "strict-transport-security": "max-age=15552000",
+          "vary": "Origin",
+          "via": "1.1 google",
+          "x-groq-region": "bom",
+          "x-request-id": "req_01kmr8711ee8390pkky35h18bs"
+        },
+        "request": {
+          "_closed": true,
+          "_contentLength": 347,
+          "_defaultKeepAlive": true,
+          "_ended": true,
+          "_events": {},
+          "_eventsCount": 7,
+          "_hasBody": true,
+          "_header": "POST /openai/v1/chat/completions HTTP/1.1\r\nAccept: application/json, text/plain, */*\r\nContent-Type: application/json\r\nAuthorization: Bearer test-key\r\nUser-Agent: axios/1.13.6\r\nContent-Length: 347\r\nAccept-Encoding: gzip, compress, deflate, br\r\nHost: api.groq.com\r\nConnection: keep-alive\r\n\r\n",
+          "_headerSent": true,
+          "_keepAliveTimeout": 0,
+          "_last": false,
+          "_redirectable": {
+            "_currentRequest": "[Circular]",
+            "_currentUrl": "https://api.groq.com/openai/v1/chat/completions",
+            "_ended": true,
+            "_ending": true,
+            "_events": {
+              "socket": "[Array]"
+            },
+            "_eventsCount": 3,
+            "_options": {
+              "agents": "[Object]",
+              "beforeRedirects": "[Object]",
+              "headers": "[Object]",
+              "hostname": "api.groq.com",
+              "maxBodyLength": null,
+              "maxRedirects": 21,
+              "method": "POST",
+              "nativeProtocols": "[Object]",
+              "path": "/openai/v1/chat/completions",
+              "pathname": "/openai/v1/chat/completions",
+              "port": "",
+              "protocol": "https:"
+            },
+            "_redirectCount": 0,
+            "_redirects": [],
+            "_requestBodyBuffers": [],
+            "_requestBodyLength": 347,
+            "_timeout": null,
+            "_writableState": {
+              "bufferedIndex": 0,
+              "corked": 0,
+              "highWaterMark": 16384,
+              "length": 0,
+              "pendingcb": 0,
+              "writelen": 0
+            }
+          },
+          "_removedConnection": false,
+          "_removedContLen": false,
+          "_removedTE": false,
+          "_trailer": "",
+          "aborted": false,
+          "agent": {
+            "_events": {},
+            "_eventsCount": 2,
+            "_sessionCache": {
+              "list": [],
+              "map": {}
+            },
+            "defaultPort": 443,
+            "freeSockets": {
+              "api.groq.com:443:::::::::::::::::::::": "[Array]"
+            },
+            "keepAlive": true,
+            "keepAliveMsecs": 1000,
+            "maxCachedSessions": 100,
+            "maxFreeSockets": 256,
+            "maxSockets": null,
+            "maxTotalSockets": null,
+            "options": {
+              "keepAlive": true,
+              "noDelay": true,
+              "path": null,
+              "scheduling": "lifo",
+              "timeout": 5000
+            },
+            "protocol": "https:",
+            "requests": {},
+            "scheduling": "lifo",
+            "sockets": {},
+            "totalSocketCount": 1
+          },
+          "chunkedEncoding": false,
+          "destroyed": true,
+          "finished": true,
+          "host": "api.groq.com",
+          "maxHeadersCount": null,
+          "maxRequestsOnConnectionReached": false,
+          "method": "POST",
+          "outputData": [],
+          "outputSize": 0,
+          "parser": null,
+          "path": "/openai/v1/chat/completions",
+          "protocol": "https:",
+          "res": {
+            "_consuming": false,
+            "_dumped": false,
+            "_events": {
+              "end": "[Array]"
+            },
+            "_eventsCount": 4,
+            "_readableState": {
+              "awaitDrainWriters": null,
+              "buffer": [],
+              "bufferIndex": 0,
+              "highWaterMark": 16384,
+              "length": 0,
+              "pipes": []
+            },
+            "aborted": false,
+            "client": {
+              "_SNICallback": null,
+              "_closeAfterHandlingError": false,
+              "_controlReleased": true,
+              "_events": "[Object]",
+              "_eventsCount": 9,
+              "_hadError": false,
+              "_host": "api.groq.com",
+              "_httpMessage": null,
+              "_newSessionPending": false,
+              "_parent": null,
+              "_pendingData": null,
+              "_pendingEncoding": "",
+              "_readableState": "[Object]",
+              "_rejectUnauthorized": true,
+              "_requestCert": true,
+              "_secureEstablished": true,
+              "_securePending": false,
+              "_server": null,
+              "_sockname": null,
+              "_tlsOptions": "[Object]",
+              "_writableState": "[Object]",
+              "allowHalfOpen": false,
+              "alpnProtocol": false,
+              "authorizationError": null,
+              "authorized": true,
+              "autoSelectFamilyAttemptedAddresses": "[Array]",
+              "connecting": false,
+              "encrypted": true,
+              "handle": "[Object]",
+              "parser": null,
+              "secureConnecting": false,
+              "servername": "api.groq.com",
+              "ssl": null,
+              "timeout": 5000
+            },
+            "complete": true,
+            "httpVersion": "1.1",
+            "httpVersionMajor": 1,
+            "httpVersionMinor": 1,
+            "method": null,
+            "rawHeaders": [
+              "Date",
+              "Fri, 27 Mar 2026 18:16:58 GMT",
+              "Content-Type",
+              "application/json",
+              "Content-Length",
+              "96",
+              "Connection",
+              "keep-alive",
+              "Cache-Control",
+              "private, max-age=0, no-store, no-cache, must-revalidate",
+              "Server",
+              "cloudflare",
+              "vary",
+              "Origin",
+              "x-groq-region",
+              "bom",
+              "x-request-id",
+              "req_01kmr8711ee8390pkky35h18bs",
+              "set-cookie",
+              "__cf_bm=2wtF6AxztgZsejCiiGNA9LupgF9pLgJKbFoSYRmLPf4-1774635418.608286-1.0.1.1-gnkqeDdQGYaDk0kHt2bRvIcXEYJxnDEgAl1yVmlFaNneC6Wro7PWR8R4LKIueQ7ZLuPz0vqi2Ee1Ai7iK4jm0T8qXDMLuUy.4Bt2RdlFo7XtRN5Vz035DveQyGjYtu7E; HttpOnly; Secure; Path=/; Domain=groq.com; Expires=Fri, 27 Mar 2026 18:46:58 GMT",
+              "via",
+              "1.1 google",
+              "Strict-Transport-Security",
+              "max-age=15552000",
+              "cf-cache-status",
+              "DYNAMIC",
+              "CF-RAY",
+              "9e3063a64bf50942-CCU",
+              "alt-svc",
+              "h3=\":443\"; ma=86400"
+            ],
+            "rawTrailers": [],
+            "redirects": [],
+            "req": "[Circular]",
+            "responseUrl": "https://api.groq.com/openai/v1/chat/completions",
+            "socket": null,
+            "statusCode": 401,
+            "statusMessage": "Unauthorized",
+            "upgrade": false,
+            "url": ""
+          },
+          "reusedSocket": false,
+          "sendDate": false,
+          "shouldKeepAlive": true,
+          "strictContentLength": false,
+          "timeoutCb": null,
+          "upgradeOrConnect": false,
+          "useChunkedEncodingByDefault": true,
+          "writable": true
+        },
+        "status": 401,
+        "statusText": "Unauthorized"
+      },
+      "stack":
+          AxiosError: Request failed with status code 401
+              at settle (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\axios\lib\core\settle.js:20:7)
+              at IncomingMessage.handleStreamEnd (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\axios\lib\adapters\http.js:844:13)
+              at IncomingMessage.emit (node:events:531:35)
+              at endReadableNT (node:internal/streams/readable:1698:12)
+              at processTicksAndRejections (node:internal/process/task_queues:90:21)
+              at Axios.request (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\axios\lib\core\Axios.js:46:41)
+              at processTicksAndRejections (node:internal/process/task_queues:105:5)
+              at C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\src\services\queue\workers\fix.worker.ts:59:24
+              at Object.<anonymous> (C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\tests\workers\fix.worker.test.ts:74:20)
+      "status": 401,
+      "type": "AxiosError"
+    }
+[23:46:58] [32mINFO[39m: [36mNEEDS_SHORTENING ΓåÆ PENDING_REVIEW by fix-worker[39m
+    [35mservice[39m: "opushire-backend"
+    [35mscope[39m: "STATE_MACHINE"
+[23:46:59] [31mERROR[39m: [36mGroq unavailable. Falling back.[39m
+    [35mservice[39m: "opushire-backend"
+    [35mscope[39m: "FIX-WORKER"
+    err: {
+      "code": "ERR_BAD_REQUEST",
+      "config": {
+        "adapter": [
+          "xhr",
+          "http",
+          "fetch"
+        ],
+        "allowAbsoluteUrls": true,
+        "data": "{\"model\":\"llama-3.3-70b-versatile\",\"messages\":[{\"role\":\"user\",\"content\":\"Extract exactly 3 concise keywords (maximum 2 words each) from these required skills lines:\\nDocker\\nKubernetes\\nTerraform\\nReturn ONLY a comma-separated list of keywords, nothing else. Format: KEYWORD1, KEYWORD2, KEYWORD3\"}]}",
+        "env": {},
+        "headers": {
+          "Accept": "application/json, text/plain, */*",
+          "Accept-Encoding": "gzip, compress, deflate, br",
+          "Authorization": "Bearer test-key",
+          "Content-Length": "299",
+          "Content-Type": "application/json",
+          "User-Agent": "axios/1.13.6"
+        },
+        "maxBodyLength": -1,
+        "maxContentLength": -1,
+        "method": "post",
+        "timeout": 10000,
+        "transformRequest": [
+          null
+        ],
+        "transformResponse": [
+          null
+        ],
+        "transitional": {
+          "clarifyTimeoutError": false,
+          "forcedJSONParsing": true,
+          "legacyInterceptorReqResOrdering": true,
+          "silentJSONParsing": true
+        },
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "xsrfCookieName": "XSRF-TOKEN",
+        "xsrfHeaderName": "X-XSRF-TOKEN"
+      },
+      "isAxiosError": true,
+      "message": "Request failed with status code 401",
+      "name": "AxiosError",
+      "request": {
+        "_closed": true,
+        "_contentLength": 299,
+        "_defaultKeepAlive": true,
+        "_ended": true,
+        "_events": {},
+        "_eventsCount": 7,
+        "_hasBody": true,
+        "_header": "POST /openai/v1/chat/completions HTTP/1.1\r\nAccept: application/json, text/plain, */*\r\nContent-Type: application/json\r\nAuthorization: Bearer test-key\r\nUser-Agent: axios/1.13.6\r\nContent-Length: 299\r\nAccept-Encoding: gzip, compress, deflate, br\r\nHost: api.groq.com\r\nConnection: keep-alive\r\n\r\n",
+        "_headerSent": true,
+        "_keepAliveTimeout": 0,
+        "_last": false,
+        "_redirectable": {
+          "_currentRequest": "[Circular]",
+          "_currentUrl": "https://api.groq.com/openai/v1/chat/completions",
+          "_ended": true,
+          "_ending": true,
+          "_events": {
+            "socket": [
+              null,
+              null
+            ]
+          },
+          "_eventsCount": 3,
+          "_options": {
+            "agents": {},
+            "beforeRedirects": {},
+            "headers": {
+              "Accept": "application/json, text/plain, */*",
+              "Accept-Encoding": "gzip, compress, deflate, br",
+              "Authorization": "Bearer test-key",
+              "Content-Length": "299",
+              "Content-Type": "application/json",
+              "User-Agent": "axios/1.13.6"
+            },
+            "hostname": "api.groq.com",
+            "maxBodyLength": null,
+            "maxRedirects": 21,
+            "method": "POST",
+            "nativeProtocols": {
+              "http:": "[Object]",
+              "https:": "[Object]"
+            },
+            "path": "/openai/v1/chat/completions",
+            "pathname": "/openai/v1/chat/completions",
+            "port": "",
+            "protocol": "https:"
+          },
+          "_redirectCount": 0,
+          "_redirects": [],
+          "_requestBodyBuffers": [],
+          "_requestBodyLength": 299,
+          "_timeout": null,
+          "_writableState": {
+            "bufferedIndex": 0,
+            "corked": 0,
+            "highWaterMark": 16384,
+            "length": 0,
+            "pendingcb": 0,
+            "writelen": 0
+          }
+        },
+        "_removedConnection": false,
+        "_removedContLen": false,
+        "_removedTE": false,
+        "_trailer": "",
+        "aborted": false,
+        "agent": {
+          "_events": {},
+          "_eventsCount": 2,
+          "_sessionCache": {
+            "list": [],
+            "map": {}
+          },
+          "defaultPort": 443,
+          "freeSockets": {
+            "api.groq.com:443:::::::::::::::::::::": [
+              "[Object]"
+            ]
+          },
+          "keepAlive": true,
+          "keepAliveMsecs": 1000,
+          "maxCachedSessions": 100,
+          "maxFreeSockets": 256,
+          "maxSockets": null,
+          "maxTotalSockets": null,
+          "options": {
+            "keepAlive": true,
+            "noDelay": true,
+            "path": null,
+            "scheduling": "lifo",
+            "timeout": 5000
+          },
+          "protocol": "https:",
+          "requests": {},
+          "scheduling": "lifo",
+          "sockets": {},
+          "totalSocketCount": 1
+        },
+        "chunkedEncoding": false,
+        "destroyed": true,
+        "finished": true,
+        "host": "api.groq.com",
+        "maxHeadersCount": null,
+        "maxRequestsOnConnectionReached": false,
+        "method": "POST",
+        "outputData": [],
+        "outputSize": 0,
+        "parser": null,
+        "path": "/openai/v1/chat/completions",
+        "protocol": "https:",
+        "res": {
+          "_consuming": false,
+          "_dumped": false,
+          "_events": {
+            "end": [
+              null,
+              null
+            ]
+          },
+          "_eventsCount": 4,
+          "_readableState": {
+            "awaitDrainWriters": null,
+            "buffer": [],
+            "bufferIndex": 0,
+            "highWaterMark": 16384,
+            "length": 0,
+            "pipes": []
+          },
+          "aborted": false,
+          "client": {
+            "_SNICallback": null,
+            "_closeAfterHandlingError": false,
+            "_controlReleased": true,
+            "_events": {
+              "close": "[Array]",
+              "newListener": "[Array]",
+              "timeout": "[Array]"
+            },
+            "_eventsCount": 9,
+            "_hadError": false,
+            "_host": "api.groq.com",
+            "_httpMessage": null,
+            "_newSessionPending": false,
+            "_parent": null,
+            "_pendingData": null,
+            "_pendingEncoding": "",
+            "_readableState": {
+              "awaitDrainWriters": null,
+              "buffer": [],
+              "bufferIndex": 0,
+              "highWaterMark": 16384,
+              "length": 0,
+              "pipes": []
+            },
+            "_rejectUnauthorized": true,
+            "_requestCert": true,
+            "_secureEstablished": true,
+            "_securePending": false,
+            "_server": null,
+            "_sockname": null,
+            "_tlsOptions": {
+              "isServer": false,
+              "pipe": false,
+              "rejectUnauthorized": true,
+              "requestCert": true,
+              "secureContext": "[Object]"
+            },
+            "_writableState": {
+              "bufferedIndex": 0,
+              "corked": 0,
+              "highWaterMark": 16384,
+              "length": 0,
+              "pendingcb": 0,
+              "writelen": 0
+            },
+            "allowHalfOpen": false,
+            "alpnProtocol": false,
+            "authorizationError": null,
+            "authorized": true,
+            "autoSelectFamilyAttemptedAddresses": [
+              "104.18.38.236:443",
+              "172.64.149.20:443"
+            ],
+            "connecting": false,
+            "encrypted": true,
+            "handle": {
+              "_parent": "[Object]",
+              "_parentWrap": null,
+              "_secureContext": "[Object]",
+              "reading": true
+            },
+            "parser": null,
+            "secureConnecting": false,
+            "servername": "api.groq.com",
+            "ssl": null,
+            "timeout": 5000
+          },
+          "complete": true,
+          "httpVersion": "1.1",
+          "httpVersionMajor": 1,
+          "httpVersionMinor": 1,
+          "method": null,
+          "rawHeaders": [
+            "Date",
+            "Fri, 27 Mar 2026 18:16:59 GMT",
+            "Content-Type",
+            "application/json",
+            "Content-Length",
+            "96",
+            "Connection",
+            "keep-alive",
+            "Cache-Control",
+            "private, max-age=0, no-store, no-cache, must-revalidate",
+            "Server",
+            "cloudflare",
+            "vary",
+            "Origin",
+            "x-groq-region",
+            "bom",
+            "x-request-id",
+            "req_01kmr8723aea8smeswhn2hskfy",
+            "set-cookie",
+            "__cf_bm=a.BUZi7_WMz5zGlADqFyF_FhjMdCXSbqdfFRQotMn3Q-1774635419.6931667-1.0.1.1-jLYHN8RlhLQKy_LK8Z_qrLoLrM_jcdvQ5WEymKkTfNzvFj3OtfZ0viuGesebnwVMJ3Cb.ylmN_CjVgUAvYYKG4S3Gay9dVXkwaQDL2w0n7N4mRspzhKyrTgiXLu1e4wn; HttpOnly; Secure; Path=/; Domain=groq.com; Expires=Fri, 27 Mar 2026 18:46:59 GMT",
+            "via",
+            "1.1 google",
+            "Strict-Transport-Security",
+            "max-age=15552000",
+            "cf-cache-status",
+            "DYNAMIC",
+            "CF-RAY",
+            "9e3063ad1be70942-CCU",
+            "alt-svc",
+            "h3=\":443\"; ma=86400"
+          ],
+          "rawTrailers": [],
+          "redirects": [],
+          "req": "[Circular]",
+          "responseUrl": "https://api.groq.com/openai/v1/chat/completions",
+          "socket": null,
+          "statusCode": 401,
+          "statusMessage": "Unauthorized",
+          "upgrade": false,
+          "url": ""
+        },
+        "reusedSocket": true,
+        "sendDate": false,
+        "shouldKeepAlive": true,
+        "strictContentLength": false,
+        "timeoutCb": null,
+        "upgradeOrConnect": false,
+        "useChunkedEncodingByDefault": true,
+        "writable": true
+      },
+      "response": {
+        "config": {
+          "adapter": [
+            "xhr",
+            "http",
+            "fetch"
+          ],
+          "allowAbsoluteUrls": true,
+          "data": "{\"model\":\"llama-3.3-70b-versatile\",\"messages\":[{\"role\":\"user\",\"content\":\"Extract exactly 3 concise keywords (maximum 2 words each) from these required skills lines:\\nDocker\\nKubernetes\\nTerraform\\nReturn ONLY a comma-separated list of keywords, nothing else. Format: KEYWORD1, KEYWORD2, KEYWORD3\"}]}",
+          "env": {},
+          "headers": {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Encoding": "gzip, compress, deflate, br",
+            "Authorization": "Bearer test-key",
+            "Content-Length": "299",
+            "Content-Type": "application/json",
+            "User-Agent": "axios/1.13.6"
+          },
+          "maxBodyLength": -1,
+          "maxContentLength": -1,
+          "method": "post",
+          "timeout": 10000,
+          "transformRequest": [
+            null
+          ],
+          "transformResponse": [
+            null
+          ],
+          "transitional": {
+            "clarifyTimeoutError": false,
+            "forcedJSONParsing": true,
+            "legacyInterceptorReqResOrdering": true,
+            "silentJSONParsing": true
+          },
+          "url": "https://api.groq.com/openai/v1/chat/completions",
+          "xsrfCookieName": "XSRF-TOKEN",
+          "xsrfHeaderName": "X-XSRF-TOKEN"
+        },
+        "data": {
+          "error": {
+            "code": "invalid_api_key",
+            "message": "Invalid API Key",
+            "type": "invalid_request_error"
+          }
+        },
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate",
+          "cf-cache-status": "DYNAMIC",
+          "cf-ray": "9e3063ad1be70942-CCU",
+          "connection": "keep-alive",
+          "content-length": "96",
+          "content-type": "application/json",
+          "date": "Fri, 27 Mar 2026 18:16:59 GMT",
+          "server": "cloudflare",
+          "set-cookie": "__cf_bm=a.BUZi7_WMz5zGlADqFyF_FhjMdCXSbqdfFRQotMn3Q-1774635419.6931667-1.0.1.1-jLYHN8RlhLQKy_LK8Z_qrLoLrM_jcdvQ5WEymKkTfNzvFj3OtfZ0viuGesebnwVMJ3Cb.ylmN_CjVgUAvYYKG4S3Gay9dVXkwaQDL2w0n7N4mRspzhKyrTgiXLu1e4wn; HttpOnly; Secure; Path=/; Domain=groq.com; Expires=Fri, 27 Mar 2026 18:46:59 GMT",
+          "strict-transport-security": "max-age=15552000",
+          "vary": "Origin",
+          "via": "1.1 google",
+          "x-groq-region": "bom",
+          "x-request-id": "req_01kmr8723aea8smeswhn2hskfy"
+        },
+        "request": {
+          "_closed": true,
+          "_contentLength": 299,
+          "_defaultKeepAlive": true,
+          "_ended": true,
+          "_events": {},
+          "_eventsCount": 7,
+          "_hasBody": true,
+          "_header": "POST /openai/v1/chat/completions HTTP/1.1\r\nAccept: application/json, text/plain, */*\r\nContent-Type: application/json\r\nAuthorization: Bearer test-key\r\nUser-Agent: axios/1.13.6\r\nContent-Length: 299\r\nAccept-Encoding: gzip, compress, deflate, br\r\nHost: api.groq.com\r\nConnection: keep-alive\r\n\r\n",
+          "_headerSent": true,
+          "_keepAliveTimeout": 0,
+          "_last": false,
+          "_redirectable": {
+            "_currentRequest": "[Circular]",
+            "_currentUrl": "https://api.groq.com/openai/v1/chat/completions",
+            "_ended": true,
+            "_ending": true,
+            "_events": {
+              "socket": "[Array]"
+            },
+            "_eventsCount": 3,
+            "_options": {
+              "agents": "[Object]",
+              "beforeRedirects": "[Object]",
+              "headers": "[Object]",
+              "hostname": "api.groq.com",
+              "maxBodyLength": null,
+              "maxRedirects": 21,
+              "method": "POST",
+              "nativeProtocols": "[Object]",
+              "path": "/openai/v1/chat/completions",
+              "pathname": "/openai/v1/chat/completions",
+              "port": "",
+              "protocol": "https:"
+            },
+            "_redirectCount": 0,
+            "_redirects": [],
+            "_requestBodyBuffers": [],
+            "_requestBodyLength": 299,
+            "_timeout": null,
+            "_writableState": {
+              "bufferedIndex": 0,
+              "corked": 0,
+              "highWaterMark": 16384,
+              "length": 0,
+              "pendingcb": 0,
+              "writelen": 0
+            }
+          },
+          "_removedConnection": false,
+          "_removedContLen": false,
+          "_removedTE": false,
+          "_trailer": "",
+          "aborted": false,
+          "agent": {
+            "_events": {},
+            "_eventsCount": 2,
+            "_sessionCache": {
+              "list": [],
+              "map": {}
+            },
+            "defaultPort": 443,
+            "freeSockets": {
+              "api.groq.com:443:::::::::::::::::::::": "[Array]"
+            },
+            "keepAlive": true,
+            "keepAliveMsecs": 1000,
+            "maxCachedSessions": 100,
+            "maxFreeSockets": 256,
+            "maxSockets": null,
+            "maxTotalSockets": null,
+            "options": {
+              "keepAlive": true,
+              "noDelay": true,
+              "path": null,
+              "scheduling": "lifo",
+              "timeout": 5000
+            },
+            "protocol": "https:",
+            "requests": {},
+            "scheduling": "lifo",
+            "sockets": {},
+            "totalSocketCount": 1
+          },
+          "chunkedEncoding": false,
+          "destroyed": true,
+          "finished": true,
+          "host": "api.groq.com",
+          "maxHeadersCount": null,
+          "maxRequestsOnConnectionReached": false,
+          "method": "POST",
+          "outputData": [],
+          "outputSize": 0,
+          "parser": null,
+          "path": "/openai/v1/chat/completions",
+          "protocol": "https:",
+          "res": {
+            "_consuming": false,
+            "_dumped": false,
+            "_events": {
+              "end": "[Array]"
+            },
+            "_eventsCount": 4,
+            "_readableState": {
+              "awaitDrainWriters": null,
+              "buffer": [],
+              "bufferIndex": 0,
+              "highWaterMark": 16384,
+              "length": 0,
+              "pipes": []
+            },
+            "aborted": false,
+            "client": {
+              "_SNICallback": null,
+              "_closeAfterHandlingError": false,
+              "_controlReleased": true,
+              "_events": "[Object]",
+              "_eventsCount": 9,
+              "_hadError": false,
+              "_host": "api.groq.com",
+              "_httpMessage": null,
+              "_newSessionPending": false,
+              "_parent": null,
+              "_pendingData": null,
+              "_pendingEncoding": "",
+              "_readableState": "[Object]",
+              "_rejectUnauthorized": true,
+              "_requestCert": true,
+              "_secureEstablished": true,
+              "_securePending": false,
+              "_server": null,
+              "_sockname": null,
+              "_tlsOptions": "[Object]",
+              "_writableState": "[Object]",
+              "allowHalfOpen": false,
+              "alpnProtocol": false,
+              "authorizationError": null,
+              "authorized": true,
+              "autoSelectFamilyAttemptedAddresses": "[Array]",
+              "connecting": false,
+              "encrypted": true,
+              "handle": "[Object]",
+              "parser": null,
+              "secureConnecting": false,
+              "servername": "api.groq.com",
+              "ssl": null,
+              "timeout": 5000
+            },
+            "complete": true,
+            "httpVersion": "1.1",
+            "httpVersionMajor": 1,
+            "httpVersionMinor": 1,
+            "method": null,
+            "rawHeaders": [
+              "Date",
+              "Fri, 27 Mar 2026 18:16:59 GMT",
+              "Content-Type",
+              "application/json",
+              "Content-Length",
+              "96",
+              "Connection",
+              "keep-alive",
+              "Cache-Control",
+              "private, max-age=0, no-store, no-cache, must-revalidate",
+              "Server",
+              "cloudflare",
+              "vary",
+              "Origin",
+              "x-groq-region",
+              "bom",
+              "x-request-id",
+              "req_01kmr8723aea8smeswhn2hskfy",
+              "set-cookie",
+              "__cf_bm=a.BUZi7_WMz5zGlADqFyF_FhjMdCXSbqdfFRQotMn3Q-1774635419.6931667-1.0.1.1-jLYHN8RlhLQKy_LK8Z_qrLoLrM_jcdvQ5WEymKkTfNzvFj3OtfZ0viuGesebnwVMJ3Cb.ylmN_CjVgUAvYYKG4S3Gay9dVXkwaQDL2w0n7N4mRspzhKyrTgiXLu1e4wn; HttpOnly; Secure; Path=/; Domain=groq.com; Expires=Fri, 27 Mar 2026 18:46:59 GMT",
+              "via",
+              "1.1 google",
+              "Strict-Transport-Security",
+              "max-age=15552000",
+              "cf-cache-status",
+              "DYNAMIC",
+              "CF-RAY",
+              "9e3063ad1be70942-CCU",
+              "alt-svc",
+              "h3=\":443\"; ma=86400"
+            ],
+            "rawTrailers": [],
+            "redirects": [],
+            "req": "[Circular]",
+            "responseUrl": "https://api.groq.com/openai/v1/chat/completions",
+            "socket": null,
+            "statusCode": 401,
+            "statusMessage": "Unauthorized",
+            "upgrade": false,
+            "url": ""
+          },
+          "reusedSocket": true,
+          "sendDate": false,
+          "shouldKeepAlive": true,
+          "strictContentLength": false,
+          "timeoutCb": null,
+          "upgradeOrConnect": false,
+          "useChunkedEncodingByDefault": true,
+          "writable": true
+        },
+        "status": 401,
+        "statusText": "Unauthorized"
+      },
+      "stack":
+          AxiosError: Request failed with status code 401
+              at settle (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\axios\lib\core\settle.js:20:7)
+              at IncomingMessage.handleStreamEnd (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\axios\lib\adapters\http.js:844:13)
+              at IncomingMessage.emit (node:events:531:35)
+              at endReadableNT (node:internal/streams/readable:1698:12)
+              at processTicksAndRejections (node:internal/process/task_queues:90:21)
+              at Axios.request (C:\Users\KIIT0001\WebstormProjects\hackathon\node_modules\axios\lib\core\Axios.js:46:41)
+              at processTicksAndRejections (node:internal/process/task_queues:105:5)
+              at C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\src\services\queue\workers\fix.worker.ts:59:24
+              at Object.<anonymous> (C:\Users\KIIT0001\WebstormProjects\hackathon\opushire-backend\tests\workers\fix.worker.test.ts:101:20)
+      "status": 401,
+      "type": "AxiosError"
+    }
+[23:46:59] [32mINFO[39m: [36mNEEDS_SHORTENING ΓåÆ PENDING_REVIEW by fix-worker[39m
+    [35mservice[39m: "opushire-backend"
+    [35mscope[39m: "STATE_MACHINE"
+  console.warn
+    ΓÜá∩╕Å  MongoDB disconnected
 
-    8     expect(res.body).toEqual({ status: 'alive', message: 'Opushire Backend API' });
-          ~~~~~~
-    tests/health.test.ts:11:3 - error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+    [0m [90m  99 |[39m
+     [90m 100 |[39m mongoose[33m.[39mconnection[33m.[39mon([32m'disconnected'[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m 101 |[39m     console[33m.[39mwarn([32m'ΓÜá∩╕Å  MongoDB disconnected'[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 102 |[39m     isConnected [33m=[39m [36mfalse[39m[33m;[39m
+     [90m 103 |[39m })[33m;[39m
+     [90m 104 |[39m[0m
 
-    11   it('GET /health should return environmental variables', async () => {
-         ~~
-    tests/health.test.ts:13:5 - error TS2304: Cannot find name 'expect'.
+      at NativeConnection.<anonymous> (src/config/db.ts:101:13)
+      at NativeConnection.set (../node_modules/mongoose/lib/connection.js:149:12)
+      at NativeConnection.onClose (../node_modules/mongoose/lib/connection.js:1325:19)
+      at NativeConnection._close (../node_modules/mongoose/lib/connection.js:1274:12)
+      at Object.<anonymous> (tests/setup.ts:35:3)
 
-    13     expect(res.status).toBe(200);
-           ~~~~~~
-    tests/health.test.ts:14:5 - error TS2304: Cannot find name 'expect'.
+[23:46:59] [32mINFO[39m: [36mIntegration Test: Disconnected from MongoDB[39m
+    [35mservice[39m: "opushire-backend"
+FAIL tests/workers/fix.worker.test.ts (16.77 s)
+  fix.worker ΓÇö REAL Integration Test
+    ΓêÜ skips if job does not exist in the real database (755 ms)
+    ├ù correctly processes a REAL job from the database (1406 ms)
+    ΓêÜ falls back to heuristic extraction when AI fails (1118 ms)
 
-    14     expect(res.body.env).toBeDefined();
-           ~~~~~~
-    tests/health.test.ts:15:5 - error TS2304: Cannot find name 'expect'.
+  ΓùÅ fix.worker ΓÇö REAL Integration Test ΓÇ║ correctly processes a REAL job from the database
 
-    15     expect(res.body.status).toBe('ok');
-           ~~~~~~
-    tests/health.test.ts:19:3 - error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
+    expect(received).toContain(expected) // indexOf
 
-    19   it('GET /invalid-route should return 404', async () => {
-         ~~
-    tests/health.test.ts:21:5 - error TS2304: Cannot find name 'expect'.
+    Expected value: "TYPESCRIPT"
+    Received array: ["NEED", "SOMEONE", "DEEP"]
 
-    21     expect(res.status).toBe(404);
-           ~~~~~~
-    tests/health.test.ts:22:5 - error TS2304: Cannot find name 'expect'.
+      79 |     const updatedJob = await JobModel.findById(job._id);
+      80 |     expect(updatedJob?.tagTileStatus).toBe('PENDING_REVIEW');
+    > 81 |     expect(updatedJob?.proposedTags).toContain('TYPESCRIPT');
+         |                                      ^
+      82 |     
+      83 |     // Verify the next pipeline step was enqueued
+      84 |     expect(mockEnqueue).toHaveBeenCalledWith('supervise-tags', 'review', { jobId: job._id.toString() }, expect.any(Object));
 
-    22     expect(res.body.success).toBe(false);
-           ~~~~~~
+      at Object.<anonymous> (tests/workers/fix.worker.test.ts:81:38)
 
 Test Suites: 1 failed, 1 total
-Tests:       0 total
+Tests:       1 failed, 2 passed, 3 total
 Snapshots:   0 total
-Time:        4.323 s
-Ran all test suites.
+Time:        17.077 s
+Ran all test suites matching tests/workers/fix.worker.test.ts.
