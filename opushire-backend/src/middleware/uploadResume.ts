@@ -3,7 +3,16 @@ import fs from "fs";
 import path from "path";
 
 const MAX_RESUME_SIZE_BYTES = 5 * 1024 * 1024;
-const ALLOWED_RESUME_MIME_TYPES = new Set(['application/pdf', 'application/x-pdf']);
+const ALLOWED_RESUME_MIME_TYPES = new Set([
+  'application/pdf',
+  'application/x-pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/msword',
+  'text/markdown',
+  'text/plain',
+  'text/x-markdown'
+]);
+const ALLOWED_EXTENSIONS = new Set(['.pdf', '.docx', '.doc', '.md', '.txt']);
 
 function resolveUploadDir(): string {
   const candidates = [
@@ -26,7 +35,7 @@ function resolveUploadDir(): string {
   throw new Error("No writable upload directory available. Set UPLOAD_DIR to a writable path.");
 }
 
-const uploadDir = resolveUploadDir();
+export const uploadDir = resolveUploadDir();
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadDir),
@@ -41,7 +50,11 @@ export default multer({
   fileFilter: (_req, file, cb) => {
     const mime = (file.mimetype || '').toLowerCase();
     const ext = path.extname(file.originalname || '').toLowerCase();
-    const isPdf = ALLOWED_RESUME_MIME_TYPES.has(mime) && ext === '.pdf';
-    cb(null, isPdf);
+    
+    if (ALLOWED_RESUME_MIME_TYPES.has(mime) || ALLOWED_EXTENSIONS.has(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`File format ${ext} not supported. Use PDF, Word, or Markdown.`) as any, false);
+    }
   },
 });

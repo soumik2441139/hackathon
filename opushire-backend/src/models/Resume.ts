@@ -32,6 +32,7 @@ export interface IResume extends Document {
     scoreBreakdown?: string[];
     matched: boolean;
     matches: IResumeMatch[];
+    format: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -46,6 +47,7 @@ const ResumeSchema = new Schema<IResume>({
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     fileUrl: { type: String, required: true },
     rawText: { type: String, required: true },
+    format: { type: String, default: 'pdf' },
     
     parsedData: {
         name: { type: String, default: null },
