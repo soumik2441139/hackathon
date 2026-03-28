@@ -108,15 +108,28 @@ export const startBot = async (botId: string, args: string[] = []) => {
 
         const scriptPath = getBotScriptDir(config.dir!);
         const isSingleRun = args.includes('--single-run');
+        const isProduction = process.env.NODE_ENV === 'production';
+        
         let childUrl = 'node';
-        let childArgs = [config.script!, ...args];
+        let childArgs = [];
 
-        if (config.runtime === 'ts-node') {
+        // In production, we favor the compiled JS to avoid npx/ts-node overhead and PATH issues
+        if (isProduction && config.compiledScript) {
+            childUrl = 'node';
+            childArgs = [config.compiledScript, ...args];
+        } else if (config.runtime === 'ts-node') {
             childUrl = os.platform() === 'win32' ? 'npx.cmd' : 'npx';
             childArgs = ['ts-node', config.script!, ...args];
+        } else {
+            childArgs = [config.script!, ...args];
         }
 
-        const child = spawn(childUrl, childArgs, { cwd: scriptPath, stdio: 'pipe', shell: os.platform() === 'win32' });
+        // Enable shell: true on all platforms to ensure binary resolution matches user env
+        const child = spawn(childUrl, childArgs, { 
+            cwd: scriptPath, 
+            stdio: 'pipe', 
+            shell: true 
+        });
 
         activeLegacyBots.set(botId, { process: child, status: 'online', startTime: new Date() });
         writeLog(botId, [`[SYSTEM] Booting Legacy CLI Process from ${scriptPath}...`]);

@@ -6,11 +6,11 @@ export function registerCleanupWorker() {
   createWorker('cleanup-jobs', async () => {
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const threeWeeksAgo = new Date(now.getTime() - 21 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    const deleted = await JobModel.deleteMany({ createdAt: { $lt: threeWeeksAgo } });
+    const deleted = await JobModel.deleteMany({ createdAt: { $lt: thirtyDaysAgo } });
     const archived = await JobModel.updateMany(
-      { createdAt: { $lt: oneWeekAgo, $gte: threeWeeksAgo }, isArchived: { $ne: true } },
+      { createdAt: { $lt: oneWeekAgo, $gte: thirtyDaysAgo }, isArchived: { $ne: true } },
       { $set: { isArchived: true } },
     );
 
