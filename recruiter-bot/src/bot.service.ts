@@ -4,6 +4,8 @@ import { fetchArbeitnowJobs } from './providers/arbeitnow.provider';
 import { fetchAdzunaJobs } from './providers/adzuna.provider';
 import { fetchTelegramJobs } from './providers/telegram.provider';
 import { translateJobs } from './providers/translator';
+import { fetchHimalayasJobs } from './providers/himalayas.provider';
+import { filterSpamJobs } from './providers/spam-filter';
 
 export interface FetchResult {
     source: string;
@@ -55,6 +57,15 @@ async function storeJobs(jobs: NormalizedJob[], sourceName: string): Promise<Fet
         }
 
         try {
+            // [PHASE 2] Clearbit Universal Auto-Branding Algorithm
+            if (!job.companyLogo || job.companyLogo.includes('unavatar.io') || job.companyLogo.trim() === '') {
+                 // Aggressively format "T-Mobile!" -> "tmobile.com" to align with Clearbit API expectations
+                 const cleanName = job.company.toLowerCase().replace(/[^a-z0-9]/g, '');
+                 if (cleanName.length > 2) {
+                     job.companyLogo = `https://logo.clearbit.com/${cleanName}.com`;
+                 }
+            }
+
             const exists = await BotJob.findOne({ externalId: job.externalId });
             if (exists) {
                 result.duplicates++;
@@ -103,21 +114,30 @@ export async function fetchAllJobs(): Promise<BotStatus> {
 
     const results: FetchResult[] = [];
 
-    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw] = await Promise.all([
+    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw, himalayasRaw] = await Promise.all([
         fetchRemotiveJobs(),
         fetchArbeitnowJobs(),
         fetchAdzunaJobs(),
         fetchTelegramJobs(),
+        fetchHimalayasJobs(),
     ]);
 
     // Auto-translate non-English jobs to English
     console.log('🌐 [Translator] Checking for non-English jobs...');
-    const [remotiveJobs, arbeitnowJobs, adzunaJobs, telegramJobs] = await Promise.all([
+    const [remotiveJobsAI, arbeitnowJobsAI, adzunaJobsAI, telegramJobsAI, himalayasJobsAI] = await Promise.all([
         translateJobs(remotiveRaw),
         translateJobs(arbeitnowRaw),
         translateJobs(adzunaRaw),
         translateJobs(telegramRaw),
+        translateJobs(himalayasRaw),
     ]);
+
+    console.log('🛡️ [Spam Filter] Auditing payloads for garbage via strict Llama-3 AI firewall...');
+    const remotiveJobs = await filterSpamJobs(remotiveJobsAI);
+    const arbeitnowJobs = await filterSpamJobs(arbeitnowJobsAI);
+    const adzunaJobs = await filterSpamJobs(adzunaJobsAI);
+    const telegramJobs = await filterSpamJobs(telegramJobsAI);
+    const himalayasJobs = await filterSpamJobs(himalayasJobsAI);
 
     if (remotiveJobs.length > 0) {
         results.push(await storeJobs(remotiveJobs, 'remotive'));
@@ -143,6 +163,12 @@ export async function fetchAllJobs(): Promise<BotStatus> {
         results.push({ source: 'telegram', fetched: 0, newJobs: 0, duplicates: 0, errors: [] });
     }
 
+    if (himalayasJobs.length > 0) {
+        results.push(await storeJobs(himalayasJobs, 'himalayas'));
+    } else {
+        results.push({ source: 'himalayas', fetched: 0, newJobs: 0, duplicates: 0, errors: [] });
+    }
+
     const totalNew = results.reduce((sum, r) => sum + r.newJobs, 0);
     const totalDuplicates = results.reduce((sum, r) => sum + r.duplicates, 0);
 
@@ -160,12 +186,13 @@ export function getBotStatus(): BotStatus {
 }
 
 export async function getBotJobStats() {
-    const [total, remotive, arbeitnow, adzuna, telegram] = await Promise.all([
+    const [total, remotive, arbeitnow, adzuna, telegram, himalayas] = await Promise.all([
         BotJob.countDocuments({ source: { $ne: 'manual' } }),
         BotJob.countDocuments({ source: 'remotive' }),
         BotJob.countDocuments({ source: 'arbeitnow' }),
         BotJob.countDocuments({ source: 'adzuna' }),
         BotJob.countDocuments({ source: 'telegram' }),
+        BotJob.countDocuments({ source: 'himalayas' }),
     ]);
-    return { total, remotive, arbeitnow, adzuna, telegram };
+    return { total, remotive, arbeitnow, adzuna, telegram, himalayas };
 }
