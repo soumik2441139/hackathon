@@ -124,11 +124,11 @@ export const startBot = async (botId: string, args: string[] = []) => {
             childArgs = [config.script!, ...args];
         }
 
-        // Enable shell: true on all platforms to ensure binary resolution matches user env
+        // Disable shell on Linux to prevent '/bin/sh ENOENT' errors in restricted Azure containers
         const child = spawn(childUrl, childArgs, { 
             cwd: scriptPath, 
             stdio: 'pipe', 
-            shell: true 
+            shell: os.platform() === 'win32' 
         });
 
         activeLegacyBots.set(botId, { process: child, status: 'online', startTime: new Date() });
