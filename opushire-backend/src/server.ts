@@ -197,7 +197,8 @@ const start = async () => {
     connectDB();
     // Probe Redis & start BullMQ workers (non-blocking — API works without Redis)
     initWorkers().catch((err) => logger.error({ err }, 'BullMQ worker init failed'));
-    // Start the autonomous bot scheduler
+    // Start the autonomous bot scheduler (Hooks the startup AI pipeline and 6-hour cron loops)
+    initScheduler();
 };
 
 // Start only if not imported by Jest
