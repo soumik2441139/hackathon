@@ -19,9 +19,9 @@ export function registerSuperviseWorker() {
 
     const prompt = `You are a strict QA bot. The original job requirements were:\n`
       + originalTags.join('\n')
-      + `\n\nAnother bot summarized these into the following keywords:\n`
+      + `\n\nAnother bot extracted these concise keywords from them:\n`
       + proposedTags.join(', ')
-      + `\n\nAre these proposed keywords an accurate representation? Answer ONLY with YES or NO.`;
+      + `\n\nDo these keywords meaningfully relate to the original text without inventing fully fabricated new skills? Answer ONLY with YES or NO.`;
 
     const response = await axios.post(`https://api.groq.com/openai/v1/chat/completions`, {
       model: 'llama-3.3-70b-versatile',
