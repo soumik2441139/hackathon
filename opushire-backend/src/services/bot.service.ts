@@ -124,9 +124,16 @@ export const startBot = async (botId: string, args: string[] = []) => {
             childArgs = [config.script!, ...args];
         }
 
+        // In production container environments, we must use the absolute path to the Node executable 
+        // to prevent 'ENOENT' errors when attempting to spawn 'node' without a shell.
+        if (childUrl === 'node') {
+            childUrl = process.execPath;
+        }
+
         // Disable shell on Linux to prevent '/bin/sh ENOENT' errors in restricted Azure containers
         const child = spawn(childUrl, childArgs, { 
             cwd: scriptPath, 
+            env: process.env, // Pass environment variables implicitly
             stdio: 'pipe', 
             shell: os.platform() === 'win32' 
         });
