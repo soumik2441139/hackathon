@@ -15,12 +15,13 @@ export const getCleanIp = (req: Request): string => {
 };
 
 /**
- * Base configuration for rate limiters to ensure consistency.
+ * Factory for rate limiters to ensure consistency and avoid Store reuse.
+ * @param prefix - Unique prefix for Redis keys (e.g., 'global', 'auth')
  */
-export const baseRateLimitConfig: Partial<Options> = {
+export const getRateLimitConfig = (prefix: string): Partial<Options> => ({
     standardHeaders: true,
     legacyHeaders: false,
-    keyGenerator: (req) => ipKeyGenerator(getCleanIp(req)),
+    keyGenerator: (req: Request) => ipKeyGenerator(getCleanIp(req)),
     validate: {
         xForwardedForHeader: false,
         ip: false,
@@ -28,7 +29,18 @@ export const baseRateLimitConfig: Partial<Options> = {
     // Distributed Rate Limiting (Enterprise Pattern)
     ...(CacheService.isEnabled && CacheService.getClient() ? {
         store: new RedisStore({
-            sendCommand: (...args: string[]) => CacheService.getClient()!.call(args[0], ...args.slice(1)) as any,
+            prefix: `rl:${prefix}:`,
+            sendCommand: async (...args: string[]) => {
+                try {
+                    const client = CacheService.getClient();
+                    if (!client) return null;
+                    return await client.call(args[0], ...args.slice(1)) as any;
+                } catch (err: any) {
+                    console.error(`[RateLimit:${prefix}] Redis command failed:`, err.message);
+                    // Fallback to allow request if Redis is unreachable
+                    return null;
+                }
+            },
         }),
     } : {})
-};
+});

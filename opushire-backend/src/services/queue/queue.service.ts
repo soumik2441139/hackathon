@@ -79,14 +79,23 @@ function getConnection(isSecondary = false): any {
     if (!secondaryConnection) {
       const config = SystemConfig.redisSecondary!;
       secondaryConnection = new IORedis(buildRedisOptions(config, 'bullmq-secondary', 'producer'));
-      secondaryConnection.on('error', (err: any) => logError('REDIS_SECONDARY', 'Connection error', err));
+      secondaryConnection.on('error', (err: any) => {
+        const hostInfo = `${config.host}:${config.port}`;
+        logError('REDIS_SECONDARY', `Connection error (${hostInfo})`, err);
+      });
+      checkEvictionPolicy(secondaryConnection, 'SECONDARY');
     }
     return secondaryConnection;
   }
 
   if (!sharedConnection) {
-    sharedConnection = new IORedis(buildRedisOptions(SystemConfig.redis, 'bullmq-primary', 'producer'));
-    sharedConnection.on('error', (err: any) => logError('REDIS_PRIMARY', 'Connection error', err));
+    const config = SystemConfig.redis;
+    sharedConnection = new IORedis(buildRedisOptions(config, 'bullmq-primary', 'producer'));
+    sharedConnection.on('error', (err: any) => {
+      const hostInfo = `${config.host}:${config.port}`;
+      logError('REDIS_PRIMARY', `Connection error (${hostInfo})`, err);
+    });
+    checkEvictionPolicy(sharedConnection, 'PRIMARY');
   }
   return sharedConnection;
 }
@@ -105,9 +114,34 @@ function getTertiaryConnection(): any {
   if (!SystemConfig.redisTertiaryUrl) return getConnection(false); // fallback to primary
   if (!tertiaryConnection) {
     tertiaryConnection = new IORedis(SystemConfig.redisTertiaryUrl, getTertiaryConnectionOptions('producer'));
-    tertiaryConnection.on('error', (err: any) => logError('REDIS_TERTIARY', 'Connection error', err));
+    tertiaryConnection.on('error', (err: any) => {
+      logError('REDIS_TERTIARY', `Connection error (URL: ${SystemConfig.redisTertiaryUrl})`, err);
+    });
+    checkEvictionPolicy(tertiaryConnection, 'TERTIARY');
   }
   return tertiaryConnection;
+}
+
+/**
+ * BullMQ requires "noeviction" to prevent data loss.
+ * This checks the policy and logs a warning if misconfigured.
+ */
+async function checkEvictionPolicy(client: IORedis, label: string) {
+  try {
+    // Wait for connection
+    if (client.status !== 'ready') {
+      client.once('ready', () => checkEvictionPolicy(client, label));
+      return;
+    }
+    const result = await client.config('GET', 'maxmemory-policy');
+    const policy = Array.isArray(result) ? result[1] : null;
+    if (policy && policy !== 'noeviction') {
+      console.warn(`[REDIS_${label}] IMPORTANT! Eviction policy is "${policy}". It should be "noeviction" for BullMQ stability.`);
+    }
+  } catch (err) {
+    // Some Redis providers (like Upstash) might disable CONFIG command.
+    // We swallow this to avoid crashing, as it's just a diagnostic check.
+  }
 }
 
 const PHYSICAL_QUEUE_NAME = env.BULLMQ_SHARED_QUEUE_NAME;
@@ -232,13 +266,13 @@ export async function probeRedis(): Promise<{ primary: boolean; secondary: boole
     await primary.ping();
     result.primary = true;
   } catch (err: any) {
-    // If Redis is unreachable and offline queue is disabled, ioredis throws "Stream isn't writeable".
-    // We catch this here so the health check returns 'false' instead of crashing with a stack trace.
+    const config = SystemConfig.redis;
+    const hostInfo = `${config.host}:${config.port}`;
     const isOfflineError = err.message?.includes("Stream isn't writeable");
     if (isOfflineError) {
-      log('REDIS_PRIMARY', 'Unreachable (Stream not writeable)');
+      log('REDIS_PRIMARY', `Unreachable (${hostInfo}) - Stream not writeable (Offline Queue disabled)`);
     } else {
-      logError('REDIS_PRIMARY', 'Unreachable', err);
+      logError('REDIS_PRIMARY', `Unreachable (${hostInfo})`, err);
     }
   }
 
@@ -248,19 +282,20 @@ export async function probeRedis(): Promise<{ primary: boolean; secondary: boole
       await secondary.ping();
       result.secondary = true;
     } catch (err: any) {
+      const config = SystemConfig.redisSecondary!;
+      const hostInfo = `${config.host}:${config.port}`;
       const isOfflineError = err.message?.includes("Stream isn't writeable");
       if (isOfflineError) {
-        log('REDIS_SECONDARY', 'Unreachable (Stream not writeable)');
+        log('REDIS_SECONDARY', `Unreachable (${hostInfo}) - Stream not writeable (Offline Queue disabled)`);
       } else {
-        logError('REDIS_SECONDARY', 'Unreachable', err);
+        logError('REDIS_SECONDARY', `Unreachable (${hostInfo})`, err);
       }
     }
   } else {
-    // If not configured, we consider it "null" or skip, but for the health check 'false' is fine
     result.secondary = false;
   }
 
-  _redisAvailable = result.primary; // Keep legacy flag for basic operational guard
+  _redisAvailable = result.primary;
   _secondaryRedisAvailable = SystemConfig.redisSecondary ? result.secondary : null;
   return result;
 }

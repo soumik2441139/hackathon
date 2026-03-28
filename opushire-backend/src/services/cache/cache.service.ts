@@ -9,8 +9,8 @@ class CacheManager {
     constructor() {
         if (SystemConfig.redisTertiaryUrl) {
             this.client = new IORedis(SystemConfig.redisTertiaryUrl, {
-                maxRetriesPerRequest: 1,
-                enableOfflineQueue: false,
+                maxRetriesPerRequest: null,
+                enableOfflineQueue: true,
                 connectionName: 'api-cache-tier1',
                 // Implements Enterprise pattern: Exponential backoff
                 retryStrategy: (times) => Math.min(times * 100, 3000),

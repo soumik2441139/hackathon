@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import promBundle from 'express-prom-bundle';
-import { baseRateLimitConfig } from './config/rateLimit';
+import { getRateLimitConfig } from './config/rateLimit';
 import mongoose from 'mongoose';
 import { connectDB } from './config/db';
 import { corsOptions } from './config/cors';
@@ -68,7 +68,7 @@ app.use(cors(corsOptions));
 
 // Rate Limiting (Global)
 const limiter = rateLimit({
-    ...baseRateLimitConfig,
+    ...getRateLimitConfig('global'),
     windowMs: 15 * 60 * 1000, // 15 minutes
     limit: 100, // Limit each IP to 100 requests per windowMs
     message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes' },
