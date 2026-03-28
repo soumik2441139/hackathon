@@ -243,9 +243,20 @@ export const getBotLogs = (botId: string) => {
 };
 
 export const startPipeline = async () => {
-    // 1. Trigger the job ingestion scraper autonomously
-    await startBot('bot0-recruiter').catch(err => console.error('[Scheduler] Failed to autostart Recruiter Bot:', err));
+    console.log('[Scheduler] Initiating full autonomous sequential bot pipeline...');
     
-    // 2. Pipeline instantly fires BullMQ jobs instead of child node scripts
-    await startBot('bot1-scanner');
+    // By iterating through the BOTS array sequentially with `await`, 
+    // the system perfectly guarantees the legacy Node scraper finishes downloading entirely
+    // before the AI BullMQ scanner and fixers even begin looking at the database!
+    for (const bot of BOTS) {
+        try {
+            await startBot(bot.id);
+            console.log(`[Scheduler] Successfully engaged Agent: ${bot.name} (${bot.id})`);
+        } catch (err: any) {
+            // If the bot is already running or paused, it will gracefully catch and continue
+            console.error(`[Scheduler] Ignored warning engaging ${bot.name}:`, err.message);
+        }
+    }
+    
+    console.log('[Scheduler] Full autonomous pipeline sequence securely initialized.');
 };
