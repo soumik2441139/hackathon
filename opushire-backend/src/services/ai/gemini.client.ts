@@ -13,32 +13,65 @@ export const embeddingModel = genAI.getGenerativeModel({
 });
 
 /**
- * Safe wrapper for Gemini generateContent with circuit breaker.
- * Use this instead of calling geminiModel.generateContent() directly.
+ * Safe wrapper with strict Multi-Provider Fallback Routing.
+ * 1. OpenRouter (Free models auto-routed)
+ * 2. Groq (Llama-3)
+ * 3. Gemini (Native SDK)
  */
 export async function safeGeminiCall(prompt: string): Promise<string> {
-    return groqBreaker.exec(async () => {
-        const groqApi = process.env.GROQ_API_KEY;
-        if (!groqApi) throw new Error('GROQ_API_KEY is not defined');
-        
-        const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
-            model: 'llama-3.3-70b-versatile',
+    const cleanText = (text: string) => {
+        text = text.trim();
+        if (text.startsWith('```json')) return text.replace(/```json/g, '').replace(/```/g, '').trim();
+        if (text.startsWith('```')) return text.replace(/```/g, '').trim();
+        return text;
+    };
+
+    try {
+        // Attempt 1: OpenRouter Auto Free Tier
+        const openRouterApi = process.env.OPENROUTER_API_KEY;
+        if (!openRouterApi) throw new Error('OPENROUTER_API_KEY is not defined');
+
+        const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+            model: 'openrouter/auto',
             messages: [{ role: 'user', content: prompt }]
         }, {
             headers: {
-                'Authorization': `Bearer ${groqApi}`,
+                'Authorization': `Bearer ${openRouterApi}`,
+                'HTTP-Referer': process.env.FRONTEND_URL || 'http://localhost:3000',
+                'X-Title': 'OpusHire',
                 'Content-Type': 'application/json'
             },
-            timeout: 10000
+            timeout: 15000
         });
 
-        const r = response.data;
-        // axios throws an error for non-2xx status codes, so no need for !response.ok check here.
+        return cleanText(response.data.choices[0].message.content);
+    } catch (openRouterErr: any) {
+        console.warn(`⚠️ [ROUTER] OpenRouter Failed (${openRouterErr.message}) -> Falling back to Groq`);
+        
+        try {
+            // Attempt 2: Groq Fallback
+            return await groqBreaker.exec(async () => {
+                const groqApi = process.env.GROQ_API_KEY;
+                if (!groqApi) throw new Error('GROQ_API_KEY is not defined');
+                
+                const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [{ role: 'user', content: prompt }]
+                }, {
+                    headers: { 'Authorization': `Bearer ${groqApi}`, 'Content-Type': 'application/json' },
+                    timeout: 10000
+                });
 
-        let text = r.choices[0].message.content.trim();
-        // Clean markdown wrapping
-        if (text.startsWith('```json')) text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        else if (text.startsWith('```')) text = text.replace(/```/g, '').trim();
-        return text;
-    });
+                return cleanText(response.data.choices[0].message.content);
+            });
+        } catch (groqErr: any) {
+            console.warn(`⚠️ [ROUTER] Groq Failed (${groqErr.message}) -> Falling back to Gemini Native`);
+            
+            // Attempt 3: Gemini Native Fallback
+            return await geminiBreaker.exec(async () => {
+                const res = await geminiModel.generateContent(prompt);
+                return cleanText(res.response.text());
+            });
+        }
+    }
 }

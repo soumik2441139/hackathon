@@ -1,5 +1,6 @@
 import { createWorker, enqueue } from '../queue.service';
 import JobModel from '../../../models/Job';
+import { safeGeminiCall } from '../../ai/gemini.client';
 import { logError } from '../../../utils/logger';
 import { buildStatusUpdate } from '../../../utils/stateMachine';
 import { getExamples, buildFewShotSection } from '../../rag/rag.service';
@@ -38,8 +39,6 @@ export function registerFixWorker() {
     const job = await JobModel.findById(data.jobId);
     if (!job || job.tagTileStatus !== 'NEEDS_SHORTENING') return { skipped: true };
 
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) throw new Error('GROQ_API_KEY not set');
 
     const longTags = ((job as any).longTagsToFix || job.tags || []) as string[];
     const tagsText = longTags.join('\n');
@@ -53,23 +52,15 @@ export function registerFixWorker() {
       + `\nReturn ONLY a comma-separated list of keywords, nothing else. Format: KEYWORD1, KEYWORD2, KEYWORD3`;
 
     let newKeywords: string[] = [];
-    let keywordSource: 'groq' | 'fallback' = 'groq';
+    let keywordSource: 'ai' | 'fallback' = 'ai';
 
     try {
-      const response = await axios.post(`https://api.groq.com/openai/v1/chat/completions`, {
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: prompt }]
-      }, {
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-        timeout: 10000
-      });
-
-      const text = response.data?.choices?.[0]?.message?.content?.trim() || '';
+      const text = await safeGeminiCall(prompt);
       newKeywords = parseKeywordList(text);
       if (newKeywords.length === 0) throw new Error('no usable output');
     } catch (err) {
       keywordSource = 'fallback';
-      logError('FIX-WORKER', 'Groq unavailable. Falling back.', err);
+      logError('FIX-WORKER', 'AI Router unavailable. Falling back to regex keyword extraction.', err);
       newKeywords = extractFallbackKeywords(longTags);
     }
 

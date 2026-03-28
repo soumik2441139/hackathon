@@ -14,6 +14,7 @@ const envSchema = z.object({
     // AI / LLM
     GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY is required'),
     GROQ_API_KEY: z.string().min(1, 'GROQ_API_KEY is required'),
+    OPENROUTER_API_KEY: z.string().min(1, 'OPENROUTER_API_KEY is required'),
 
     // Azure Blob Storage & MinIO (S3 Compatible)
     AZURE_STORAGE_CONNECTION_STRING: z.string().optional(),

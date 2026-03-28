@@ -4,15 +4,12 @@ import { buildStatusUpdate } from '../../../utils/stateMachine';
 import { storeExample } from '../../rag/rag.service';
 import { recordEpisode } from '../../memory/agent.memory';
 import BotStat from '../../../models/BotStat';
-import axios from 'axios';
+import { safeGeminiCall } from '../../ai/gemini.client';
 
 export function registerSuperviseWorker() {
   createWorker('supervise-tags', async (data: { jobId: string }) => {
     const job = await JobModel.findById(data.jobId);
     if (!job || job.tagTileStatus !== 'PENDING_REVIEW') return { skipped: true };
-
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) throw new Error('GROQ_API_KEY not set');
 
     const originalTags = (job as any).longTagsToFix || job.tags.filter((t: string) => t.length > 25);
     const proposedTags = (job as any).proposedTags || [];
@@ -23,14 +20,8 @@ export function registerSuperviseWorker() {
       + proposedTags.join(', ')
       + `\n\nDo these keywords meaningfully relate to the original text without inventing fully fabricated new skills? Answer ONLY with YES or NO.`;
 
-    const response = await axios.post(`https://api.groq.com/openai/v1/chat/completions`, {
-      model: 'llama-3.3-70b-versatile',
-      messages: [{ role: 'user', content: prompt }]
-    }, {
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }
-    });
-    
-    const isApproved = response.data?.choices?.[0]?.message?.content?.trim().toUpperCase().includes('YES');
+    const responseText = await safeGeminiCall(prompt);
+    const isApproved = responseText.toUpperCase().includes('YES');
 
     if (isApproved) {
       await JobModel.updateOne({ _id: job._id }, {
