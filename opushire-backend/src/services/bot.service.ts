@@ -243,6 +243,9 @@ export const getBotLogs = (botId: string) => {
 };
 
 export const startPipeline = async () => {
-    // Pipeline now instantly fires BullMQ jobs instead of child node scripts!
+    // 1. Trigger the job ingestion scraper autonomously
+    await startBot('bot0-recruiter').catch(err => console.error('[Scheduler] Failed to autostart Recruiter Bot:', err));
+    
+    // 2. Pipeline instantly fires BullMQ jobs instead of child node scripts
     await startBot('bot1-scanner');
 };
