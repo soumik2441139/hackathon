@@ -141,7 +141,8 @@ export interface JobsResponse {
 
 export interface JobFilters {
     q?: string; type?: string; mode?: string;
-    city?: string; featured?: string; page?: number; limit?: number;
+    city?: string; location?: string; source?: string;
+    featured?: string; page?: number; limit?: number;
     postedBy?: string;
 }
 
@@ -171,6 +172,12 @@ export const jobs = {
     delete: (id: string) =>
         request<{ success: boolean; data: { message: string } }>(`/jobs/${id}`, {
             method: 'DELETE',
+        }),
+
+    deleteBulk: (ids: string[]) =>
+        request<{ success: boolean; data: { message: string; count: number } }>('/jobs/bulk', {
+            method: 'DELETE',
+            body: JSON.stringify({ ids }),
         }),
 
     getStats: () =>
@@ -231,10 +238,11 @@ export const admin = {
         request<{ success: boolean; data: unknown }>('/admin/debug-db?force=true'),
 
     getPendingJobs: () =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         request<{ success: boolean; data: any[] }>('/admin/pending-jobs'),
 
     resolvePendingJob: (id: string, action: 'approve' | 'reject') =>
-        request<{ success: boolean; data: any }>(`/admin/apply-fix/${id}`, {
+        request<{ success: boolean; data: Record<string, unknown> }>(`/admin/apply-fix/${id}`, {
             method: 'POST',
             body: JSON.stringify({ action })
         }),
@@ -251,23 +259,28 @@ export const admin = {
 
     bots: {
         getStatuses: () =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             request<{ success: boolean; data: any[] }>('/admin/bots'),
         pipeline: () =>
             request<{ success: boolean; message: string }>('/admin/bots/pipeline', { method: 'POST' }),
         start: (id: string) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             request<{ success: boolean; data: any }>(`/admin/bots/${id}/start`, { method: 'POST' }),
         stop: (id: string) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             request<{ success: boolean; data: any }>(`/admin/bots/${id}/stop`, { method: 'POST' }),
         getLogs: (id: string) =>
             request<{ success: boolean; data: string[] }>(`/admin/bots/${id}/logs`),
     },
 
     botStats: {
-        getToday: () => request<{ success: boolean; data: any }>('/admin/bot-stats/today')
+        getToday: () => request<{ success: boolean; data: Record<string, unknown> }>('/admin/bot-stats/today')
     },
 
     reports: {
-        getAll: () => request<{ success: boolean; data: Record<string, any[]> }>('/admin/reports'),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        getAll: () => request<{ success: boolean; data: any }>('/admin/reports'),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         getByDate: (date: string) => request<{ success: boolean; data: any[] }>(`/admin/reports/${date}`),
     }
 };
@@ -282,6 +295,12 @@ export const resume = {
             body: formData,
         });
     },
+
+    build: (html: string, markdownSource: string) =>
+        request<{ success: boolean; resumeId: string; message: string }>('/resume/build', {
+            method: 'POST',
+            body: JSON.stringify({ html, markdownSource }),
+        }),
 
     getMyFile: () =>
         request<{ success: boolean; url: string }>('/files/my-resume'),
@@ -308,7 +327,7 @@ export const careerAdvisor = {
 // ─── LinkedIn Enrichment ──────────────────────────────────────────────────────
 export const linkedin = {
     enrich: (linkedinUrl: string) =>
-        request<{ success: boolean; extraData: Record<string, any> }>('/linkedin/enrich', {
+        request<{ success: boolean; extraData: Record<string, unknown> }>('/linkedin/enrich', {
             method: 'POST',
             body: JSON.stringify({ linkedinUrl }),
         }),

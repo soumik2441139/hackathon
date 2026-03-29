@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatSalary(min: number, max: number): string {
-    if (min === 0 && max === 0) return "Not specified";
+    if (min === 0 && max === 0) return "Not disclosed";
     const format = (val: number) => {
         if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
         if (val >= 1000) return `₹${(val / 1000).toFixed(0)}K`;

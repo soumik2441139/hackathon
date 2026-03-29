@@ -47,7 +47,7 @@ export default function JobDetailPage() {
 
     useEffect(() => {
         if (user?.savedJobs && job) {
-            const saved = user.savedJobs.some((sj: { _id?: string } | string) => typeof sj === 'string' ? sj === job._id : (sj as any)._id === job._id);
+            const saved = user.savedJobs.some((sj: { _id?: string } | string) => typeof sj === 'string' ? sj === job._id : (sj as { _id?: string })._id === job._id);
             setIsSaved(saved);
         }
     }, [user?.savedJobs, job]);
@@ -165,7 +165,7 @@ export default function JobDetailPage() {
                                     <div className="flex flex-col gap-0.5 pr-10 border-r border-white/10">
                                         <span className="text-[10px] uppercase tracking-widest text-brand-text/30 font-bold">Salary</span>
                                         <span className="text-base font-bold text-brand-cyan">
-                                            {job.salary || formatSalary(job.salaryMin, job.salaryMax)}
+                                            {job.salary || formatSalary(job.salaryMin ?? 0, job.salaryMax ?? 0)}
                                         </span>
                                     </div>
                                     <div className="flex flex-col gap-0.5 px-10 border-r border-white/10">

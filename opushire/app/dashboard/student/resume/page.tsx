@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Shield, ShieldAlert, Loader2, FileText, AlertCircle, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ui/ProtectedRoute";
+import { useAuth } from "@/context/AuthContext";
 import { resume as resumeApi } from "@/lib/api";
 import Link from "next/link";
 import SecureOverlay from "../../../../components/SecureOverlay";
@@ -24,8 +24,8 @@ export default function SecureResumeViewer() {
                 } else {
                     setError("Failed to generate secure viewing tunnel.");
                 }
-            } catch (e: any) {
-                if (e.status === 404) {
+            } catch (e: unknown) {
+                if ((e as { status?: number }).status === 404) {
                     setError("No resume uploaded yet. Upload one from your dashboard.");
                 } else {
                     setError("Network error fetching secure link.");
@@ -87,9 +87,17 @@ export default function SecureResumeViewer() {
                             <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none mb-2">
                                 Resume <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">Vault</span>
                             </h1>
-                            <p className="text-white/40 text-sm font-medium">
-                                Secure, watermarked, focus-tracked. Your data is protected.
-                            </p>
+                            <div className="flex items-center gap-4 mt-4">
+                                <p className="text-white/40 text-sm font-medium">
+                                    Secure, watermarked, focus-tracked. Your data is protected.
+                                </p>
+                                <div className="h-4 w-px bg-white/10 hidden md:block" />
+                                <Link href="/dashboard/student/resume/builder">
+                                    <button className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-bold uppercase tracking-widest transition-colors">
+                                        <FileText size={14} /> Open Builder
+                                    </button>
+                                </Link>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
                             {isFocused ? (

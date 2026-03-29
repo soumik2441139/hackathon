@@ -20,14 +20,15 @@ export interface IResume extends Document {
     fileUrl: string;
     rawText: string;
     parsedData?: IParsedData;
+    markdownSource?: string;
     extraData?: {
         skillGaps?: string[];
         learningPath?: Array<{ skill: string; steps: string[] }>;
         certifications?: string[];
         linkedin?: string;
-        [key: string]: any; // Allow for flexible AI additions
+        [key: string]: unknown; // Allow for flexible AI additions
     };
-    fullParsedJSON?: any;
+    fullParsedJSON?: unknown;
     score?: number;
     scoreBreakdown?: string[];
     matched: boolean;
@@ -57,6 +58,8 @@ const ResumeSchema = new Schema<IResume>({
         experience_level: { type: String, default: null },
         domains: [{ type: String }]
     },
+    
+    markdownSource: { type: String },
     
     extraData: {
         type: Map,

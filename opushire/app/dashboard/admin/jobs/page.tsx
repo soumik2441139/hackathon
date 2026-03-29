@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Search, Building2, MapPin, Trash2, Edit3, Briefcase, ChevronRight, Activity } from 'lucide-react';
+import { ArrowLeft, Search, Building2, MapPin, Trash2, Edit3, Briefcase, ChevronRight, Activity, Filter, SquareCheck, Square, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { jobs as jobsApi } from '@/lib/api';
@@ -15,6 +15,11 @@ export default function AdminJobsConsole() {
     const [jobs, setJobs] = useState<Job[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sourceFilter, setSourceFilter] = useState('');
+    const [locationFilter, setLocationFilter] = useState('');
+    const [typeFilter, setTypeFilter] = useState('');
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [isDeletingBulk, setIsDeletingBulk] = useState(false);
 
     useEffect(() => {
         if (!authLoading && currentUser?.role !== 'admin') {
@@ -44,10 +49,55 @@ export default function AdminJobsConsole() {
         try {
             await jobsApi.delete(id);
             setJobs(prev => prev.filter(j => j._id !== id));
+            setSelectedIds(prev => prev.filter(i => i !== id));
         } catch (err) {
             console.error(err);
             alert('Failed to delete job');
         }
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedIds.length === 0) return;
+        if (!confirm(`Are you sure you want to delete ${selectedIds.length} selected job postings? This action cannot be undone.`)) return;
+        
+        setIsDeletingBulk(true);
+        try {
+            await jobsApi.deleteBulk(selectedIds);
+            setJobs(prev => prev.filter(j => !selectedIds.includes(j._id)));
+            setSelectedIds([]);
+        } catch (err) {
+            console.error(err);
+            alert('Failed to delete selected jobs');
+        } finally {
+            setIsDeletingBulk(false);
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedIds.length > 0 && selectedIds.length === filteredJobs.length) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds(filteredJobs.map(j => j._id));
+        }
+    };
+
+    const toggleSelect = (id: string) => {
+        setSelectedIds(prev => 
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        );
+    };
+
+    const getSourceLabel = (job: Job) => {
+        if (!job.source || job.source === 'manual') return 'Manual';
+        
+        if (job.source === 'telegram' && job.externalId) {
+            const parts = job.externalId.split('_');
+            const channel = parts[1] || 'Channel';
+            return `Telegram - ${channel}`;
+        }
+        
+        // Capitalize others
+        return job.source.charAt(0).toUpperCase() + job.source.slice(1);
     };
 
     if (authLoading || (currentUser?.role === 'admin' && loading)) {
@@ -63,10 +113,17 @@ export default function AdminJobsConsole() {
 
     if (currentUser?.role !== 'admin') return null;
 
-    const filteredJobs = jobs.filter(j =>
-        j.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        j.company?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredJobs = jobs.filter(j => {
+        const matchesSearch = j.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            j.company?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSource = !sourceFilter || j.source === sourceFilter;
+        const matchesLocation = !locationFilter || 
+                                (j.location?.toLowerCase().includes(locationFilter.toLowerCase()) || 
+                                 j.city?.toLowerCase().includes(locationFilter.toLowerCase()));
+        const matchesType = !typeFilter || j.type === typeFilter;
+        
+        return matchesSearch && matchesSource && matchesLocation && matchesType;
+    });
 
     return (
         <main className="pt-32 pb-24 px-6 min-h-screen bg-black text-white overflow-hidden">
@@ -98,21 +155,89 @@ export default function AdminJobsConsole() {
                         </p>
                     </div>
 
-                    <div className="glass-card p-4 flex gap-4 w-full md:w-auto">
-                        <div className="flex items-center gap-4 px-4 border-r border-white/10">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Total Postings</span>
-                            <span className="text-2xl font-black text-brand-cyan">{jobs.length}</span>
+                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full md:w-auto">
+                        {/* Bulk Actions */}
+                        {selectedIds.length > 0 && (
+                            <motion.div 
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 mr-2"
+                            >
+                                <span className="text-[10px] font-black uppercase tracking-widest text-red-400">
+                                    {selectedIds.length} Selected
+                                </span>
+                                <Button 
+                                    onClick={handleBulkDelete}
+                                    disabled={isDeletingBulk}
+                                    className="h-8 px-3 text-[10px] font-black uppercase tracking-widest bg-red-500 hover:bg-red-600 text-white border-none"
+                                >
+                                    {isDeletingBulk ? <Activity size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                                    DELETE
+                                </Button>
+                            </motion.div>
+                        )}
+
+                        <div className="glass-card p-4 flex flex-1 gap-4 items-center min-w-[300px]">
+                            <div className="flex items-center gap-4 px-4 border-r border-white/10 shrink-0">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Total</span>
+                                <span className="text-2xl font-black text-brand-cyan">{jobs.length}</span>
+                            </div>
+                            <div className="relative group flex-1">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-cyan transition-colors" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="Search listings..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="bg-transparent border-none rounded-none pl-10 pr-4 py-2 w-full outline-none text-sm font-medium placeholder:text-white/20 h-full"
+                                />
+                            </div>
                         </div>
-                        <div className="relative group flex-1 md:w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-cyan transition-colors" size={16} />
-                            <input
-                                type="text"
-                                placeholder="Search by title or company..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="bg-transparent border-none rounded-none pl-10 pr-4 py-2 w-full outline-none text-sm font-medium placeholder:text-white/20 h-full"
-                            />
-                        </div>
+                    </div>
+                </div>
+
+                {/* Filters Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div className="glass-card px-4 py-2 flex items-center gap-3 bg-white/[0.02]">
+                        <Globe size={14} className="text-white/20" />
+                        <select 
+                            value={sourceFilter}
+                            onChange={(e) => setSourceFilter(e.target.value)}
+                            className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-widest text-white/60 w-full appearance-none cursor-pointer"
+                        >
+                            <option value="" className="bg-black">All Sources</option>
+                            <option value="telegram" className="bg-black">Telegram</option>
+                            <option value="remotive" className="bg-black">Remotive</option>
+                            <option value="arbeitnow" className="bg-black">Arbeitnow</option>
+                            <option value="adzuna" className="bg-black">Adzuna</option>
+                            <option value="himalayas" className="bg-black">Himalayas</option>
+                            <option value="manual" className="bg-black">Manual</option>
+                        </select>
+                    </div>
+
+                    <div className="glass-card px-4 py-2 flex items-center gap-3 bg-white/[0.02]">
+                        <MapPin size={14} className="text-white/20" />
+                        <input 
+                            type="text"
+                            placeholder="Filter by Location..."
+                            value={locationFilter}
+                            onChange={(e) => setLocationFilter(e.target.value)}
+                            className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-widest text-white/60 w-full placeholder:text-white/20"
+                        />
+                    </div>
+
+                    <div className="glass-card px-4 py-2 flex items-center gap-3 bg-white/[0.02]">
+                        <Filter size={14} className="text-white/20" />
+                        <select 
+                            value={typeFilter}
+                            onChange={(e) => setTypeFilter(e.target.value)}
+                            className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-widest text-white/60 w-full appearance-none cursor-pointer"
+                        >
+                            <option value="" className="bg-black">All Types</option>
+                            <option value="Full-time" className="bg-black">Full-time</option>
+                            <option value="Internship" className="bg-black">Internship</option>
+                            <option value="Contract" className="bg-black">Contract</option>
+                        </select>
                     </div>
                 </div>
 
@@ -121,9 +246,21 @@ export default function AdminJobsConsole() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-white/5 text-[10px] uppercase font-black tracking-[0.2em] text-white/30 bg-white/[0.01]">
+                                    <th className="px-6 py-5 w-10">
+                                        <button 
+                                            onClick={toggleSelectAll}
+                                            className="text-white/20 hover:text-brand-cyan transition-colors"
+                                        >
+                                            {selectedIds.length > 0 && selectedIds.length === filteredJobs.length ? (
+                                                <SquareCheck size={16} className="text-brand-cyan" />
+                                            ) : (
+                                                <Square size={16} />
+                                            )}
+                                        </button>
+                                    </th>
                                     <th className="px-6 py-5">Role Identity</th>
                                     <th className="px-6 py-5">Corporate Entity</th>
-                                    <th className="px-6 py-5">Parameters</th>
+                                    <th className="px-6 py-5">Source</th>
                                     <th className="px-6 py-5">Origin Timeline</th>
                                     <th className="px-6 py-5 text-right w-32">Actions</th>
                                 </tr>
@@ -131,13 +268,30 @@ export default function AdminJobsConsole() {
                             <tbody className="divide-y divide-white/5">
                                 {filteredJobs.length > 0 ? (
                                     filteredJobs.map((job) => (
-                                        <tr key={job._id} className="hover:bg-white/[0.02] transition-colors group">
+                                        <tr key={job._id} className={`hover:bg-white/[0.02] transition-colors group ${selectedIds.includes(job._id) ? 'bg-brand-cyan/[0.03]' : ''}`}>
+                                            <td className="px-6 py-4">
+                                                <button 
+                                                    onClick={() => toggleSelect(job._id)}
+                                                    className="text-white/20 hover:text-brand-cyan transition-colors"
+                                                >
+                                                    {selectedIds.includes(job._id) ? (
+                                                        <SquareCheck size={16} className="text-brand-cyan" />
+                                                    ) : (
+                                                        <Square size={16} />
+                                                    )}
+                                                </button>
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <div className="font-bold text-sm text-brand-cyan flex items-center gap-2">
                                                     {job.title}
                                                 </div>
-                                                <div className="text-[10px] font-black tracking-widest uppercase text-white/40 mt-1 flex items-center gap-1">
-                                                    {job._id}
+                                                <div className="flex gap-2 mt-1">
+                                                    <span className="text-[8px] font-black tracking-widest uppercase text-white/40 px-1.5 py-0.5 rounded bg-white/5 border border-white/10">
+                                                        {job.type}
+                                                    </span>
+                                                    <span className="text-[8px] font-black tracking-widest uppercase text-white/40 px-1.5 py-0.5 rounded bg-white/5 border border-white/10">
+                                                        {job.mode}
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
@@ -156,13 +310,13 @@ export default function AdminJobsConsole() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="flex gap-2">
-                                                    <span className="px-2 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] font-bold uppercase text-white/60">
-                                                        {job.type}
+                                                <div className="inline-flex flex-col">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/80">
+                                                        {getSourceLabel(job)}
                                                     </span>
-                                                    <span className="px-2 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] font-bold uppercase text-white/60">
-                                                        {job.mode}
-                                                    </span>
+                                                    {job.source === 'telegram' && (
+                                                        <span className="text-[8px] font-black text-brand-cyan/60 uppercase tracking-tighter">Verified Bot Feed</span>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-xs font-medium text-white/40 whitespace-nowrap">
@@ -197,8 +351,8 @@ export default function AdminJobsConsole() {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-white/30 font-medium">
-                                            No job listings found in the database.
+                                        <td colSpan={6} className="px-6 py-12 text-center text-white/30 font-medium">
+                                            No job listings found matching your constraints.
                                         </td>
                                     </tr>
                                 )}

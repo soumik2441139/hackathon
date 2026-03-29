@@ -14,10 +14,10 @@ import { deepScrapeJob } from './page-scraper';
  */
 
 const DEFAULT_CHANNELS = [
-    'getjobss', 'jobwithmayra', 'cryptojobslist', 'jobs_and_internships_updates', 'thinkcareers',
+    'getjobss', 'jobs_and_internships_updates', 'thinkcareers',
     'jobhuntcamp', 'internfreak', 'offcampusjobsandinternships', 'gocareers',
     'internshala_jobs', 'jobs_and_internships',
-    'remote_jobs_feed', 'workintech', 'Jobs_global_startups',
+    'remote_jobs_feed', 'workintech',
 ];
 
 const JUNIOR_KEYWORDS = [
@@ -180,7 +180,7 @@ function stripHtml(html: string): string {
     const stripped = html
         .replace(/<br\s*\/?>/gi, '\n')
         .replace(/<\/?[^>]+(>|$)/g, '');
-    
+
     return he.decode(stripped)
         .replace(/\n{3,}/g, '\n\n')
         .trim();

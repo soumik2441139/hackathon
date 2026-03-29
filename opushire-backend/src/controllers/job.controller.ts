@@ -56,6 +56,18 @@ export const deleteJob = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
+export const deleteJobs = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids)) {
+            return res.status(400).json({ success: false, message: 'Invalid IDs format' });
+        }
+        const result = await JobService.deleteJobs(ids);
+        res.json({ success: true, data: result });
+    } catch (err) {
+        next(err);
+    }
+};
 
 export const autoApply = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {

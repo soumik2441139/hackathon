@@ -40,6 +40,8 @@ export interface Job {
     featured: boolean;
     posted: string;
     postedBy: string | Partial<User>;
+    source?: 'manual' | 'remotive' | 'arbeitnow' | 'adzuna' | 'telegram' | 'himalayas';
+    externalId?: string;
     externalUrl?: string;
     createdAt: string;
     updatedAt: string;

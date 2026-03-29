@@ -117,7 +117,7 @@ export default function AdminBotsDashboard() {
                 adminApi.bots.getStatuses(),
                 adminApi.botStats.getToday()
             ]);
-            setBots(statusRes.data);
+            setBots(statusRes.data as BotConfig[]);
             if (statsRes.success) setStats(statsRes.data || {});
         } catch (err) {
             console.error('Failed to fetch bot statuses', err);

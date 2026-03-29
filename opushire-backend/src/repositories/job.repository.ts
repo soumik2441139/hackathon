@@ -34,6 +34,11 @@ class JobRepository {
     async deleteById(id: string) {
         return await Job.findByIdAndDelete(id);
     }
+
+    async deleteMany(ids: string[]): Promise<{ deletedCount: number }> {
+        const result = await Job.deleteMany({ _id: { $in: ids } });
+        return { deletedCount: result.deletedCount };
+    }
 }
 
 export const JobRepo = new JobRepository();

@@ -35,6 +35,8 @@ export const jobFilterSchema = z.object({
     type: z.string().optional(),
     mode: z.string().optional(),
     city: z.string().optional(),
+    location: z.string().optional(),
+    source: z.string().optional(),
     featured: z.string().optional(),
     postedBy: z.string().optional(),
     page: z.string().optional().default('1'),
@@ -56,6 +58,8 @@ export const getJobs = async (filters: z.infer<typeof jobFilterSchema>) => {
     if (filters.type) query.type = filters.type;
     if (filters.mode) query.mode = filters.mode;
     if (filters.city) query.city = new RegExp(filters.city, 'i');
+    if (filters.location) query.location = new RegExp(filters.location, 'i');
+    if (filters.source) query.source = filters.source;
     if (filters.featured === 'true') query.featured = true;
     if (filters.postedBy) query.postedBy = filters.postedBy;
 
@@ -105,5 +109,10 @@ export const deleteJob = async (id: string) => {
     const job = await JobRepo.deleteById(id);
     if (!job) throw createError('Job not found', 404);
     return { message: 'Job deleted' };
+};
+
+export const deleteJobs = async (ids: string[]) => {
+    const result = await JobRepo.deleteMany(ids);
+    return { message: `${result.deletedCount} jobs deleted`, count: result.deletedCount };
 };
 
