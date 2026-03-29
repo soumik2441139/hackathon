@@ -9,8 +9,14 @@ const SPAM_REGEX = /\b(commission only|mlm|pyramid scheme|100% commission|crypto
 export async function filterSpamJobs(jobs: NormalizedJob[]): Promise<NormalizedJob[]> {
     console.log(`🛡️ [Spam Filter] Analyzing ${jobs.length} jobs for garbage/scams...`);
 
-    const preFiltered = jobs.filter(job => !SPAM_REGEX.test(job.description) && !SPAM_REGEX.test(job.title));
-    console.log(`🛡️ [Spam Filter] Dropped ${jobs.length - preFiltered.length} via strict regex.`);
+    const preFiltered = jobs.filter(job => {
+        const isSpamText = SPAM_REGEX.test(job.description) || SPAM_REGEX.test(job.title);
+        const isLinkedInRedirect = job.title.toLowerCase().includes('not on linkedin');
+        const isHashtagSoup = job.title.trim().length > 0 && job.title.trim().split(/\s+/).every(word => word.startsWith('#'));
+        
+        return !isSpamText && !isLinkedInRedirect && !isHashtagSoup;
+    });
+    console.log(`🛡️ [Spam Filter] Dropped ${jobs.length - preFiltered.length} via strict regex/heuristics.`);
 
     if (preFiltered.length === 0 || !GROQ_API_KEY) {
         if (!GROQ_API_KEY) console.warn('⚠️ [Spam Filter] GROQ_API_KEY is missing! Using Regex only.');

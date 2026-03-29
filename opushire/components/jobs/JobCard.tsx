@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { Job } from '@/lib/types';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -37,9 +38,9 @@ export const JobCard = ({ job }: JobCardProps) => {
                                 />
                                 <span className="text-brand-dark font-bold absolute z-0">{job.companyLogo && !job.companyLogo.startsWith('http') && job.companyLogo !== '🏢' ? job.companyLogo : '🏢'}</span>
                             </div>
-                            <div>
-                                <h3 className="text-lg font-bold group-hover:text-brand-violet transition-colors text-brand-text line-clamp-1">{job.title}</h3>
-                                <p className="text-sm text-brand-text/50 font-medium">{job.company}</p>
+                            <div className="flex flex-col">
+                                <h3 className="text-lg font-bold group-hover:text-brand-violet transition-colors text-brand-text line-clamp-1">{job.company}</h3>
+                                <p className="text-sm text-brand-text/50 font-medium line-clamp-1">{job.title}</p>
                             </div>
                         </div>
                         {job.featured && <Badge variant="violet" className="shrink-0 text-[10px] py-0 h-5">Featured</Badge>}

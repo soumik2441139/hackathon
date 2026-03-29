@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element, @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { ApplyModal } from '@/components/jobs/ApplyModal';
-import { ArrowLeft, ChevronRight, Share2, Bookmark, CheckCircle2, BookmarkCheck, MessageSquare, Sparkles } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Share2, Bookmark, CheckCircle2, BookmarkCheck, Sparkles } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { timeAgo, formatSalary } from '@/lib/utils';
 
@@ -46,7 +47,7 @@ export default function JobDetailPage() {
 
     useEffect(() => {
         if (user?.savedJobs && job) {
-            const saved = user.savedJobs.some((sj: any) => typeof sj === 'string' ? sj === job._id : sj._id === job._id);
+            const saved = user.savedJobs.some((sj: { _id?: string } | string) => typeof sj === 'string' ? sj === job._id : (sj as any)._id === job._id);
             setIsSaved(saved);
         }
     }, [user?.savedJobs, job]);
@@ -89,8 +90,8 @@ export default function JobDetailPage() {
                 setApplied(true);
                 alert(res.message);
             }
-        } catch (err: any) {
-            alert(err.message || 'Auto-Apply Failed');
+        } catch (err: unknown) {
+            alert((err as Error).message || 'Auto-Apply Failed');
         } finally {
             setAutoApplying(false);
         }
@@ -109,7 +110,7 @@ export default function JobDetailPage() {
                 setIsSaved(res.data.isSaved);
                 await refreshUser();
             }
-        } catch (err) {
+        } catch (err: unknown) {
             console.error('Failed to save job', err);
         } finally {
             setSaving(false);
@@ -146,9 +147,9 @@ export default function JobDetailPage() {
                                             <span className="text-brand-dark font-bold absolute z-0">{job.companyLogo && !job.companyLogo.startsWith('http') && job.companyLogo !== '🏢' ? job.companyLogo : '🏢'}</span>
                                         </div>
                                         <div>
-                                            <h1 className="text-3xl md:text-4xl font-black mb-1.5 text-brand-text">{job.title}</h1>
+                                            <h1 className="text-3xl md:text-4xl font-black mb-1.5 text-brand-text">{job.company}</h1>
                                             <div className="flex items-center gap-2 text-brand-text/60">
-                                                <span className="text-lg font-bold text-brand-text/80">{job.company}</span>
+                                                <span className="text-lg font-bold text-brand-text/80">{job.title}</span>
                                                 {job.location && (
                                                     <>
                                                         <span className="w-1 h-1 rounded-full bg-white/20" />

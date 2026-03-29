@@ -24,7 +24,7 @@ export interface IJob extends Document {
     posted: string;
     postedBy?: Types.ObjectId;
     // Bot-sourced fields
-    source?: 'manual' | 'remotive' | 'arbeitnow' | 'adzuna' | 'telegram';
+    source?: 'manual' | 'remotive' | 'arbeitnow' | 'adzuna' | 'telegram' | 'himalayas';
     externalId?: string;
     externalUrl?: string;
     freeApiPostId?: string;
@@ -73,7 +73,7 @@ const JobSchema = new Schema<IJob>(
         // Bot-sourced fields
         source: {
             type: String,
-            enum: ['manual', 'remotive', 'arbeitnow', 'adzuna', 'telegram'],
+            enum: ['manual', 'remotive', 'arbeitnow', 'adzuna', 'telegram', 'himalayas'],
             default: 'manual',
         },
         externalId: { type: String, sparse: true, index: { unique: true, sparse: true } },

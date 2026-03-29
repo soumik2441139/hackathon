@@ -225,7 +225,19 @@ export const getBotStatus = async (botId: string) => {
 };
 
 export const getAllBotStatuses = async () => {
-    const statuses = await Promise.all(BOTS.map(bot => getBotStatus(bot.id)));
+    const statuses = await Promise.all(BOTS.map(async bot => {
+        try {
+            return await getBotStatus(bot.id);
+        } catch (err) {
+            console.error(`[STATUS_ERROR] Bot ${bot.id}:`, err);
+            return { 
+                ...bot, 
+                status: 'error', 
+                uptime: 0, 
+                stats: { waiting: 0, active: 0, completed: 0, failed: 0, unreachable: true } 
+            };
+        }
+    }));
     return statuses;
 };
 
