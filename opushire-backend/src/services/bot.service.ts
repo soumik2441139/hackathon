@@ -127,14 +127,14 @@ export const startBot = async (botId: string, args: string[] = []) => {
             childArgs = [config.script!, ...args];
         }
 
-        // Always use standard 'node' command and enable shell to prevent ENOENT errors
-        // during process spawning in restricted environments (Azure Linux App Services).
-        
+        // In minimal Linux containers (e.g. distroless) /bin/sh does not exist.
+        // shell: true forces Node to use /bin/sh, throwing ENOENT.
+        // We set shell only on Windows to execute .cmd scripts correctly.
         const child = spawn(childUrl, childArgs, { 
             cwd: scriptPath, 
-            env: process.env, // Pass environment variables implicitly
+            env: process.env,
             stdio: 'pipe', 
-            shell: true 
+            shell: os.platform() === 'win32' 
         });
 
         activeLegacyBots.set(botId, { process: child, status: 'online', startTime: new Date() });
