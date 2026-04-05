@@ -409,8 +409,8 @@ export function startRegisteredWorkers(): any {
   const canUseTertiary = !!SystemConfig.redisTertiaryUrl;
 
   for (const [name, proc] of processorMap.entries()) {
-    const isCore = ['match-resumes', 'career-advisor', 'email-notifications'].includes(name);
-    const isHeavy = ['scan-jobs', 'fix-tags', 'supervise-tags', 'linkedin-enrich', 'match-candidates'].includes(name);
+    const isCore = ['match-resumes', 'career-advisor', 'email-notifications', 'job-outreach'].includes(name);
+    const isHeavy = ['scan-jobs', 'fix-tags', 'supervise-tags', 'linkedin-enrich', 'match-candidates', 'fetch-jobs'].includes(name);
     
     if (isCore && canUseTertiary) {
       tertiaryProcessors.set(name, proc);
