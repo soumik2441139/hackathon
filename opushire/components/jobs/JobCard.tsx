@@ -27,16 +27,17 @@ export const JobCard = ({ job }: JobCardProps) => {
                 <div className="space-y-4">
                     <div className="flex justify-between items-start">
                         <div className="flex gap-4">
-                            <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center text-xl transition-transform group-hover:scale-110 overflow-hidden shrink-0 shadow-sm border border-white/10 relative">
+                            <div className="w-12 h-12 rounded-lg bg-white box-border p-1 flex items-center justify-center text-xl transition-transform group-hover:scale-110 overflow-hidden shrink-0 shadow-sm relative">
                                 <img
-                                    src={job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? job.companyLogo : `https://unavatar.io/${job.company.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`}
+                                    src={job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? job.companyLogo : `https://logos.hunter.io/${job.company.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`}
                                     alt={`${job.company} logo`}
-                                    className="w-full h-full object-contain p-1.5 z-10 bg-white"
+                                    className="w-full h-full object-contain z-10"
                                     onError={(e) => {
-                                        (e.target as HTMLImageElement).style.display = 'none';
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
                                     }}
                                 />
-                                <span className="text-brand-dark font-bold absolute z-0">{job.companyLogo && !job.companyLogo.startsWith('http') && job.companyLogo !== '🏢' ? job.companyLogo : '🏢'}</span>
+                                <span className="text-slate-800 font-bold hidden absolute">{job.companyLogo && !job.companyLogo.startsWith('http') && job.companyLogo !== '🏢' ? job.companyLogo : '🏢'}</span>
                             </div>
                             <div className="flex flex-col">
                                 <h3 className="text-lg font-bold group-hover:text-brand-violet transition-colors text-brand-text line-clamp-1">{job.company}</h3>

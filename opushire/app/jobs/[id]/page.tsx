@@ -135,16 +135,17 @@ export default function JobDetailPage() {
                             <ScrollReveal direction="right">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                                     <div className="flex gap-5">
-                                        <div className="w-20 h-20 rounded-2xl bg-white border border-white/10 flex items-center justify-center text-4xl overflow-hidden shrink-0 relative shadow-lg">
+                                        <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center text-4xl overflow-hidden shrink-0 relative shadow-lg box-border p-2">
                                             <img
-                                                src={job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? job.companyLogo : `https://unavatar.io/${job.company.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`}
+                                                src={job.companyLogo?.startsWith('http') || job.companyLogo?.startsWith('data:') ? job.companyLogo : `https://logos.hunter.io/${job.company.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`}
                                                 alt={`${job.company} logo`}
-                                                className="w-full h-full object-contain p-2 z-10 bg-white"
+                                                className="w-full h-full object-contain z-10"
                                                 onError={(e) => {
-                                                    (e.target as HTMLImageElement).style.display = 'none';
+                                                    e.currentTarget.style.display = 'none';
+                                                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
                                                 }}
                                             />
-                                            <span className="text-brand-dark font-bold absolute z-0">{job.companyLogo && !job.companyLogo.startsWith('http') && job.companyLogo !== '🏢' ? job.companyLogo : '🏢'}</span>
+                                            <span className="text-slate-800 font-bold hidden absolute">{job.companyLogo && !job.companyLogo.startsWith('http') && job.companyLogo !== '🏢' ? job.companyLogo : '🏢'}</span>
                                         </div>
                                         <div>
                                             <h1 className="text-3xl md:text-4xl font-black mb-1.5 text-brand-text">{job.company}</h1>

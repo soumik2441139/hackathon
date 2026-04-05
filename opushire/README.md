@@ -26,22 +26,26 @@ Key design elements include:
 
 ### Frontend Component Architecture Flow
 ```mermaid
-graph TD
-    User([Student/Recruiter]) --> |Next.js App Router| LandingPage
-    LandingPage --> AuthState{Authenticated?}
+flowchart LR
+    %% Aesthetics
+    classDef user fill:#0284c7,stroke:#0369a1,stroke-width:2px,color:#fff,rx:10px;
+    classDef logic fill:#16a34a,stroke:#15803d,stroke-width:2px,color:#fff,rx:5px;
+    classDef ui fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#fff,rx:5px;
+
+    User([Student/Recruiter]):::user --> LandingPage[Hero & Landing Page]:::ui
+    LandingPage --> AuthState{Authenticated?}:::logic
     
-    AuthState -->|No| LoginModal
-    AuthState -->|Yes| Dashboard
+    AuthState -->|No| LoginModal[Auth Modals]:::ui
+    AuthState -->|Yes| Dashboard[Main Console]:::ui
     
-    subgraph "Dashboard Ecosystem (React Server Components)"
-      Dashboard --> LiveMetrics[WebSocket Admin Polling]
-      Dashboard --> RedisStats[Tri-Redis Telemetry]
-      Dashboard --> MongoDbStats[MongoDB CPU Heuristics]
+    subgraph "Real-Time Systems"
+      Dashboard --> LiveMetrics[WebSocket Polling]:::logic
+      Dashboard --> RedisStats[Tri-Redis Telemetry]:::logic
     end
     
-    subgraph "Glassmorphism UI (Client Components & WebGL)"
-      LandingPage --> Hero[3D Canvas Background Fiber]
-      LandingPage --> Marquee[Infinite Company Strip]
+    subgraph "Immersive Rendering"
+      LandingPage --> Hero3D[3D WebGL Canvas]:::ui
+      LandingPage --> Marquee[Infinite Logo Marquee]:::ui
     end
 ```
 

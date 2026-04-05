@@ -296,10 +296,21 @@ export default function AdminJobsConsole() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0 text-xs">
+                                                    <div className="w-8 h-8 rounded-lg bg-white box-border p-0.5 flex items-center justify-center overflow-hidden shrink-0 text-xs">
                                                         {job.companyLogo ? (
-                                                            <img src={job.companyLogo} alt={job.company} className="w-full h-full object-contain p-1" />
-                                                        ) : <Building2 size={12} className="text-white/30" />}
+                                                            <>
+                                                                <img 
+                                                                    src={job.companyLogo} 
+                                                                    alt={job.company} 
+                                                                    className="w-full h-full object-contain" 
+                                                                    onError={(e) => {
+                                                                        e.currentTarget.style.display = 'none';
+                                                                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                                                    }}
+                                                                />
+                                                                <Building2 size={12} className="text-slate-400 hidden" />
+                                                            </>
+                                                        ) : <Building2 size={12} className="text-slate-400" />}
                                                     </div>
                                                     <div>
                                                         <p className="font-bold text-sm">{job.company}</p>

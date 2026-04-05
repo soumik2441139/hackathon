@@ -79,11 +79,22 @@ export const ApplicationTracker = () => {
                                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-transparent -translate-x-full group-hover:animate-shimmer" />
 
                                 <div className="flex gap-5 relative z-10">
-                                    <div className="w-14 h-14 rounded-[1.2rem] bg-[#05050A] flex items-center justify-center font-bold text-xl overflow-hidden shrink-0 border border-white/10 shadow-xl group-hover:scale-110 transition-transform">
+                                    <div className="w-14 h-14 rounded-[1.2rem] bg-white flex items-center justify-center font-bold text-xl overflow-hidden shrink-0 shadow-xl group-hover:scale-110 transition-transform p-1 box-border">
                                         {job?.companyLogo?.startsWith('http') ? (
-                                            <img src={job.companyLogo} alt={`${job.company} logo`} className="w-full h-full object-contain p-2" />
+                                            <>
+                                                <img 
+                                                    src={job.companyLogo} 
+                                                    alt={`${job.company} logo`} 
+                                                    className="w-full h-full object-contain" 
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = 'none';
+                                                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                                    }}
+                                                />
+                                                <span className="text-slate-800 hidden">{job?.company?.charAt(0) || '?'}</span>
+                                            </>
                                         ) : (
-                                            job?.companyLogo ?? (typeof app.job === 'object' ? app.job?.company?.charAt(0) : '?')
+                                            <span className="text-slate-800">{job?.companyLogo ?? (typeof app.job === 'object' ? app.job?.company?.charAt(0) : '?')}</span>
                                         )}
                                     </div>
                                     <div>
