@@ -58,7 +58,15 @@ async function storeJobs(jobs: NormalizedJob[], sourceName: string): Promise<Fet
 
         try {
             // [PHASE 2] Clearbit Universal Auto-Branding Algorithm
-            if (!job.companyLogo || job.companyLogo.includes('unavatar.io') || job.companyLogo.trim() === '') {
+            let isUnavatar = false;
+            try {
+                if (job.companyLogo) {
+                    const hostname = new URL(job.companyLogo).hostname;
+                    isUnavatar = hostname === 'unavatar.io' || hostname.endsWith('.unavatar.io');
+                }
+            } catch { /* ignore invalid URLs */ }
+
+            if (!job.companyLogo || isUnavatar || job.companyLogo.trim() === '') {
                  // Aggressively format "T-Mobile!" -> "tmobile.com" to align with Clearbit API expectations
                  const cleanName = job.company.toLowerCase().replace(/[^a-z0-9]/g, '');
                  if (cleanName.length > 2) {

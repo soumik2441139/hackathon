@@ -31,7 +31,7 @@ export async function extractResumeText(filePath: string): Promise<string> {
 
     throw new Error(`Unsupported file type for text extraction: ${ext}`);
   } catch (err: any) {
-    console.error(`[Extractor] Failed to parse ${ext} file:`, err.message);
-    throw new Error(`Failed to read resume content: ${err.message}`);
+    console.error('[Extractor] Failed to parse %s file:', ext, err?.message || err);
+    throw new Error(`Failed to read resume content: ${err?.message || 'Unknown error'}`);
   }
 }
