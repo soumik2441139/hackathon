@@ -31,43 +31,60 @@ OpusHire provides a sophisticated, event-driven microservices architecture desig
 ## 🏗 Full-Stack Ecosystem Architecture
 
 ```mermaid
-graph TD
-    subgraph Client ["Next.js 15 Web Ecosystem"]
-        Frontend["Server-Side Rendered App UI"]
-        WebSocket["Socket.io Real-Time Subscriptions"]
-        ThreeJS["3D Render Layer (Fiber + Drei)"]
+flowchart LR
+    %% Aesthetics
+    classDef client fill:#0284c7,stroke:#0369a1,stroke-width:2px,color:#fff,rx:5px,padding:10px;
+    classDef backend fill:#16a34a,stroke:#15803d,stroke-width:2px,color:#fff,rx:5px,padding:10px;
+    classDef storage fill:#d97706,stroke:#b45309,stroke-width:2px,color:#fff,rx:5px,padding:10px;
+    classDef swarm fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#fff,rx:5px,padding:10px;
+
+    subgraph Client ["🌐 Client Ecosystem (Next.js 15)"]
+        direction TB
+        UI["Server-Side App UI"]:::client
+        WS["Real-Time Sockets"]:::client
+        Three["3D Render Canvas"]:::client
+        UI --- Three
+        UI <-->|"wss://"| WS
     end
 
-    subgraph Backend ["Express.js Services Layer"]
-        API["REST Interface + Helmet + CORS"]
-        BullMQ["BullMQ Idempotent Queues"]
-        Auth["JWT + bcryptjs Security"]
+    subgraph Backend ["⚙️ Core API Layer (Express.js)"]
+        direction TB
+        API["REST Interface"]:::backend
+        Auth["JWT & Security"]:::backend
+        Queue["BullMQ Queues"]:::backend
+        API --- Auth
     end
 
-    subgraph Swarm ["Autonomous Swarm & Agents"]
-        JSBots["JS Micro-Agents (Scanner, Fixer, Archiver)"]
-        CrewAI["Python CrewAI Orchestrator"]
-        Recruiter["Recruiter-Bot (Adzuna/External)"]
+    subgraph Swarm ["🤖 Autonomous Micro-Agents"]
+        direction TB
+        Recruiter["Recruiter Scraper Bot"]:::swarm
+        JSBots["JS Execution Agents"]:::swarm
+        CrewAI["Python CrewAI Swarm"]:::swarm
     end
 
-    subgraph Storage ["Persistent Data Layer"]
-        Mongo[(MongoDB Atlas)]
-        Qdrant[(Qdrant Vector DB)]
-        Redis[(Redis Cache & Queues)]
-        S3[(Azure Blob / MinIO S3)]
+    subgraph Storage ["💾 Persistent Data Layer"]
+        direction TB
+        Mongo[(MongoDB Atlas)]:::storage
+        S3[(Azure Blob / MinIO)]:::storage
+        Qdrant[(Qdrant Vector DB)]:::storage
+        Redis[(Tri-Redis Cluster)]:::storage
     end
 
-    Frontend <-->|"wss://"| WebSocket
-    Frontend -->|"HTTPS"| API
-    API -->|"Read/Write"| Mongo
+    %% Primary Data Flow - Left to Right
+    UI -->|"HTTPS"| API
+    
     API -->|"Uploads"| S3
-    API -->|"Enqueue"| BullMQ
-    BullMQ -->|"Process Tasks"| JSBots
-    S3 -.->|"Extract PDF Text"| JSBots
-    Mongo -.->|"Change Streams"| CrewAI
-    Recruiter -->|"Fetch & Ingest"| Mongo
+    API -->|"Read/Write"| Mongo
+    API -->|"Enqueue Job"| Queue
+    
+    Queue -->|"Process Tasks"| JSBots
+    S3 -.->|"Extract Text"| JSBots
     JSBots -->|"Vector Sync"| Qdrant
-    CrewAI -->|"Semantic QA"| Mongo
+    
+    Mongo -.->|"Listen to Changes"| CrewAI
+    CrewAI -->|"Semantic QA Writes"| Mongo
+    
+    Recruiter -->|"Fetch & Ingest"| Mongo
 ```
 
 ---
