@@ -62,19 +62,19 @@ export default function RegisterPage() {
                 <div className="absolute left-[-10%] top-20 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
                 <div className="absolute right-[-8%] top-1/3 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl" />
 
-                <main className="relative mx-auto flex min-h-screen max-w-6xl items-center px-4 py-16 sm:px-6 lg:px-8">
-                    <div className="grid w-full gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-                        <section className="rounded-[28px] border border-white/10 bg-[#081321]/85 p-8 shadow-[0_24px_80px_rgba(2,6,23,0.45)] backdrop-blur-xl sm:p-10">
+                <main className="relative mx-auto flex min-h-screen max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
+                    <div className="grid w-full gap-10 lg:grid-cols-12 lg:gap-16">
+                        <section className="rounded-[32px] border border-white/10 bg-[#081321]/85 p-8 shadow-[0_24px_80px_rgba(2,6,23,0.45)] backdrop-blur-xl sm:p-12 lg:col-span-7">
                             <div className="mb-8 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.32em] text-cyan-300/80">
                                 <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(103,232,249,0.8)]" />
                                 Student Enrollment
                             </div>
 
-                            <div className="mb-10 space-y-4">
-                                <h1 className="max-w-xl text-4xl font-black leading-none text-white sm:text-6xl">
+                            <div className="mb-10 space-y-5">
+                                <h1 className="max-w-xl text-4xl font-black leading-[1.1] tracking-tight text-white sm:text-5xl">
                                     Build your OpusHire identity.
                                 </h1>
-                                <p className="max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+                                <p className="max-w-2xl text-sm leading-8 text-slate-300 sm:text-base">
                                     New student accounts are activated with a 6-digit email code before first login. Existing accounts stay exactly as they are.
                                 </p>
                             </div>
@@ -165,8 +165,8 @@ export default function RegisterPage() {
                             </p>
                         </section>
 
-                        <aside className="space-y-6">
-                            <div className="rounded-[28px] border border-white/10 bg-[#0a1627]/80 p-8 backdrop-blur-xl">
+                        <aside className="space-y-6 lg:col-span-5">
+                            <div className="rounded-[32px] border border-white/10 bg-[#0a1627]/80 p-10 backdrop-blur-xl">
                                 <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-blue-300/80">Activation Layer</p>
                                 <div className="mt-6 space-y-6">
                                     <InfoRow
