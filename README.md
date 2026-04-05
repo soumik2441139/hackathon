@@ -63,6 +63,7 @@ graph TD
     API -->|"Uploads"| S3
     API -->|"Enqueue"| BullMQ
     BullMQ -->|"Process Tasks"| JSBots
+    S3 -.->|"Extract PDF Text"| JSBots
     Mongo -.->|"Change Streams"| CrewAI
     Recruiter -->|"Fetch & Ingest"| Mongo
     JSBots -->|"Vector Sync"| Qdrant
