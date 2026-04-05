@@ -234,6 +234,18 @@ export const admin = {
             }
         }>('/admin/stats'),
 
+    getHealth: () =>
+        request<{
+            success: boolean; data: {
+                timestamp: string;
+                mongodb: string;
+                redisPrimary: string;
+                redisSecondary: string;
+                status: 'operational' | 'outage';
+                alerts: { type: string, message: string }[];
+            }
+        }>('/admin/health'),
+
     reSync: () =>
         request<{ success: boolean; data: unknown }>('/admin/debug-db?force=true'),
 
@@ -302,7 +314,17 @@ export const resume = {
             body: JSON.stringify({ html, markdownSource }),
         }),
 
+    buildLatex: (latexSource: string) =>
+        request<{ success: boolean; resumeId: string; message: string }>('/resume/build/latex', {
+            method: 'POST',
+            body: JSON.stringify({ latexSource }),
+        }),
+
+    getMyData: () =>
+        request<{ success: boolean; data: { sourceType: string; markdownSource?: string; latexSource?: string } | null }>('/resume/my'),
+
     getMyFile: () =>
+
         request<{ success: boolean; url: string }>('/files/my-resume'),
 };
 
@@ -324,11 +346,12 @@ export const careerAdvisor = {
         request<import('./types').CareerInsight>('/career-advisor/my'),
 };
 
-// ─── LinkedIn Enrichment ──────────────────────────────────────────────────────
-export const linkedin = {
-    enrich: (linkedinUrl: string) =>
-        request<{ success: boolean; extraData: Record<string, unknown> }>('/linkedin/enrich', {
-            method: 'POST',
-            body: JSON.stringify({ linkedinUrl }),
-        }),
+// ─── Opus AI (Live Discovery) ────────────────────────────────────────────────
+export const opusAI = {
+    getMatches: () =>
+        request<{ success: boolean; data: import('./types').ScoutMatch[] }>('/jobs/matches/all'),
 };
+
+// ─── LinkedIn Enrichment ──────────────────────────────────────────────────────
+// (Removed to focus on CV-centric infrastructure)
+

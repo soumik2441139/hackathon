@@ -57,16 +57,30 @@ function startWatchers() {
     );
 
     resumeStream.on('change', (change: any) => {
-      const resumeId = change.fullDocument?._id?.toString();
+      const resumeId  = change.fullDocument?._id?.toString();
+      const userId    = change.fullDocument?.userId?.toString();
       if (!resumeId) return;
 
       log('CHANGE_STREAM', `New resume uploaded: ${resumeId}`);
+
+      // Trigger one-time resume match (existing pipeline)
       enqueue('match-resumes', 'match', { resumeId }, {
-        jobId: `match-${resumeId}`,
+        jobId:   `match-${resumeId}`,
         attempts: 3,
         backoff: { type: 'exponential', delay: 5000 },
-        delay: 10000,
+        delay:   10000,
       }).catch((err) => logError('CHANGE_STREAM', 'Failed to enqueue match job', err));
+
+      // Register repeatable Antigravity job-fetch for this candidate (every 1h)
+      // jobId: fetch:${userId} prevents duplicate schedules if candidate re-uploads
+      if (userId) {
+        enqueue('fetch-jobs', 'fetch', { candidateId: userId }, {
+          jobId: `fetch:${userId}`,
+          repeat: { every: 60 * 60 * 1000 }, // every 1 hour
+        }).catch((err) => logError('CHANGE_STREAM', 'Failed to schedule fetch-jobs for candidate', err));
+
+        log('CHANGE_STREAM', `Scheduled hourly job-fetch for candidate ${userId}`);
+      }
     });
 
     resumeStream.on('error', (err) => {

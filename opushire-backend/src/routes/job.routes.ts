@@ -5,16 +5,29 @@ import { requireRole } from '../middleware/role.middleware';
 
 const router = Router();
 
+// Matches (Opus AI Scout)
+router.get('/matches/all', authenticate as any, JobController.getScoutMatches as any);
+
+
 // Public
-router.get('/', JobController.getJobs);
-router.get('/:id', JobController.getJobById);
+router.get('/', JobController.getJobs as any);
+router.get('/:id', JobController.getJobById as any);
+
+
+
+
+
 
 // Admin
-router.post('/', authenticate, requireRole('admin'), JobController.createJob);
-router.put('/:id', authenticate, requireRole('admin'), JobController.updateJob);
-router.delete('/bulk', authenticate, requireRole('admin'), JobController.deleteJobs);
-router.delete('/:id', authenticate, requireRole('admin'), JobController.deleteJob);
+router.post('/', authenticate as any, requireRole('admin') as any, JobController.createJob as any);
+router.put('/:id', authenticate as any, requireRole('admin') as any, JobController.updateJob as any);
+router.delete('/:id', authenticate as any, requireRole('admin') as any, JobController.deleteJob as any);
 
-router.post('/:id/auto-apply', authenticate, requireRole('student', 'admin'), JobController.autoApply);
+
+router.post('/:id/auto-apply', authenticate as any, requireRole('student', 'admin') as any, JobController.autoApply as any);
+
+
+
+
 
 export default router;

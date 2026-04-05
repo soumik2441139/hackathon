@@ -33,6 +33,10 @@ const envSchema = z.object({
     RESEND_API_KEY: z.string().optional(),
     EMAIL_FROM: z.string().optional(),
 
+    // Telegram Bot (Outreach)
+    TELEGRAM_BOT_TOKEN: z.string().optional(),
+
+
     // SMTP / Email verification (legacy fallback)
     SMTP_HOST: z.string().optional(),
     SMTP_PORT: z.string().optional(),

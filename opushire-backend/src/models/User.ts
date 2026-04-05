@@ -25,8 +25,16 @@ export interface IUser extends Document {
     emailVerified?: boolean;
     emailVerificationCode?: string;
     emailVerificationExpiry?: Date;
+    telegramChatId?: string;       // For Antigravity autonomous outreach
+    outreachEnabled?: boolean;     // Toggle for job notifications
+    
+    // Resume Metadata
+    extraData?: any;
+
     comparePassword(password: string): Promise<boolean>;
 }
+
+
 
 export const UserSchema = new Schema<IUser>(
     {
@@ -54,9 +62,14 @@ export const UserSchema = new Schema<IUser>(
         emailVerified: { type: Boolean, default: true },
         emailVerificationCode: { type: String, select: false },
         emailVerificationExpiry: { type: Date, select: false },
+        telegramChatId: { type: String, sparse: true },
+        outreachEnabled: { type: Boolean, default: true }
     },
+
     { timestamps: true }
 );
+
+
 
 // Auto-generate avatar from first letter of name
 UserSchema.pre('save', async function () {

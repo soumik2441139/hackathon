@@ -40,8 +40,11 @@ export const BOTS: BotConfig[] = [
     { id: 'bot6-archiver', name: 'Ghost Detector', description: 'Visits active links with Puppeteer to archive dead positions.', queueName: 'archive-jobs', color: '#10b981' },
     { id: 'bot7-matcher', name: 'Matcher', description: 'Matches parsed resumes to jobs via semantic ranking.', queueName: 'match-resumes', color: '#06b6d4' },
     { id: 'bot8-advisor', name: 'Advisor', description: 'Generates skill-gap insights and learning plans.', queueName: 'career-advisor', color: '#f59e0b' },
-    { id: 'bot9-linkedin-enricher', name: 'LinkedIn Enricher', description: 'Enriches resume metadata from LinkedIn profile details.', queueName: 'linkedin-enrich', color: '#a855f7' }
+    { id: 'bot9-linkedin-enricher', name: 'LinkedIn Enricher', description: 'Enriches resume metadata from LinkedIn profile details.', queueName: 'linkedin-enrich', color: '#a855f7' },
+    { id: 'bot10-jobfetch', name: 'Opus Scouter', description: 'Fetches live jobs from LinkedIn/Indeed/Naukri and scores matches via Opus AI.', queueName: 'fetch-jobs', color: '#6366f1' },
+    { id: 'bot11-outreach', name: 'Outreach Agent', description: 'Monitors Live Discovery scores and sends high-priority alerts to candidates.', queueName: 'job-outreach', color: '#ec4899' },
 ];
+
 
 interface BotProcess {
     process: ChildProcess;
@@ -124,18 +127,14 @@ export const startBot = async (botId: string, args: string[] = []) => {
             childArgs = [config.script!, ...args];
         }
 
-        // In production container environments, we must use the absolute path to the Node executable 
-        // to prevent 'ENOENT' errors when attempting to spawn 'node' without a shell.
-        if (childUrl === 'node') {
-            childUrl = process.execPath;
-        }
-
-        // Disable shell on Linux to prevent '/bin/sh ENOENT' errors in restricted Azure containers
+        // Always use standard 'node' command and enable shell to prevent ENOENT errors
+        // during process spawning in restricted environments (Azure Linux App Services).
+        
         const child = spawn(childUrl, childArgs, { 
             cwd: scriptPath, 
             env: process.env, // Pass environment variables implicitly
             stdio: 'pipe', 
-            shell: os.platform() === 'win32' 
+            shell: true 
         });
 
         activeLegacyBots.set(botId, { process: child, status: 'online', startTime: new Date() });

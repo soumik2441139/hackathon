@@ -245,6 +245,8 @@ const QUEUE_NAMES = [
   'linkedin-enrich',
   'match-candidates',
   'email-notifications',
+  'fetch-jobs',          // Antigravity: live job discovery per candidate
+  'job-outreach',        // Antigravity: notifies candidates of top matches
 ] as const;
 
 export type QueueName = (typeof QUEUE_NAMES)[number];
@@ -315,8 +317,8 @@ export function getQueue(name: QueueName): Queue | null {
 
   if (!queueMap.has(name)) {
     // Routing Logic: Specific heavy queues go to secondary (Upstash), core logic goes to tertiary (Render)
-    const isCore = ['match-resumes', 'career-advisor', 'email-notifications'].includes(name);
-    const isHeavy = ['scan-jobs', 'fix-tags', 'supervise-tags', 'linkedin-enrich', 'match-candidates'].includes(name);
+    const isCore = ['match-resumes', 'career-advisor', 'email-notifications', 'job-outreach'].includes(name);
+    const isHeavy = ['scan-jobs', 'fix-tags', 'supervise-tags', 'linkedin-enrich', 'match-candidates', 'fetch-jobs'].includes(name);
     
     const useTertiary = isCore && !!SystemConfig.redisTertiaryUrl;
     const useSecondary = isHeavy && !!SystemConfig.redisSecondary && _secondaryRedisAvailable !== false;

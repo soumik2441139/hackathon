@@ -15,6 +15,7 @@ export default function AdminDashboard() {
     const { user: currentUser } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
     const [stats, setStats] = useState<Record<string, number> | null>(null);
+    const [health, setHealth] = useState<{ status: string; alerts: { type: string; message: string }[] } | null>(null);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'student' | 'all'>('all');
     const [searchTerm, setSearchTerm] = useState('');
@@ -22,12 +23,14 @@ export default function AdminDashboard() {
     useEffect(() => {
         const fetchAdminData = async () => {
             try {
-                const [usersRes, statsRes] = await Promise.all([
+                const [usersRes, statsRes, healthRes] = await Promise.all([
                     adminApi.getUsers(filter === 'all' ? undefined : filter),
-                    adminApi.getStats()
+                    adminApi.getStats(),
+                    adminApi.getHealth().catch(() => ({ data: null }))
                 ]);
                 setUsers(usersRes.data);
                 setStats(statsRes.data);
+                if (healthRes.data) setHealth(healthRes.data);
             } catch (err) {
                 console.error('Admin Access Denied:', err);
             } finally {
@@ -37,6 +40,11 @@ export default function AdminDashboard() {
 
         if (currentUser?.role === 'admin') {
             fetchAdminData();
+            const interval = setInterval(() => {
+                adminApi.getStats().then(res => setStats(res.data)).catch(console.error);
+                adminApi.getHealth().then(res => setHealth(res.data)).catch(console.error);
+            }, 5000);
+            return () => clearInterval(interval);
         }
     }, [currentUser, filter]);
 
@@ -47,6 +55,7 @@ export default function AdminDashboard() {
             await adminApi.deleteUser(id);
             setUsers(prev => prev.filter(u => u._id !== id));
         } catch (err) {
+            console.error('Delete failed:', err);
             alert('Failed to delete user');
         }
     };
@@ -79,6 +88,21 @@ export default function AdminDashboard() {
             </div>
 
             <div className="max-w-7xl mx-auto relative z-10">
+                {/* System Alerts */}
+                {health && health.alerts && health.alerts.length > 0 && (
+                    <div className="mb-8 space-y-4">
+                        {health.alerts.map((alert, idx) => (
+                            <div key={idx} className={`p-4 rounded-2xl flex items-center gap-4 animate-in slide-in-from-top border ${alert.type === 'critical' ? 'bg-red-500/10 border-red-500/50 text-red-100' : 'bg-yellow-500/10 border-yellow-500/50 text-yellow-100'}`}>
+                                <ShieldAlert size={24} className={alert.type === 'critical' ? 'text-red-500 animate-pulse' : 'text-yellow-500'} />
+                                <div>
+                                    <h3 className="font-bold text-sm uppercase tracking-wider">{alert.type === 'critical' ? 'Critical Outage' : 'System Warning'}</h3>
+                                    <p className="text-white/70">{alert.message}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
                     <div>

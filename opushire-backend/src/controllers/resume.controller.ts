@@ -10,6 +10,12 @@ import { assertSafePath } from '../utils/pathSafety';
 import { uploadDir } from '../middleware/uploadResume';
 import fs from 'fs';
 import path from 'path';
+import { exec } from 'child_process';
+import { v4 as uuidv4 } from 'uuid';
+import { promisify } from 'util';
+
+const execPromise = promisify(exec);
+
 
 function hasPdfSignature(filePath: string): boolean {
     let fd: number | null = null;
@@ -63,13 +69,18 @@ export const uploadResume = async (req: AuthRequest, res: Response): Promise<voi
         // 4. Extract Raw Text computationally for AI Analysis
         const rawText = await extractResumeText(localPath);
 
-        // 5. Save metadata to Mongo
+        // 5. Enforce One-CV-Per-User Rule
+        await Resume.deleteMany({ userId: req.user?.id });
+
+        // 6. Save metadata to Mongo
         const resume = await Resume.create({
             userId: req.user?.id,
             fileUrl: blobUrl,
             rawText,
-            format: ext.replace('.', '')
+            format: ext.replace('.', ''),
+            sourceType: 'markdown'
         });
+
 
         // 6. Instantly Trigger background EventBus AI Processing
         eventBus.emit("resume_uploaded", resume._id);
@@ -152,14 +163,19 @@ export const buildResumePdf = async (req: AuthRequest, res: Response): Promise<v
         // 3. Extract text computationally to feed the AI
         const rawText = await extractResumeText(tempPath);
 
-        // 4. Save to DB with markdownSource
+        // 4. Enforce One-CV-Per-User Rule
+        await Resume.deleteMany({ userId: req.user?.id });
+
+        // 5. Save to DB with markdownSource
         const resume = await Resume.create({
             userId: req.user?.id,
             fileUrl: blobUrl,
             rawText,
             format: 'pdf',
+            sourceType: 'markdown',
             markdownSource
         });
+
 
         // 5. Trigger AI pipeline
         eventBus.emit("resume_uploaded", resume._id);
@@ -179,3 +195,87 @@ export const buildResumePdf = async (req: AuthRequest, res: Response): Promise<v
         }
     }
 };
+
+export const buildLatexPdf = async (req: AuthRequest, res: Response): Promise<void> => {
+    const tempId = uuidv4();
+    const workingDir = path.join(uploadDir, `latex_${tempId}`);
+    const texFile = path.join(workingDir, 'resume.tex');
+    const pdfFile = path.join(workingDir, 'resume.pdf');
+
+    try {
+        const { latexSource } = req.body;
+        if (!latexSource) {
+            res.status(400).json({ error: "Missing LaTeX source." });
+            return;
+        }
+
+        // 1. Setup workspace
+        if (!fs.existsSync(workingDir)) fs.mkdirSync(workingDir, { recursive: true });
+        fs.writeFileSync(texFile, latexSource);
+
+        // 2. Compile LaTeX
+        // Running twice for references/toc if needed (standard LaTeX practice)
+        await execPromise(`pdflatex -interaction=nonstopmode -output-directory="${workingDir}" "${texFile}"`);
+        
+        if (!fs.existsSync(pdfFile)) {
+            throw new Error("LaTeX compilation failed to produce a PDF. Check your syntax.");
+        }
+
+        // 3. Upload Result
+        const blobUrl = await uploadToBlob(pdfFile);
+        const rawText = await extractResumeText(pdfFile);
+
+        // 4. Enforce One-CV-Per-User
+        await Resume.deleteMany({ userId: req.user?.id });
+
+        // 5. Save metadata
+        const resume = await Resume.create({
+            userId: req.user?.id,
+            fileUrl: blobUrl,
+            rawText,
+            format: 'pdf',
+            sourceType: 'latex',
+            latexSource
+        });
+
+        // 6. Trigger AI
+        eventBus.emit("resume_uploaded", resume._id);
+
+        res.json({
+            success: true,
+            resumeId: resume._id,
+            message: "LaTeX Resume successfully compiled and securely vaulted."
+        });
+
+    } catch (e: unknown) {
+        console.error("LaTeX Build Failed:", e);
+        res.status(500).json({ error: (e as Error).message || "LaTeX compilation failed." });
+    } finally {
+        // Cleanup entire working dir
+        if (fs.existsSync(workingDir)) {
+            try { fs.rmSync(workingDir, { recursive: true, force: true }); } catch {}
+        }
+    }
+};
+
+export const getMyResumeData = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const resume = await Resume.findOne({ userId: req.user?.id }).sort({ createdAt: -1 });
+        if (!resume) {
+            res.status(200).json({ success: true, data: null });
+            return;
+        }
+        res.json({ 
+            success: true, 
+            data: {
+                sourceType: resume.sourceType || 'markdown',
+                markdownSource: resume.markdownSource,
+                latexSource: resume.latexSource
+            }
+        });
+    } catch (e) {
+        res.status(500).json({ error: (e as Error).message });
+    }
+};
+
+

@@ -2,8 +2,10 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 COPY package.json package-lock.json ./
-# Exclude workspaces for the isolated backend build to avoid root hoisting issues in Docker
-RUN npm install --production --no-workspaces
+# Install TeX Live for resume compilation and exclude workspaces for backend isolation
+RUN apk add --no-cache texlive-full && \
+    npm install --production --no-workspaces
+
 
 # Source Stage
 FROM base AS builder

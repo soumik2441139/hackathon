@@ -54,6 +54,27 @@ export const getSystemStats = async () => {
     };
 };
 
+import { probeRedis } from './queue/queue.service';
+
+export const getDeepHealth = async () => {
+    const isMongoConnected = mongoose.connection.readyState === 1;
+    const redisProbe = await probeRedis();
+
+    const alerts = [];
+    if (!isMongoConnected) alerts.push({ type: 'critical', message: 'MongoDB is disconnected or unreachable.' });
+    if (!redisProbe.primary) alerts.push({ type: 'critical', message: 'Primary Redis Queue (BullMQ) is down. Background jobs will not process.' });
+    if (process.env.REDIS_SECONDARY_HOST && !redisProbe.secondary) alerts.push({ type: 'warning', message: 'Secondary Redis (Heavy Queue) is offline.' });
+
+    return {
+        timestamp: new Date().toISOString(),
+        mongodb: isMongoConnected ? 'healthy' : 'down',
+        redisPrimary: redisProbe.primary ? 'healthy' : 'down',
+        redisSecondary: redisProbe.secondary ? 'healthy' : 'down',
+        status: alerts.length === 0 ? 'operational' : 'outage',
+        alerts
+    };
+};
+
 export const getPendingJobs = async () => {
     return Job.find({ tagTileStatus: 'READY_TO_APPLY' })
         .select('title company tags verifiedTags _id')

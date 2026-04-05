@@ -42,6 +42,15 @@ export function initScheduler() {
             await safeReportError(`Pipeline failed: ${err.message}`);
         }
     });
+    
+    // Antigravity: Trigger outreach sweep every 30 minutes
+    cron.schedule('*/30 * * * *', async () => {
+        try {
+            await enqueue('job-outreach', 'periodic-outreach', {});
+        } catch (err) {
+            console.error('⏰ [Scheduler] Outreach trigger failed:', err);
+        }
+    });
 
     // Cleanup old reports every day at midnight
     cron.schedule('0 0 * * *', async () => {

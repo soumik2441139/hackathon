@@ -31,6 +31,15 @@ export const getSystemStats = async (req: Request, res: Response, next: NextFunc
     }
 };
 
+export const getSystemHealth = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const health = await AdminService.getDeepHealth();
+        res.json({ success: true, data: health });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const getPendingJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const jobs = await AdminService.getPendingJobs();

@@ -11,40 +11,37 @@ export const CanvasBackground = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let particles: Particle[] = [];
+    interface IParticle { x: number; y: number; vx: number; vy: number; size: number; reset: () => void; update: () => void; draw: () => void; }
+    let particles: IParticle[] = [];
     let width = 0;
     let height = 0;
     let animationFrameId: number;
 
-    class Particle {
-      x: number = 0;
-      y: number = 0;
-      vx: number = 0;
-      vy: number = 0;
-      size: number = 0;
-
-      constructor() {
-        this.reset();
-      }
-      reset() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
-        this.size = Math.random() * 1.5;
-      }
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) this.reset();
-      }
-      draw() {
-        if (!ctx) return;
-        ctx.fillStyle = 'rgba(37, 99, 235, 0.5)';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
+    function createParticle(): IParticle {
+      const p = {
+        x: 0, y: 0, vx: 0, vy: 0, size: 0,
+        reset() {
+          p.x = Math.random() * width;
+          p.y = Math.random() * height;
+          p.vx = (Math.random() - 0.5) * 0.5;
+          p.vy = (Math.random() - 0.5) * 0.5;
+          p.size = Math.random() * 1.5;
+        },
+        update() {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > width || p.y < 0 || p.y > height) p.reset();
+        },
+        draw() {
+          if (!ctx) return;
+          ctx.fillStyle = 'rgba(37, 99, 235, 0.5)';
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      };
+      p.reset();
+      return p;
     }
 
     function init() {
@@ -53,7 +50,7 @@ export const CanvasBackground = () => {
       height = canvas.height = window.innerHeight;
       particles = [];
       for (let i = 0; i < 150; i++) {
-        particles.push(new Particle());
+        particles.push(createParticle());
       }
     }
 

@@ -77,3 +77,18 @@ export const autoApply = async (req: AuthRequest, res: Response, next: NextFunct
         next(err);
     }
 };
+
+export const getScoutMatches = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const { JobMatch } = await import('../models/JobMatch');
+        const matches = await JobMatch.find({ candidateId: req.user!.id })
+            .sort({ antigravityScore: -1 })
+            .limit(20);
+            
+        res.json({ success: true, data: matches });
+    } catch (err) {
+        next(err);
+    }
+};
+
+

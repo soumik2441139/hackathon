@@ -7,14 +7,19 @@ import {
     ChevronDown, ChevronRight, ExternalLink, Zap,
     GraduationCap
 } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
-import { resumeScore as resumeScoreApi, match as matchApi, careerAdvisor as careerAdvisorApi } from '@/lib/api';
-import type { ResumeMatch, CareerInsight } from '@/lib/types';
+import { resumeScore as resumeScoreApi, match as matchApi, careerAdvisor as careerAdvisorApi, opusAI as opusAIApi, type ApiError } from '@/lib/api';
+import type { ResumeMatch, CareerInsight, ScoutMatch, ApiResponse } from '@/lib/types';
+
+
+
 import Link from 'next/link';
+import AnimatedLoadingSkeleton from '@/components/ui/AnimatedLoadingSkeleton';
+
+
 
 export default function AIInsightsPage() {
-    const { user } = useAuth();
+
 
     // Resume Score
     const [score, setScore] = useState<number>(0);
@@ -30,6 +35,12 @@ export default function AIInsightsPage() {
     const [advisorLoading, setAdvisorLoading] = useState(true);
     const [expandedSkills, setExpandedSkills] = useState<Set<number>>(new Set());
 
+    // Opus AI Live Discovery
+    const [liveMatches, setLiveMatches] = useState<ScoutMatch[]>([]);
+
+    const [liveLoading, setLiveLoading] = useState(true);
+
+
     // Errors
     const [noResume, setNoResume] = useState(false);
 
@@ -40,9 +51,10 @@ export default function AIInsightsPage() {
                 setScore(res.score || 0);
                 setBreakdown(res.breakdown || []);
             })
-            .catch((err: any) => {
+            .catch((err: ApiError) => {
                 if (err.status === 404) setNoResume(true);
             })
+
             .finally(() => setScoreLoading(false));
 
         // Fetch AI Matches
@@ -60,7 +72,18 @@ export default function AIInsightsPage() {
             })
             .catch(() => {})
             .finally(() => setAdvisorLoading(false));
+
+        // Fetch Opus AI (Live) Discovery
+        opusAIApi.getMatches()
+            .then((res: ApiResponse<ScoutMatch[]>) => {
+                setLiveMatches(res.data || []);
+            })
+
+
+            .catch(() => {})
+            .finally(() => setLiveLoading(false));
     }, []);
+
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
@@ -227,7 +250,105 @@ export default function AIInsightsPage() {
                                 </div>
                             </motion.div>
 
+                            {/* Section: Opus AI — Live Discovery */}
+                            <motion.div variants={itemVariants} className="rounded-[2rem] p-8 md:p-10 border border-white/[0.06] bg-[#111114] relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/4" />
+
+                                <div className="relative z-10">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                                                <Sparkles size={20} className="text-cyan-400" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-2xl font-black uppercase tracking-tighter">Opus AI <span className="text-white/30 font-bold ml-2">Live Discovery</span></h2>
+                                                <p className="text-white/30 text-xs font-bold uppercase tracking-widest">Autonomous matching engine</p>
+                                            </div>
+                                        </div>
+                                        <div className="hidden md:block">
+                                            <div className="px-4 py-1.5 rounded-full bg-cyan-500/5 border border-cyan-500/10 flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-cyan-400/80">Active Scouts Scanning</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    {liveLoading ? (
+                                        <div className="py-2">
+                                            <AnimatedLoadingSkeleton />
+                                        </div>
+                                    ) : liveMatches.length === 0 ? (
+                                        <div className="text-center py-16 bg-white/[0.01] rounded-[2rem] border border-dashed border-white/10 group hover:border-pink-500/20 transition-colors">
+                                            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                                                <Zap size={32} className="text-white/20" />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-white/50 mb-2 uppercase tracking-tighter">No Live Discovery Yet</h3>
+                                            <p className="text-white/30 text-sm max-w-sm mx-auto font-medium leading-relaxed">
+                                                Opus AI scouts are exploring Greenhouse, Lever, and remote boards for your perfect role.
+                                            </p>
+
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                            {liveMatches.map((m, i) => (
+                                                <motion.div
+                                                    key={m._id}
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: i * 0.05 }}
+                                                    className="p-6 rounded-[1.5rem] bg-gradient-to-br from-white/[0.04] to-transparent border border-white/5 hover:border-pink-500/30 transition-all group relative overflow-hidden"
+                                                >
+                                                    {/* Score Indicator */}
+                                                    <div className="absolute top-6 right-6 flex flex-col items-end">
+                                                        <div className={`text-3xl font-black tracking-tighter leading-none ${m.antigravityScore >= 80 ? 'text-cyan-400' : 'text-emerald-400'}`}>
+                                                            {m.antigravityScore}
+                                                        </div>
+                                                        <div className="text-[7px] font-black uppercase tracking-[0.2em] text-white/20">AI Confidence</div>
+                                                    </div>
+
+                                                    <div className="mb-6">
+                                                        <h4 className="font-bold text-white text-xl leading-tight mb-2 pr-12 group-hover:text-cyan-400 transition-colors">{m.jobTitle}</h4>
+                                                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                                                            <span className="text-cyan-400/90 text-[10px] font-black uppercase tracking-widest">{m.company}</span>
+
+                                                            <div className="w-1 h-1 rounded-full bg-white/10" />
+                                                            <span className="text-white/30 text-[10px] uppercase font-bold tracking-widest">{m.location || 'Remote'}</span>
+                                                            <div className="w-1 h-1 rounded-full bg-white/10" />
+                                                            <span className="px-2 py-0.5 rounded-md bg-white/5 text-white/40 text-[8px] font-black uppercase tracking-widest border border-white/5">{m.source}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* AI Confidence Markers */}
+                                                    <div className="flex flex-wrap gap-1.5 mb-8">
+                                                        {m.matchedSkills.slice(0, 5).map(s => (
+                                                            <span key={s} className="px-2.5 py-1 rounded-lg bg-emerald-500/5 border border-emerald-500/10 text-[9px] font-black text-emerald-400/70 uppercase tracking-wider">
+                                                                {s}
+                                                            </span>
+                                                        ))}
+                                                        {m.matchedSkills.length > 5 && (
+                                                            <span className="text-[8px] font-black text-white/20 uppercase tracking-widest self-center">+{m.matchedSkills.length - 5} More</span>
+                                                        )}
+                                                    </div>
+
+                                                    <a href={m.applyUrl} target="_blank" rel="noopener noreferrer" className="block mt-auto relative z-10">
+                                                        <button className="w-full py-4 rounded-xl bg-cyan-500 text-black font-black uppercase tracking-[0.1em] text-[11px] hover:bg-cyan-400 transition-all flex items-center justify-center gap-2 group shadow-[0_4px_20px_rgba(6,182,212,0.2)]">
+                                                            Quick Apply <ExternalLink size={14} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                                        </button>
+                                                    </a>
+                                                    
+                                                    {/* Decorative background glow */}
+                                                    <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-cyan-500/5 blur-2xl rounded-full group-hover:bg-cyan-500/10 transition-colors" />
+
+                                                </motion.div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+
                             {/* Section 2: AI Job Matches */}
+
                             <motion.div variants={itemVariants} className="rounded-[2rem] p-8 md:p-10 border border-white/[0.06] bg-[#111114] relative overflow-hidden">
                                 <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none translate-y-1/2 -translate-x-1/3" />
 

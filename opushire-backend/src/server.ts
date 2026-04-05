@@ -26,9 +26,11 @@ import resumeRoutes from './routes/resume.routes';
 import resumeScoreRoutes from './routes/resumeScore.routes';
 import matchRoutes from './routes/match.routes';
 import careerAdvisorRoutes from './routes/careerAdvisor.routes';
-import linkedinRoutes from './routes/linkedin.routes';
 import fileRoutes from './routes/file.routes';
+
 import { registerGlobalEvents } from './events/registerEvents';
+
+
 import { geminiBreaker, groqBreaker } from './utils/circuitBreaker';
 import { mongoSanitize } from './middleware/sanitize';
 import { isEmailVerificationConfigured } from './services/email.service';
@@ -65,6 +67,7 @@ app.use(helmet({
     },
 }));
 app.use(cors(corsOptions));
+
 
 // Rate Limiting (Global)
 const limiter = rateLimit({
@@ -169,8 +172,10 @@ app.use('/api/resume', resumeRoutes);
 app.use('/api/resume-score', resumeScoreRoutes);
 app.use('/api/match', matchRoutes);
 app.use('/api/career-advisor', careerAdvisorRoutes);
-app.use('/api/linkedin', linkedinRoutes);
 app.use('/api/files', fileRoutes);
+
+
+
 
 // 404
 app.use((_req, res) => {

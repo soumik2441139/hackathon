@@ -12,7 +12,10 @@ export interface User {
     skills: string[];
     bio?: string;
     avatar: string;
+    phone?: string;
     savedJobs?: string[] | Job[];
+
+
     createdAt: string;
     updatedAt: string;
 }
@@ -75,8 +78,25 @@ export interface CareerInsight {
     learningPath: LearningStep[];
 }
 
+export interface ScoutMatch {
+    _id: string;
+    jobTitle: string;
+    company: string;
+    applyUrl: string;
+    source: string;
+    antigravityScore: number;
+    matchedSkills: string[];
+    missingSkills: string[];
+    remote: boolean;
+    location?: string;
+    seniority: string;
+    fetchedAt: string;
+}
+
+
 export interface ApiResponse<T> {
     success: boolean;
     data: T;
     message?: string;
 }
+

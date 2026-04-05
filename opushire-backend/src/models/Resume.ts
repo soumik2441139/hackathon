@@ -34,7 +34,10 @@ export interface IResume extends Document {
     matched: boolean;
     matches: IResumeMatch[];
     format: string;
+    sourceType: 'markdown' | 'latex';
+    latexSource?: string;
     createdAt: Date;
+
     updatedAt: Date;
 }
 
@@ -50,6 +53,10 @@ const ResumeSchema = new Schema<IResume>({
     rawText: { type: String, required: true },
     format: { type: String, default: 'pdf' },
     
+    sourceType: { type: String, enum: ['markdown', 'latex'], default: 'markdown' },
+    markdownSource: { type: String },
+    latexSource: { type: String },
+    
     parsedData: {
         name: { type: String, default: null },
         skills: [{ type: String }],
@@ -59,9 +66,8 @@ const ResumeSchema = new Schema<IResume>({
         domains: [{ type: String }]
     },
     
-    markdownSource: { type: String },
-    
     extraData: {
+
         type: Map,
         of: Schema.Types.Mixed
     },

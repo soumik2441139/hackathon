@@ -34,6 +34,7 @@ export default function CleanerDashboard() {
         if (user?.role === 'admin') {
             fetchJobs();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, sortBy, filterSource]);
 
     const fetchJobs = async () => {
@@ -45,7 +46,7 @@ export default function CleanerDashboard() {
             let fetchedJobs = res.data.jobs || [];
 
             if (filterSource !== 'all') {
-                fetchedJobs = fetchedJobs.filter((j: any) => j.source === filterSource || (filterSource === 'manual' && !j.source));
+                fetchedJobs = fetchedJobs.filter((j: Job) => j.source === filterSource || (filterSource === 'manual' && !j.source));
             }
 
             if (sortBy === 'oldest') {
@@ -76,8 +77,8 @@ export default function CleanerDashboard() {
                 next.delete(id);
                 return next;
             });
-        } catch (err: any) {
-            alert('Failed to delete job: ' + err.message);
+        } catch (err) {
+            alert('Failed to delete job: ' + (err as Error).message);
         } finally {
             setDeleting(null);
         }
@@ -95,8 +96,8 @@ export default function CleanerDashboard() {
             }
             setJobs(prev => prev.filter(j => !selectedJobs.has(j._id)));
             setSelectedJobs(new Set());
-        } catch (err: any) {
-            alert('Failed to delete some jobs: ' + err.message);
+        } catch (err) {
+            alert('Failed to delete some jobs: ' + (err as Error).message);
         } finally {
             setDeleting(null);
         }
@@ -140,8 +141,8 @@ export default function CleanerDashboard() {
                 setJobs(prev => prev.map(j => j._id === editingJob._id ? { ...j, ...editForm } as Job : j));
                 setEditingJob(null);
             }
-        } catch (err: any) {
-            alert('Failed to update job: ' + err.message);
+        } catch (err) {
+            alert('Failed to update job: ' + (err as Error).message);
         } finally {
             setSaving(false);
         }
@@ -154,8 +155,8 @@ export default function CleanerDashboard() {
             if (res.success && res.data) {
                 setJobs(prev => prev.map(j => j._id === id ? { ...j, title: res.data.title, company: res.data.company } as Job : j));
             }
-        } catch (err: any) {
-            alert('Failed to auto-fix job: ' + err.message);
+        } catch (err) {
+            alert('Failed to auto-fix job: ' + (err as Error).message);
         } finally {
             setAutoFixing(null);
         }
@@ -170,8 +171,8 @@ export default function CleanerDashboard() {
             if (res.success && res.data) {
                 setJobs(prev => prev.map(j => j._id === id ? { ...j, salary: res.data.salary } as Job : j));
             }
-        } catch (err: any) {
-            alert('Failed to estimate salary: ' + err.message);
+        } catch (err) {
+            alert('Failed to estimate salary: ' + (err as Error).message);
         } finally {
             setEstimatingSalary(null);
         }
@@ -256,7 +257,7 @@ export default function CleanerDashboard() {
 
                         <select
                             value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value as any)}
+                            onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'featured')}
                             className="appearance-none bg-white/5 border border-white/10 rounded-xl px-6 text-sm font-bold text-white focus:outline-none focus:border-orange-500/50"
                         >
                             <option value="newest">Newest First</option>
@@ -325,7 +326,7 @@ export default function CleanerDashboard() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredJobs.map((job: any) => (
+                                    filteredJobs.map((job: Job) => (
                                         <tr key={job._id} className="hover:bg-white/5 transition-colors group">
                                             <td className="px-6 py-4 text-center">
                                                 <input

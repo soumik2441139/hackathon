@@ -4,11 +4,11 @@ import { motion } from 'framer-motion';
 import {
     ArrowLeft, Save, Loader2, User as UserIcon,
     GraduationCap, Building2, Calendar, FileText,
-    Phone, Linkedin, X, Plus, Sparkles, CheckCircle2, AlertCircle
+    Phone, X, Plus, Sparkles, CheckCircle2, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { ProtectedRoute } from '@/components/ui/ProtectedRoute';
-import { auth as authApi, linkedin as linkedinApi } from '@/lib/api';
+import { auth as authApi } from '@/lib/api';
 import Link from 'next/link';
 
 export default function ProfileEditPage() {
@@ -21,16 +21,13 @@ export default function ProfileEditPage() {
         degree: '',
         year: '',
         phone: '',
-        linkedin: '',
         skills: [] as string[],
     });
 
     const [skillInput, setSkillInput] = useState('');
     const [saving, setSaving] = useState(false);
-    const [enriching, setEnriching] = useState(false);
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [enrichResult, setEnrichResult] = useState<string | null>(null);
 
     useEffect(() => {
         if (user) {
@@ -40,8 +37,7 @@ export default function ProfileEditPage() {
                 college: user.college || '',
                 degree: user.degree || '',
                 year: user.year || '',
-                phone: (user as any).phone || '',
-                linkedin: (user as any).linkedin || '',
+                phone: user.phone || '',
                 skills: user.skills || [],
             });
         }
@@ -80,34 +76,20 @@ export default function ProfileEditPage() {
             await authApi.updateProfile(form);
             setSaved(true);
             if (refreshUser) refreshUser();
-        } catch (err: any) {
-            setError(err.message || 'Failed to save profile.');
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Failed to save profile.';
+            setError(message);
         } finally {
             setSaving(false);
         }
     };
 
-    const handleLinkedInEnrich = async () => {
-        if (!form.linkedin) return;
-        setEnriching(true);
-        setEnrichResult(null);
-        try {
-            await linkedinApi.enrich(form.linkedin);
-            setEnrichResult('Profile enriched successfully! Certifications have been imported.');
-        } catch (err: any) {
-            setEnrichResult('Enrichment failed: ' + (err.message || 'Unknown error'));
-        } finally {
-            setEnriching(false);
-        }
-    };
-
     const fields = [
-        { key: 'name', label: 'Full Name', icon: <UserIcon size={16} />, type: 'text', placeholder: 'Your full name' },
-        { key: 'college', label: 'College / University', icon: <Building2 size={16} />, type: 'text', placeholder: 'e.g. MIT, Stanford, KIIT' },
-        { key: 'degree', label: 'Degree / Program', icon: <GraduationCap size={16} />, type: 'text', placeholder: 'e.g. B.Tech CSE, M.Sc. AI' },
-        { key: 'year', label: 'Graduation Year', icon: <Calendar size={16} />, type: 'text', placeholder: 'e.g. 2026' },
-        { key: 'phone', label: 'Phone Number', icon: <Phone size={16} />, type: 'tel', placeholder: '+91 XXXXX XXXXX' },
-        { key: 'linkedin', label: 'LinkedIn URL', icon: <Linkedin size={16} />, type: 'url', placeholder: 'https://linkedin.com/in/your-profile' },
+        { key: 'name' as const, label: 'Full Name', icon: <UserIcon size={16} />, type: 'text', placeholder: 'Your full name' },
+        { key: 'college' as const, label: 'College / University', icon: <Building2 size={16} />, type: 'text', placeholder: 'e.g. MIT, Stanford, KIIT' },
+        { key: 'degree' as const, label: 'Degree / Program', icon: <GraduationCap size={16} />, type: 'text', placeholder: 'e.g. B.Tech CSE, M.Sc. AI' },
+        { key: 'year' as const, label: 'Graduation Year', icon: <Calendar size={16} />, type: 'text', placeholder: 'e.g. 2026' },
+        { key: 'phone' as const, label: 'Phone Number', icon: <Phone size={16} />, type: 'tel', placeholder: '+91 XXXXX XXXXX' },
     ];
 
     return (
@@ -155,50 +137,21 @@ export default function ProfileEditPage() {
                         {/* Standard Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             {fields.map((f) => (
-                                <div key={f.key} className={f.key === 'linkedin' ? 'md:col-span-2' : ''}>
+                                <div key={f.key}>
                                     <label className="flex items-center gap-2 text-xs font-bold text-white/40 uppercase tracking-widest mb-2">
                                         {f.icon} {f.label}
                                     </label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type={f.type}
-                                            value={(form as any)[f.key] || ''}
-                                            onChange={(e) => handleChange(f.key, e.target.value)}
-                                            placeholder={f.placeholder}
-                                            className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-cyan-500/40 focus:bg-white/[0.05] transition-all text-sm"
-                                        />
-                                        {f.key === 'linkedin' && form.linkedin && (
-                                            <motion.button
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                                onClick={handleLinkedInEnrich}
-                                                disabled={enriching}
-                                                className="px-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider hover:bg-blue-500/20 transition-all flex items-center gap-2 shrink-0"
-                                            >
-                                                {enriching ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                                                Enrich
-                                            </motion.button>
-                                        )}
-                                    </div>
+                                    <input
+                                        type={f.type}
+                                        value={form[f.key] || ''}
+                                        onChange={(e) => handleChange(f.key, e.target.value)}
+                                        placeholder={f.placeholder}
+                                        className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-cyan-500/40 focus:bg-white/[0.05] transition-all text-sm"
+                                    />
                                 </div>
                             ))}
                         </div>
 
-                        {/* LinkedIn Enrichment Result */}
-                        {enrichResult && (
-                            <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className={`flex items-center gap-3 p-4 rounded-2xl ${enrichResult.includes('failed') ? 'bg-red-500/10 border border-red-500/20' : 'bg-emerald-500/10 border border-emerald-500/20'}`}
-                            >
-                                {enrichResult.includes('failed') ? (
-                                    <AlertCircle size={18} className="text-red-400 shrink-0" />
-                                ) : (
-                                    <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
-                                )}
-                                <p className={`text-sm font-medium ${enrichResult.includes('failed') ? 'text-red-400' : 'text-emerald-400'}`}>{enrichResult}</p>
-                            </motion.div>
-                        )}
 
                         {/* Bio */}
                         <div>
@@ -220,7 +173,7 @@ export default function ProfileEditPage() {
                                 <Sparkles size={16} /> Skills
                             </label>
                             <div className="flex flex-wrap gap-2 mb-3">
-                                {form.skills.map((skill, i) => (
+                                {form.skills.map((skill) => (
                                     <motion.span
                                         key={skill}
                                         initial={{ opacity: 0, scale: 0.8 }}
