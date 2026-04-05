@@ -9,8 +9,8 @@ import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-const DEFAULT_TEMPLATE = `# John Doe
-*Software Engineer | john.doe@example.com | (555) 123-4567 | example.com*
+const DEFAULT_TEMPLATE = `# [Your Full Name]
+*Software Engineer | your.email@domain.com | (555) 123-4567 | github.com/username*
 
 ## Education
 **University of Technology**
@@ -45,9 +45,9 @@ const DEFAULT_LATEX = `\\documentclass[a4paper,10pt]{article}
 \\begin{document}
 
 \\begin{center}
-    {\\Huge \\textbf{John Doe}} \\\\
-    Software Engineer | john.doe@example.com | (555) 123-4567 \\\\
-    \\href{https://example.com}{example.com}
+    {\\Huge \\textbf{[Your Full Name]}} \\\\
+    Software Engineer | your.email@domain.com | (555) 123-4567 \\\\
+    \\href{https://github.com/username}{github.com/username}
 \\end{center}
 
 \\section*{Education}
