@@ -77,7 +77,9 @@ flowchart LR
     API -->|"Read/Write"| Mongo
     API -->|"Enqueue Job"| Queue
     
-    Queue -->|"Process Tasks"| JSBots
+    Queue <-->|"Backed by"| Redis
+    Redis <-->|"Consume Jobs"| JSBots
+    
     S3 -.->|"Extract Text"| JSBots
     JSBots -->|"Vector Sync"| Qdrant
     
