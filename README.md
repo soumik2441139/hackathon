@@ -23,6 +23,7 @@ OpusHire provides a sophisticated, event-driven microservices architecture desig
 - ⚡ **Triple-Redis Queue Intelligence:** Utilizes a highly-available caching layer split into domains (Core Routing, Background AI Workers, and Caching) using strict `BullMQ` idempotency.
 - 🧠 **Cosine Vector Search Engine:** Embeds Google Gemini 768-D mathematically dense representations into `Qdrant`, calculating cosine similarity matrixes instantly to trigger Auto-Match emails for high-scoring applicants.
 - 🤖 **Multi-Agent Orchestration:** Deploys a hybrid Python (`CrewAI`) and Node.js swarm to maintain data quality, flag hallucinations, and scrape real-time job listings without human intervention.
+- 🛡 **Resilience & Observability:** Hardened "Safe-LLM" Router capable of dynamic multi-tier fallback (OpenRouter → Groq → Gemini) guaranteeing zero-downtime AI availability, coupled with a deep-probe System Dashboard tracking active Socket / Database Heartbreaks.
 - 🔐 **Advanced Container Security:** Engineered against SSRF, NoSQL Injections, and Privileged Escalation, cleanly dropping into a `USER node` sandbox context within Docker.
 
 ---

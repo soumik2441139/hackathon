@@ -4,7 +4,7 @@ This is the front-end application for the **Opushire** premium student job porta
 
 ## 🚀 Tech Stack
 
-- **Framework:** [Next.js 14](https://nextjs.org/) (App Router, Server/Client components)
+- **Framework:** [Next.js 15](https://nextjs.org/) (App Router, Server/Client components)
 - **Language:** TypeScript
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
 - **Animations:** [Framer Motion](https://www.framer.com/motion/) & GSAP
@@ -22,6 +22,7 @@ Key design elements include:
 - Infinite animated company marquees with CSS gradient masks.
 - Dynamic `ScrollReveal` fading down/up interactions across the landing and inner pages.
 - Elegant multi-step gradient text (`.text-gradient`).
+- **Enterprise Admin Dashboard:** Real-time system monitoring panel via polling that presents dynamic MongoDB & Redis outage heuristics.
 
 ---
 

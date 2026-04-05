@@ -31,10 +31,10 @@ Core business logic layer. This is where all the heavy lifting happens.
 
 | Service | Purpose |
 |---------|---------|
-| `matching/match.service.ts` | FAISS search → re-rank → explain pipeline |
+| `matching/match.service.ts` | Qdrant search → re-rank → explain pipeline |
 | `ranking/rerank.service.ts` | Score by skill overlap, domain, recency |
 | `scoring/resume.score.ts` | Resume quality scoring (0-100) |
-| `vector/faiss.store.ts` | FAISS vector index with disk persistence |
+| `vector/faiss.store.ts` | Qdrant vector index with disk persistence |
 | `vector/autoEmbedJob.ts` | Auto-embed new jobs on creation |
 | `vector/similarity.search.ts` | Vector similarity search interface |
 

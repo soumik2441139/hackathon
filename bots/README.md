@@ -22,7 +22,7 @@ The bots form a **chained data pipeline** where each stage feeds into the next:
 | **Supervisor** | `supervisor/` | JS | Groq Llama-3.3 70B | 20s | QA — detects hallucinated tags |
 | **Cleanup** | `cleanup/` | JS | None | 60s | Archives >1 week, deletes >3 weeks |
 | **Archiver** | `archiver/` | JS | Groq + Puppeteer | 60s | Detects dead/ghost job URLs |
-| **Matcher** | `matcher/` | TS | Backend service | 60s | Matches resumes to jobs via FAISS |
+| **Matcher** | `matcher/` | TS | Backend service | 60s | Matches resumes to jobs via Qdrant |
 | **Advisor** | `advisor/` | TS | Backend service | 10m | Generates skill gaps & learning paths |
 | **LinkedIn Enricher** | `linkedin-enricher/` | TS | None | 30m | Scrapes certifications from LinkedIn |
 

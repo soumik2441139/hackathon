@@ -1,6 +1,6 @@
 # 📱 App Pages
 
-Next.js 14 App Router pages. Each folder maps to a URL route.
+Next.js 15 App Router pages. Each folder maps to a URL route.
 
 ## Route Map
 

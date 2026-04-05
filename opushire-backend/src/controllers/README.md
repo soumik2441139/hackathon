@@ -11,6 +11,7 @@ Thin request handler layer — controllers parse requests and delegate to servic
 | `bot.controller.ts` | `/api/admin/bots` | Start/stop/pipeline bot management |
 | `botStat.controller.ts` | `/api/admin/bot-stats` | Daily bot metrics |
 | `report.controller.ts` | `/api/admin/reports` | Bot activity reports |
+| `admin.controller.ts` | `/api/admin/health` | Deep health probes |
 | `resume.controller.ts` | `/api/resume` | Resume upload + AI processing |
 | `resumeScore.controller.ts` | `/api/resume-score` | Resume quality scoring |
 | `match.controller.ts` | `/api/match` | Job matching results |

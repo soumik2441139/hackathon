@@ -21,7 +21,7 @@ Server runs on `http://localhost:5000` by default.
 | `/api/applications` | POST, GET, PUT | Protected | Job applications |
 | `/api/resume` | POST | Protected | Resume upload (PDF) |
 | `/api/resume-score` | GET | Protected | AI resume quality score |
-| `/api/match` | GET | Protected | FAISS vector job matching |
+| `/api/match` | GET | Protected | Qdrant vector job matching |
 | `/api/career-advisor` | GET | Protected | Skill gap analysis |
 | `/api/linkedin` | POST | Protected | Profile enrichment |
 | `/api/files` | GET | Protected | Signed CDN URLs for files |
@@ -29,6 +29,7 @@ Server runs on `http://localhost:5000` by default.
 | `/api/admin/bots` | GET, POST | Admin | Bot start/stop/pipeline/logs |
 | `/api/admin/bot-stats` | GET | Admin | Daily bot statistics |
 | `/api/admin/reports` | GET | Admin | Bot activity reports |
+| `/api/admin/health` | GET | Admin | Tri-Redis and MongoDB deep-health probes |
 | `/api/freeapi` | Various | Protected | Social features integration |
 
 ## Project Structure
@@ -53,7 +54,8 @@ src/
 - **Framework:** Express.js
 - **Database:** MongoDB Atlas (Mongoose ODM)
 - **Auth:** JWT + bcrypt (12 rounds)
-- **AI:** Google Gemini, Groq Llama-3, FAISS
+- **AI:** OpenRouter, Groq Llama-3, Google Gemini, Qdrant Vector DB (migrated from FAISS)
+- **Queuing & Cache:** Triple-Redis Eco-System (BullMQ Primary, Secondary Fallback, Tertiary Caching)
 - **Storage:** Azure Blob + CDN with SAS signing
 - **PDF:** pdf-parse (extraction) + pdf-lib (watermarking)
 - **Validation:** Zod schemas
