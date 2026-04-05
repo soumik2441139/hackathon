@@ -24,6 +24,27 @@ Key design elements include:
 - Elegant multi-step gradient text (`.text-gradient`).
 - **Enterprise Admin Dashboard:** Real-time system monitoring panel via polling that presents dynamic MongoDB & Redis outage heuristics.
 
+### Frontend Component Architecture Flow
+```mermaid
+graph TD
+    User([Student/Recruiter]) --> |Next.js App Router| LandingPage
+    LandingPage --> AuthState{Authenticated?}
+    
+    AuthState -->|No| LoginModal
+    AuthState -->|Yes| Dashboard
+    
+    subgraph "Dashboard Ecosystem (React Server Components)"
+      Dashboard --> LiveMetrics[WebSocket Admin Polling]
+      Dashboard --> RedisStats[Tri-Redis Telemetry]
+      Dashboard --> MongoDbStats[MongoDB CPU Heuristics]
+    end
+    
+    subgraph "Glassmorphism UI (Client Components & WebGL)"
+      LandingPage --> Hero[3D Canvas Background Fiber]
+      LandingPage --> Marquee[Infinite Company Strip]
+    end
+```
+
 ---
 
 ## 🛠 Local Setup & Development

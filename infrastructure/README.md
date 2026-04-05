@@ -35,3 +35,29 @@ The root `docker-compose.yml` deploys a synchronized 9-container stack simulatin
 
 ## 🔒 3. Ingress Reverse Proxy (`nginx.conf`)
 If running bare-metal, `nginx.conf` acts as an edge router intercepting Layer 7 traffic to append secure headers (X-Frame-Options, X-XSS-Protection) and securely proxies `wss://` WebSocket upgrades for the Next.js real-time admin metrics dashboard.
+
+### IaC & Local Docker Swarm Orchestration
+```mermaid
+graph TD
+    subgraph "Cloud Provisioning (Terraform → Azure)"
+        RG[Resource Group: opushire-rg]
+        Plan[App Service Plan: P1v2 Linux Cluster]
+        
+        RG --> Plan
+        Plan --> App1[Azure Web App: Frontend Next.js]
+        Plan --> App2[Azure Web App: Backend API & Swarm]
+    end
+    
+    subgraph "Local Container Ecosystem (docker-compose)"
+        NginxEdge[Nginx Core Reverse Proxy Edge]
+        NginxEdge --> LocalWeb[opushire-frontend:3000]
+        NginxEdge --> LocalAPI[opushire-backend:5000]
+        NginxEdge --> Recruiter[bot-recruiter:3001]
+        
+        LocalAPI --> LocalMongo[(Mongo Local DB)]
+        LocalAPI --> Red1[(Primary Redis)]
+        LocalAPI --> Red2[(Secondary Cache)]
+        LocalAPI --> Red3[(Tertiary Workers)]
+        LocalAPI --> Qdrant[(Qdrant Vector Engine DB)]
+    end
+```

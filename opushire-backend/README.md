@@ -60,6 +60,24 @@ src/
 - **PDF:** pdf-parse (extraction) + pdf-lib (watermarking)
 - **Validation:** Zod schemas
 
+### Tri-Redis BullMQ Routing Arcitecture
+```mermaid
+flowchart LR
+    API[Express.js Core Router] --> |Enqueue System Job| RoutingLogic{Job Class?}
+    
+    subgraph "Tri-Redis High Availability Ecosystem"
+      RoutingLogic -->|Core Features| PrimaryQueue[(Primary Redis)]
+      RoutingLogic -->|Heavy Embedded Vect| SecondaryQueue[(Upstash Secondary)]
+      RoutingLogic -->|Background Outreach| TertiaryQueue[(Render Tertiary)]
+    end
+    
+    PrimaryQueue --> CoreWorkers[Local BullMQ Processors]
+    SecondaryQueue --> VectorWorkers[Qdrant Sync Edge-Workers]
+    TertiaryQueue --> AgentWorkers[Autonomous Swarm & Scraping]
+    
+    API -.-> |Admin Health Probes| TertiaryQueue
+```
+
 ## Environment Variables
 
 See `.env.example` or configure:
