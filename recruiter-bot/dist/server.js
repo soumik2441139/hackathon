@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const bot_service_1 = require("./bot.service");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -37,6 +38,16 @@ function requireDashboardAccess(req, res, next) {
 }
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
+// ─── Security: Rate Limiting ──────────────────────────────────────────────────
+const limiter = (0, express_rate_limit_1.default)({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, error: 'Too many requests, please try again later.' }
+});
+// Apply rate limiter to all API routes
+app.use('/api/', limiter);
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.get('/api/status', requireDashboardAccess, async (_req, res) => {
     const status = (0, bot_service_1.getBotStatus)();
@@ -54,7 +65,8 @@ app.post('/api/fetch', requireDashboardAccess, async (_req, res) => {
 });
 app.get('/api/jobs', requireDashboardAccess, async (req, res) => {
     const { BotJob } = require('./models/Job');
-    const source = req.query.source;
+    // Security: Force string type to prevent NoSQL injection via object payloads
+    const source = String(req.query.source || '').trim();
     const query = { source: { $ne: 'manual' } };
     if (source)
         query.source = source;

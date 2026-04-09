@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchArbeitnowJobs = fetchArbeitnowJobs;
 const axios_1 = __importDefault(require("axios"));
+const he_1 = __importDefault(require("he"));
 const ARBEITNOW_API = 'https://www.arbeitnow.com/api/job-board-api';
 const JUNIOR_KEYWORDS = [
     'intern', 'internship', 'junior', 'entry', 'entry-level',
@@ -39,14 +40,12 @@ function timeAgo(timestamp) {
     return `${Math.floor(days / 30)} months ago`;
 }
 function stripHtml(html) {
-    return html
+    if (!html)
+        return '';
+    const stripped = html
         .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/?[^>]+(>|$)/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .trim();
+        .replace(/<\/?[^>]+(>|$)/g, '');
+    return he_1.default.decode(stripped).trim();
 }
 function extractCity(location) {
     if (!location)

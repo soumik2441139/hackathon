@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchTelegramJobs = fetchTelegramJobs;
 const axios_1 = __importDefault(require("axios"));
 const cheerio = __importStar(require("cheerio"));
+const he_1 = __importDefault(require("he"));
 const page_scraper_1 = require("./page-scraper");
 /**
  * Telegram Public Channel Provider — Phase 3 (v2 - Smart Parsing)
@@ -49,9 +50,9 @@ const page_scraper_1 = require("./page-scraper");
  * Extracts: Company Name, Role Title, Location, Graduation Year, Apply Link
  */
 const DEFAULT_CHANNELS = [
-    'getjobss', 'jobwithmayra', 'cryptojobslist', 'jobs_and_internships_updates', 'thinkcareers',
+    'getjobss', 'jobs_and_internships_updates', 'thinkcareers',
     'jobhuntcamp', 'internfreak', 'offcampusjobsandinternships', 'gocareers',
-    'internshala_jobs', 'freshabordjobs', 'jobs_and_internships',
+    'internshala_jobs', 'jobs_and_internships',
     'remote_jobs_feed', 'workintech',
 ];
 const JUNIOR_KEYWORDS = [
@@ -195,13 +196,12 @@ function isJobPost(text) {
     return hasJobWord && hasJuniorWord && text.length > 50;
 }
 function stripHtml(html) {
-    return html
+    if (!html)
+        return '';
+    const stripped = html
         .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/?[^>]+(>|$)/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
+        .replace(/<\/?[^>]+(>|$)/g, '');
+    return he_1.default.decode(stripped)
         .replace(/\n{3,}/g, '\n\n')
         .trim();
 }

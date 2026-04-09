@@ -5,7 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchAdzunaJobs = fetchAdzunaJobs;
 const axios_1 = __importDefault(require("axios"));
+const he_1 = __importDefault(require("he"));
 const fs_1 = __importDefault(require("fs"));
+const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
 /**
  * Adzuna Job Provider — Phase 2
@@ -14,26 +16,75 @@ const path_1 = __importDefault(require("path"));
  * Rate limiting: caches results for 8 hours to stay within the 250 req/month trial tier.
  */
 const ADZUNA_API = 'https://api.adzuna.com/v1/api/jobs';
-const CACHE_DIR = path_1.default.join(__dirname, '..', '..', '.cache');
+// Use OS temp dir — Azure App Service has a read-only wwwroot filesystem
+const CACHE_DIR = process.env.NODE_ENV === 'production'
+    ? path_1.default.join(os_1.default.tmpdir(), 'adzuna-cache')
+    : path_1.default.join(__dirname, '..', '..', '.cache');
 const CACHE_FILE = path_1.default.join(CACHE_DIR, 'adzuna_cache.json');
-const CACHE_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
+const CACHE_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours  — normal refresh
+const CACHE_TTL_EMPTY_MS = 1 * 60 * 60 * 1000; // 1 hour   — retry sooner if last fetch returned 0
+const CACHE_VERSION = 2; // bump to auto-invalidate old format caches
+/** Returns the cache if it is still fresh, null if expired or corrupt. */
 function readCache() {
     try {
         if (!fs_1.default.existsSync(CACHE_FILE))
             return null;
         const data = JSON.parse(fs_1.default.readFileSync(CACHE_FILE, 'utf-8'));
-        if (Date.now() - data.timestamp < CACHE_TTL_MS) {
+        // Invalidate old cache format automatically
+        if (data.version !== CACHE_VERSION) {
+            console.log('♻️  [Adzuna] Cache version mismatch — invalidating');
+            return null;
+        }
+        const age = Date.now() - data.timestamp;
+        const ttl = data.jobs.length === 0 ? CACHE_TTL_EMPTY_MS : CACHE_TTL_MS;
+        const ageMin = Math.round(age / 60000);
+        if (age < ttl) {
+            const status = data.jobs.length === 0
+                ? `⚠️  empty cache — retrying in ${Math.round((ttl - age) / 60000)}m`
+                : `${data.jobs.length} jobs`;
+            console.log(`♻️  [Adzuna] Cache hit (${ageMin}m old) — ${status}`);
             return data;
         }
     }
-    catch { /* cache corrupt, ignore */ }
+    catch { /* corrupt — force fresh fetch */ }
     return null;
 }
-function writeCache(jobs) {
+/**
+ * Writes jobs to cache.
+ * IMPORTANT: never overwrites a good cache with 0 results.
+ * If the new fetch returned nothing, the previous non-empty cache is preserved.
+ */
+function writeCache(jobs, fetchedCount) {
     try {
         fs_1.default.mkdirSync(CACHE_DIR, { recursive: true });
-        const data = { timestamp: Date.now(), jobs };
+        // Read the old cache to check if it has jobs worth preserving
+        let lastSuccessTimestamp = Date.now();
+        if (jobs.length === 0 && fs_1.default.existsSync(CACHE_FILE)) {
+            try {
+                const old = JSON.parse(fs_1.default.readFileSync(CACHE_FILE, 'utf-8'));
+                if (old.version === CACHE_VERSION && old.jobs.length > 0) {
+                    // Preserve the old good jobs — only update the timestamp so TTL resets
+                    console.warn(`⚠️  [Adzuna] Fresh fetch returned 0 — keeping ${old.jobs.length} cached jobs from ${Math.round((Date.now() - old.lastSuccessTimestamp) / 60000)}m ago`);
+                    const preserved = {
+                        ...old,
+                        timestamp: Date.now(), // reset TTL so we don't retry immediately
+                    };
+                    fs_1.default.writeFileSync(CACHE_FILE, JSON.stringify(preserved));
+                    return;
+                }
+            }
+            catch { /* old cache corrupt, fall through and write empty */ }
+            lastSuccessTimestamp = 0; // mark: never had a successful fetch
+        }
+        const data = {
+            version: CACHE_VERSION,
+            timestamp: Date.now(),
+            lastSuccessTimestamp: jobs.length > 0 ? Date.now() : lastSuccessTimestamp,
+            jobs,
+            fetchedCount,
+        };
         fs_1.default.writeFileSync(CACHE_FILE, JSON.stringify(data));
+        console.log(`💾 [Adzuna] Cache written — ${jobs.length} jobs (${fetchedCount} fetched before filter)`);
     }
     catch (e) {
         console.warn(`⚠️ [Adzuna] Cache write failed: ${e.message}`);
@@ -73,14 +124,12 @@ function timeAgo(dateStr) {
     return `${Math.floor(days / 30)} months ago`;
 }
 function stripHtml(html) {
-    return html
+    if (!html)
+        return '';
+    const stripped = html
         .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/?[^>]+(>|$)/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .trim();
+        .replace(/<\/?[^>]+(>|$)/g, '');
+    return he_1.default.decode(stripped).trim();
 }
 // Countries to search (Adzuna supports these country codes)
 const SEARCH_COUNTRIES = ['in', 'gb', 'us'];
@@ -119,8 +168,9 @@ async function fetchAdzunaJobs() {
                         what: query,
                         max_days_old: 14,
                         sort_by: 'date',
-                        content_type: 'application/json',
+                        // Note: content_type is NOT a valid Adzuna param — removed (was causing 400)
                     },
+                    headers: { 'Accept': 'application/json' },
                     timeout: 15000,
                 });
                 const results = data.results || [];
@@ -162,8 +212,8 @@ async function fetchAdzunaJobs() {
             }
         }
     }
-    console.log(`🤖 [Adzuna] Total: ${allJobs.length} junior/intern jobs found`);
-    writeCache(allJobs);
+    console.log(`🤖 [Adzuna] Total: ${allJobs.length} junior/intern jobs found (from ${seenIds.size} unique raw results)`);
+    writeCache(allJobs, seenIds.size);
     return allJobs;
 }
 //# sourceMappingURL=adzuna.provider.js.map

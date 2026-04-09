@@ -9,6 +9,8 @@ const arbeitnow_provider_1 = require("./providers/arbeitnow.provider");
 const adzuna_provider_1 = require("./providers/adzuna.provider");
 const telegram_provider_1 = require("./providers/telegram.provider");
 const translator_1 = require("./providers/translator");
+const himalayas_provider_1 = require("./providers/himalayas.provider");
+const spam_filter_1 = require("./providers/spam-filter");
 let lastStatus = {
     lastRun: null,
     results: [],
@@ -38,6 +40,22 @@ async function storeJobs(jobs, sourceName) {
             continue;
         }
         try {
+            // [PHASE 2] Clearbit Universal Auto-Branding Algorithm
+            let isUnavatar = false;
+            try {
+                if (job.companyLogo) {
+                    const hostname = new URL(job.companyLogo).hostname;
+                    isUnavatar = hostname === 'unavatar.io' || hostname.endsWith('.unavatar.io');
+                }
+            }
+            catch { /* ignore invalid URLs */ }
+            if (!job.companyLogo || isUnavatar || job.companyLogo.trim() === '') {
+                // Aggressively format "T-Mobile!" -> "tmobile.com" to align with Clearbit API expectations
+                const cleanName = job.company.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (cleanName.length > 2) {
+                    job.companyLogo = `https://logo.clearbit.com/${cleanName}.com`;
+                }
+            }
             const exists = await Job_1.BotJob.findOne({ externalId: job.externalId });
             if (exists) {
                 result.duplicates++;
@@ -83,20 +101,28 @@ async function fetchAllJobs() {
     console.log('🤖 RECRUITER BOT — Fetch cycle starting...');
     console.log('🤖 ═══════════════════════════════════════');
     const results = [];
-    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw] = await Promise.all([
+    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw, himalayasRaw] = await Promise.all([
         (0, remotive_provider_1.fetchRemotiveJobs)(),
         (0, arbeitnow_provider_1.fetchArbeitnowJobs)(),
         (0, adzuna_provider_1.fetchAdzunaJobs)(),
         (0, telegram_provider_1.fetchTelegramJobs)(),
+        (0, himalayas_provider_1.fetchHimalayasJobs)(),
     ]);
     // Auto-translate non-English jobs to English
     console.log('🌐 [Translator] Checking for non-English jobs...');
-    const [remotiveJobs, arbeitnowJobs, adzunaJobs, telegramJobs] = await Promise.all([
+    const [remotiveJobsAI, arbeitnowJobsAI, adzunaJobsAI, telegramJobsAI, himalayasJobsAI] = await Promise.all([
         (0, translator_1.translateJobs)(remotiveRaw),
         (0, translator_1.translateJobs)(arbeitnowRaw),
         (0, translator_1.translateJobs)(adzunaRaw),
         (0, translator_1.translateJobs)(telegramRaw),
+        (0, translator_1.translateJobs)(himalayasRaw),
     ]);
+    console.log('🛡️ [Spam Filter] Auditing payloads for garbage via strict Llama-3 AI firewall...');
+    const remotiveJobs = await (0, spam_filter_1.filterSpamJobs)(remotiveJobsAI);
+    const arbeitnowJobs = await (0, spam_filter_1.filterSpamJobs)(arbeitnowJobsAI);
+    const adzunaJobs = await (0, spam_filter_1.filterSpamJobs)(adzunaJobsAI);
+    const telegramJobs = await (0, spam_filter_1.filterSpamJobs)(telegramJobsAI);
+    const himalayasJobs = await (0, spam_filter_1.filterSpamJobs)(himalayasJobsAI);
     if (remotiveJobs.length > 0) {
         results.push(await storeJobs(remotiveJobs, 'remotive'));
     }
@@ -121,6 +147,12 @@ async function fetchAllJobs() {
     else {
         results.push({ source: 'telegram', fetched: 0, newJobs: 0, duplicates: 0, errors: [] });
     }
+    if (himalayasJobs.length > 0) {
+        results.push(await storeJobs(himalayasJobs, 'himalayas'));
+    }
+    else {
+        results.push({ source: 'himalayas', fetched: 0, newJobs: 0, duplicates: 0, errors: [] });
+    }
     const totalNew = results.reduce((sum, r) => sum + r.newJobs, 0);
     const totalDuplicates = results.reduce((sum, r) => sum + r.duplicates, 0);
     lastStatus = { lastRun: new Date(), results, totalNew, totalDuplicates };
@@ -133,13 +165,14 @@ function getBotStatus() {
     return lastStatus;
 }
 async function getBotJobStats() {
-    const [total, remotive, arbeitnow, adzuna, telegram] = await Promise.all([
+    const [total, remotive, arbeitnow, adzuna, telegram, himalayas] = await Promise.all([
         Job_1.BotJob.countDocuments({ source: { $ne: 'manual' } }),
         Job_1.BotJob.countDocuments({ source: 'remotive' }),
         Job_1.BotJob.countDocuments({ source: 'arbeitnow' }),
         Job_1.BotJob.countDocuments({ source: 'adzuna' }),
         Job_1.BotJob.countDocuments({ source: 'telegram' }),
+        Job_1.BotJob.countDocuments({ source: 'himalayas' }),
     ]);
-    return { total, remotive, arbeitnow, adzuna, telegram };
+    return { total, remotive, arbeitnow, adzuna, telegram, himalayas };
 }
 //# sourceMappingURL=bot.service.js.map

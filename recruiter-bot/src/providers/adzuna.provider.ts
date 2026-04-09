@@ -1,6 +1,7 @@
 import axios from 'axios';
 import he from 'he';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { NormalizedJob } from './remotive.provider';
 
@@ -12,7 +13,10 @@ import { NormalizedJob } from './remotive.provider';
  */
 
 const ADZUNA_API = 'https://api.adzuna.com/v1/api/jobs';
-const CACHE_DIR = path.join(__dirname, '..', '..', '.cache');
+// Use OS temp dir — Azure App Service has a read-only wwwroot filesystem
+const CACHE_DIR = process.env.NODE_ENV === 'production'
+    ? path.join(os.tmpdir(), 'adzuna-cache')
+    : path.join(__dirname, '..', '..', '.cache');
 const CACHE_FILE = path.join(CACHE_DIR, 'adzuna_cache.json');
 const CACHE_TTL_MS        = 8 * 60 * 60 * 1000; // 8 hours  — normal refresh
 const CACHE_TTL_EMPTY_MS  = 1 * 60 * 60 * 1000; // 1 hour   — retry sooner if last fetch returned 0
@@ -177,8 +181,9 @@ export async function fetchAdzunaJobs(): Promise<NormalizedJob[]> {
                         what: query,
                         max_days_old: 14,
                         sort_by: 'date',
-                        content_type: 'application/json',
+                        // Note: content_type is NOT a valid Adzuna param — removed (was causing 400)
                     },
+                    headers: { 'Accept': 'application/json' },
                     timeout: 15000,
                 });
 
