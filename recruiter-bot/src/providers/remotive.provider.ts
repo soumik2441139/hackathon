@@ -29,7 +29,7 @@ export interface NormalizedJob {
     tags: string[];
     responsibilities?: string[];
     requirements?: string[];
-    source: 'remotive' | 'arbeitnow' | 'adzuna' | 'telegram' | 'himalayas' | 'jsearch';
+    source: 'remotive' | 'arbeitnow' | 'adzuna' | 'telegram' | 'himalayas' | 'jsearch' | 'linkedin';
     externalId: string;
     externalUrl: string;
     posted: string;
