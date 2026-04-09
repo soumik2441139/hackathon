@@ -12,6 +12,7 @@ const translator_1 = require("./providers/translator");
 const himalayas_provider_1 = require("./providers/himalayas.provider");
 const jsearch_provider_1 = require("./providers/jsearch.provider");
 const linkedin_provider_1 = require("./providers/linkedin.provider");
+const activejobsdb_provider_1 = require("./providers/activejobsdb.provider");
 const spam_filter_1 = require("./providers/spam-filter");
 let lastStatus = {
     lastRun: null,
@@ -103,7 +104,7 @@ async function fetchAllJobs() {
     console.log('🤖 RECRUITER BOT — Fetch cycle starting...');
     console.log('🤖 ═══════════════════════════════════════');
     const results = [];
-    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw, himalayasRaw, jsearchRaw, linkedinRaw] = await Promise.all([
+    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw, himalayasRaw, jsearchRaw, linkedinRaw, activeJobsRaw] = await Promise.all([
         (0, remotive_provider_1.fetchRemotiveJobs)(),
         (0, arbeitnow_provider_1.fetchArbeitnowJobs)(),
         (0, adzuna_provider_1.fetchAdzunaJobs)(),
@@ -111,10 +112,11 @@ async function fetchAllJobs() {
         (0, himalayas_provider_1.fetchHimalayasJobs)(),
         (0, jsearch_provider_1.fetchJSearchJobs)(),
         (0, linkedin_provider_1.fetchLinkedInJobs)(),
+        (0, activejobsdb_provider_1.fetchActiveJobsDB)(),
     ]);
     // Auto-translate non-English jobs to English
     console.log('🌐 [Translator] Checking for non-English jobs...');
-    const [remotiveJobsAI, arbeitnowJobsAI, adzunaJobsAI, telegramJobsAI, himalayasJobsAI, jsearchJobsAI, linkedinJobsAI] = await Promise.all([
+    const [remotiveJobsAI, arbeitnowJobsAI, adzunaJobsAI, telegramJobsAI, himalayasJobsAI, jsearchJobsAI, linkedinJobsAI, activeJobsAI] = await Promise.all([
         (0, translator_1.translateJobs)(remotiveRaw),
         (0, translator_1.translateJobs)(arbeitnowRaw),
         (0, translator_1.translateJobs)(adzunaRaw),
@@ -122,6 +124,7 @@ async function fetchAllJobs() {
         (0, translator_1.translateJobs)(himalayasRaw),
         (0, translator_1.translateJobs)(jsearchRaw),
         (0, translator_1.translateJobs)(linkedinRaw),
+        (0, translator_1.translateJobs)(activeJobsRaw),
     ]);
     console.log('🛡️ [Spam Filter] Auditing payloads for garbage via strict Llama-3 AI firewall...');
     const remotiveJobs = await (0, spam_filter_1.filterSpamJobs)(remotiveJobsAI);
@@ -131,6 +134,7 @@ async function fetchAllJobs() {
     const himalayasJobs = await (0, spam_filter_1.filterSpamJobs)(himalayasJobsAI);
     const jsearchJobs = await (0, spam_filter_1.filterSpamJobs)(jsearchJobsAI);
     const linkedinJobs = await (0, spam_filter_1.filterSpamJobs)(linkedinJobsAI);
+    const activeJobs = await (0, spam_filter_1.filterSpamJobs)(activeJobsAI);
     if (remotiveJobs.length > 0) {
         results.push(await storeJobs(remotiveJobs, 'remotive'));
     }
@@ -173,6 +177,12 @@ async function fetchAllJobs() {
     else {
         results.push({ source: 'linkedin', fetched: 0, newJobs: 0, duplicates: 0, errors: ['Skipped — no key or quota exhausted'] });
     }
+    if (activeJobs.length > 0) {
+        results.push(await storeJobs(activeJobs, 'activejobsdb'));
+    }
+    else {
+        results.push({ source: 'activejobsdb', fetched: 0, newJobs: 0, duplicates: 0, errors: ['Skipped — no key or quota exhausted'] });
+    }
     const totalNew = results.reduce((sum, r) => sum + r.newJobs, 0);
     const totalDuplicates = results.reduce((sum, r) => sum + r.duplicates, 0);
     lastStatus = { lastRun: new Date(), results, totalNew, totalDuplicates };
@@ -185,7 +195,7 @@ function getBotStatus() {
     return lastStatus;
 }
 async function getBotJobStats() {
-    const [total, remotive, arbeitnow, adzuna, telegram, himalayas, jsearch, linkedin] = await Promise.all([
+    const [total, remotive, arbeitnow, adzuna, telegram, himalayas, jsearch, linkedin, activejobsdb] = await Promise.all([
         Job_1.BotJob.countDocuments({ source: { $ne: 'manual' } }),
         Job_1.BotJob.countDocuments({ source: 'remotive' }),
         Job_1.BotJob.countDocuments({ source: 'arbeitnow' }),
@@ -194,7 +204,8 @@ async function getBotJobStats() {
         Job_1.BotJob.countDocuments({ source: 'himalayas' }),
         Job_1.BotJob.countDocuments({ source: 'jsearch' }),
         Job_1.BotJob.countDocuments({ source: 'linkedin' }),
+        Job_1.BotJob.countDocuments({ source: 'activejobsdb' }),
     ]);
-    return { total, remotive, arbeitnow, adzuna, telegram, himalayas, jsearch, linkedin };
+    return { total, remotive, arbeitnow, adzuna, telegram, himalayas, jsearch, linkedin, activejobsdb };
 }
 //# sourceMappingURL=bot.service.js.map
