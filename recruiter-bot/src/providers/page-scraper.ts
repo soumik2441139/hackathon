@@ -299,8 +299,15 @@ export async function deepScrapeJob(url: string): Promise<ScrapedJob> {
         // --- AI FALLBACK ---
         // Only use Gemini if Cheerio failed AND this looks like a real job portal
         // (not a JS-heavy SPA like Workday/Oracle which Cheerio can never parse).
-        const jsHeavyHosts = ['myworkdayjobs.com', 'oraclecloud.com', 'eightfold.ai', 'avature.net', 'njoyn.com'];
-        const isJsHeavy = jsHeavyHosts.some(h => hostname.endsWith(h));
+        const jsHeavyHosts = [
+            'myworkdayjobs.com', 'oraclecloud.com', 'eightfold.ai',
+            'avature.net', 'njoyn.com', 'taleo.net',
+            'apply.careers.microsoft.com', 'careers.mastercard.com',
+            'careers.qualcomm.com', 'careers.wipro.com',
+            'jobs.volvogroup.com', 'usijobs.deloitte.com',
+            'salesforce.wd12.myworkdayjobs.com', 'thomsonreuters.wd5.myworkdayjobs.com',
+        ];
+        const isJsHeavy = jsHeavyHosts.some(h => hostname === h || hostname.endsWith('.' + h));
 
         if (!isJsHeavy && (scrapeResult.responsibilities.length === 0 || scrapeResult.requirements.length === 0)) {
             const rawText = $('body').text() || html;

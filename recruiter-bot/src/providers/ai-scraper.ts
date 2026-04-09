@@ -35,7 +35,7 @@ ${cleanedText}
 `;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-1.5-flash',  // 1500 req/day free — gemini-2.5-flash only allows 20/day
+            model: 'gemini-2.0-flash',  // 1500 req/day free on v1beta API (gemini-1.5-flash NOT available on v1beta)
             contents: prompt,
             config: {
                 responseMimeType: 'application/json',
