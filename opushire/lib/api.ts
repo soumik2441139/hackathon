@@ -239,10 +239,14 @@ export const admin = {
             success: boolean; data: {
                 timestamp: string;
                 mongodb: string;
-                redisPrimary: string;
-                redisSecondary: string;
-                status: 'operational' | 'outage';
+                redis: {
+                    primary: string;
+                    secondary: string;
+                    tertiary: string;
+                };
+                status: 'ok' | 'error';
                 alerts: { type: string, message: string }[];
+                circuits: Record<string, string>;
             }
         }>('/admin/health'),
 

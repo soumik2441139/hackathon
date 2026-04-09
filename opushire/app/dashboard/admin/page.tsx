@@ -11,11 +11,24 @@ import { useAuth } from '@/context/AuthContext';
 import { admin as adminApi } from '@/lib/api';
 import { User } from '@/lib/types';
 
+interface HealthStatus {
+    status: 'ok' | 'error';
+    mongodb: string;
+    redis: {
+        primary: string;
+        secondary: string;
+        tertiary: string;
+    };
+    alerts: { type: string; message: string }[];
+    circuits: Record<string, string>;
+}
+
 export default function AdminDashboard() {
     const { user: currentUser } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
     const [stats, setStats] = useState<Record<string, number> | null>(null);
-    const [health, setHealth] = useState<{ status: string; alerts: { type: string; message: string }[] } | null>(null);
+    const [health, setHealth] = useState<HealthStatus | null>(null);
+    const [latency, setLatency] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'student' | 'all'>('all');
     const [searchTerm, setSearchTerm] = useState('');
@@ -23,11 +36,14 @@ export default function AdminDashboard() {
     useEffect(() => {
         const fetchAdminData = async () => {
             try {
+                const start = performance.now();
                 const [usersRes, statsRes, healthRes] = await Promise.all([
                     adminApi.getUsers(filter === 'all' ? undefined : filter),
                     adminApi.getStats(),
                     adminApi.getHealth().catch(() => ({ data: null }))
                 ]);
+                const end = performance.now();
+                setLatency(Math.round(end - start));
                 setUsers(usersRes.data);
                 setStats(statsRes.data);
                 if (healthRes.data) setHealth(healthRes.data);
@@ -41,13 +57,17 @@ export default function AdminDashboard() {
         if (currentUser?.role === 'admin') {
             fetchAdminData();
             const interval = setInterval(() => {
+                const start = performance.now();
                 adminApi.getStats().then(res => setStats(res.data)).catch(console.error);
-                adminApi.getHealth().then(res => setHealth(res.data)).catch(console.error);
+                adminApi.getHealth().then(res => {
+                    const end = performance.now();
+                    setLatency(Math.round(end - start));
+                    setHealth(res.data);
+                }).catch(console.error);
             }, 5000);
             return () => clearInterval(interval);
         }
     }, [currentUser, filter]);
-
 
     const handleDeleteUser = async (id: string) => {
         if (!confirm('Are you absolutely sure? This will delete all associated data (jobs/applications). This action cannot be undone.')) return;
@@ -135,6 +155,50 @@ export default function AdminDashboard() {
                         >
                             <Sparkles size={16} className="text-brand-cyan" /> Autonomous Bot Hub
                         </Button>
+                    </div>
+                </div>
+
+                {/* System Heartbeat HUD */}
+                <div className="grid grid-cols-1 mb-12">
+                    <div className="bg-white/[0.03] border border-white/10 rounded-3xl p-6 backdrop-blur-xl flex flex-wrap items-center justify-between gap-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-brand-cyan/20 flex items-center justify-center text-brand-cyan">
+                                <Activity size={20} className="animate-pulse" />
+                            </div>
+                            <div>
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/40 leading-none mb-1">System Heartbeat</h3>
+                                <p className="text-sm font-bold text-white/80">Cluster Health Telemetry</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-8 flex-wrap">
+                            {/* Latency */}
+                            <div className="flex flex-col items-center">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-white/20 mb-2">Latency</span>
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${latency && latency < 300 ? 'bg-emerald-500 shadow-[0_0_10px_#10b981]' : (latency && latency < 600 ? 'bg-yellow-500 shadow-[0_0_10px_#f59e0b]' : 'bg-red-500 shadow-[0_0_10px_#ef4444]')}`} />
+                                    <span className="text-sm font-black mono">{latency ? `${latency}ms` : '---'}</span>
+                                </div>
+                            </div>
+
+                            {/* Providers */}
+                            {[
+                                { label: 'Azure (PR)', status: health?.redis?.primary },
+                                { label: 'Upstash (SC)', status: health?.redis?.secondary },
+                                { label: 'Render (TR)', status: health?.redis?.tertiary },
+                                { label: 'MongoDB', status: health?.mongodb === 'connected' ? 'connected' : 'unavailable' }
+                            ].map((db, i) => (
+                                <div key={i} className="flex flex-col items-center border-l border-white/5 pl-8">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-white/20 mb-2">{db.label}</span>
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-2 h-2 rounded-full ${db.status === 'connected' ? 'bg-emerald-500 shadow-[0_0_10px_#10b981]' : 'bg-red-500/50'}`} />
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${db.status === 'connected' ? 'text-emerald-400' : 'text-white/20'}`}>
+                                            {db.status === 'connected' ? 'Online' : 'Offline'}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 

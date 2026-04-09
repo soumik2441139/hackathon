@@ -129,14 +129,31 @@ app.get('/health', (_req, res) => {
 
 app.get('/api/health', async (_req, res) => {
     const redisStatus = await probeRedis();
+    const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    
+    // Auto-generate alerts based on infra health
+    const alerts: { type: string; message: string }[] = [];
+    if (!redisStatus.primary) {
+        alerts.push({ type: 'critical', message: 'Primary Redis Cluster (Azure) unreachable. Job orchestration is suspended.' });
+    }
+    if (mongoStatus === 'disconnected') {
+        alerts.push({ type: 'critical', message: 'MongoDB connection lost. User data and persistence are unavailable.' });
+    }
+    if (env.SECONDARY_REDIS_HOST && !redisStatus.secondary) {
+        alerts.push({ type: 'warning', message: 'Secondary Redis (Upstash) degraded. AI scraping and heavy background tasks may be delayed.' });
+    }
+
     res.json({
-        status: 'ok',
+        status: alerts.some(a => a.type === 'critical') ? 'error' : 'ok',
         env: env.NODE_ENV,
         timestamp: new Date().toISOString(),
+        mongodb: mongoStatus,
         redis: {
             primary: redisStatus.primary ? 'connected' : 'unavailable',
             secondary: env.SECONDARY_REDIS_HOST ? (redisStatus.secondary ? 'connected' : 'unavailable') : 'not_configured',
+            tertiary: env.TERTIARY_REDIS_URL ? (redisStatus.tertiary ? 'connected' : 'unavailable') : 'not_configured'
         },
+        alerts,
         email: isEmailVerificationConfigured() ? 'configured' : 'unconfigured',
         circuits: {
             gemini: geminiBreaker.getState(),

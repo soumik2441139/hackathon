@@ -206,9 +206,21 @@ export const getBotStatus = async (botId: string) => {
         let customStats: Record<string, number> = { waiting: 0, active: 0, completed: 0, failed: 0 };
         
         if (queue) {
-            customStats = await queue.getJobCounts('wait', 'active', 'completed', 'failed');
-            // Auto flip state if jobs are actively processing
-            if (customStats.active > 0) status = 'online';
+            try {
+                const stats = await queue.getJobCounts('wait', 'active', 'completed', 'failed');
+                customStats = {
+                    waiting: stats.wait || 0,
+                    active: stats.active || 0,
+                    completed: stats.completed || 0,
+                    failed: stats.failed || 0
+                };
+                // Auto flip state if jobs are actively processing
+                if (customStats.active > 0) status = 'online';
+            } catch (err: any) {
+                // If Redis is unreachable, don't crash. Just use zeroed stats 
+                // and keep the current status (syncing/offline)
+                status = 'syncing';
+            }
         }
 
         return { ...config, status, uptime: status === 'online' ? 999999 : 0, stats: customStats };

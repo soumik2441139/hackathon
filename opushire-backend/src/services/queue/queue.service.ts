@@ -48,8 +48,8 @@ function buildRedisOptions(
     ...(config.password ? { password: config.password } : {}),
     ...(config.tls ? { tls: { servername: config.host, rejectUnauthorized: false } } : {}),
     maxRetriesPerRequest: null,
-    // Producers fail fast; workers should recover through reconnects.
-    enableOfflineQueue: target === 'worker',
+    // Enable offline queueing for both producers and workers to handle transient blips.
+    enableOfflineQueue: true,
     connectionName,
     // Enterprise Pattern: Exponential Backoff Reconnection & Circuit Awareness
     retryStrategy: (times: number) => Math.min(times * 100, 3000),
@@ -260,24 +260,21 @@ let _secondaryRedisAvailable: boolean | null = null;
  * Probe Redis once so we know whether to bother creating queues.
  * Returns true if reachable, false otherwise.
  */
-export async function probeRedis(): Promise<{ primary: boolean; secondary: boolean }> {
-  const result = { primary: false, secondary: false };
+export async function probeRedis(): Promise<{ primary: boolean; secondary: boolean; tertiary: boolean }> {
+  const result = { primary: false, secondary: false, tertiary: false };
   
+  // PRIMARY (Azure/Cloud)
   try {
     const primary = getConnection(false);
     await primary.ping();
     result.primary = true;
   } catch (err: any) {
     const config = SystemConfig.redis;
-    const hostInfo = `${config.host}:${config.port}`;
     const isOfflineError = err.message?.includes("Stream isn't writeable");
-    if (isOfflineError) {
-      log('REDIS_PRIMARY', `Unreachable (${hostInfo}) - Stream not writeable (Offline Queue disabled)`);
-    } else {
-      logError('REDIS_PRIMARY', `Unreachable (${hostInfo})`, err);
-    }
+    if (!isOfflineError) logError('REDIS_PRIMARY', `Unreachable (${config.host})`, err);
   }
 
+  // SECONDARY (Upstash)
   if (SystemConfig.redisSecondary) {
     try {
       const secondary = getConnection(true);
@@ -285,16 +282,21 @@ export async function probeRedis(): Promise<{ primary: boolean; secondary: boole
       result.secondary = true;
     } catch (err: any) {
       const config = SystemConfig.redisSecondary!;
-      const hostInfo = `${config.host}:${config.port}`;
       const isOfflineError = err.message?.includes("Stream isn't writeable");
-      if (isOfflineError) {
-        log('REDIS_SECONDARY', `Unreachable (${hostInfo}) - Stream not writeable (Offline Queue disabled)`);
-      } else {
-        logError('REDIS_SECONDARY', `Unreachable (${hostInfo})`, err);
-      }
+      if (!isOfflineError) logError('REDIS_SECONDARY', `Unreachable (${config.host})`, err);
     }
-  } else {
-    result.secondary = false;
+  }
+
+  // TERTIARY (Render)
+  if (SystemConfig.redisTertiaryUrl) {
+    try {
+      const tertiary = getTertiaryConnection();
+      await tertiary.ping();
+      result.tertiary = true;
+    } catch (err: any) {
+      const isOfflineError = err.message?.includes("Stream isn't writeable");
+      if (!isOfflineError) logError('REDIS_TERTIARY', `Unreachable (URL: ${SystemConfig.redisTertiaryUrl})`, err);
+    }
   }
 
   _redisAvailable = result.primary;

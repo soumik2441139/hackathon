@@ -21,6 +21,7 @@ export const getCleanIp = (req: Request): string => {
 export const getRateLimitConfig = (prefix: string): Partial<Options> => ({
     standardHeaders: true,
     legacyHeaders: false,
+    passOnStoreError: true,
     keyGenerator: (req: Request) => ipKeyGenerator(getCleanIp(req)),
     validate: {
         xForwardedForHeader: false,
@@ -31,15 +32,11 @@ export const getRateLimitConfig = (prefix: string): Partial<Options> => ({
         store: new RedisStore({
             prefix: `rl:${prefix}:`,
             sendCommand: async (...args: string[]) => {
-                try {
-                    const client = CacheService.getClient();
-                    if (!client) return null;
-                    return await client.call(args[0], ...args.slice(1)) as any;
-                } catch (err: any) {
-                    console.error(`[RateLimit:${prefix}] Redis command failed:`, err.message);
-                    // Fallback to allow request if Redis is unreachable
-                    return null;
+                const client = CacheService.getClient();
+                if (!client) {
+                    throw new Error('Redis client not available');
                 }
+                return await client.call(args[0], ...args.slice(1)) as any;
             },
         }),
     } : {})
