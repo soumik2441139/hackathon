@@ -27,6 +27,15 @@ jobs:
 
       - name: npm install, build, and zip
         run: |
+          # Build recruiter-bot first
+          cd recruiter-bot
+          npm ci
+          npm run build --if-present
+          rm -rf node_modules
+          npm install --omit=dev --no-workspaces --install-links
+          cd ..
+
+          # Build backend orchestrator
           cd opushire-backend
           # Use npm ci for clean, predictable installation in CI
           npm ci
@@ -36,6 +45,9 @@ jobs:
           
           npm run build --if-present
           
+          # Copy compiled recruiter bot INTO opushire-backend so Azure sees it locally via CLI spawn
+          cp -r ../recruiter-bot ./recruiter-bot
+          
           # Remove dev dependencies and reinstall production deps standalone
           # This ensures we don't carry Windows binaries or unnecessary dev tools to Azure
           rm -rf node_modules
@@ -44,7 +56,7 @@ jobs:
           # Final sanity check rebuild for production-only dependencies
           npm rebuild
           
-          # Bundle purely the backend orchestrator (bots are now native BullMQ workers inside src/services/queue)
+          # Bundle the monolithic deployment zip
           zip -r ../backend.zip .
 
 

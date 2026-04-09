@@ -110,15 +110,20 @@ export const startBot = async (botId: string, args: string[] = []) => {
         if (activeLegacyBots.has(botId)) return reject(new Error(`${config.name} is already running.`));
 
         const scriptPath = getBotScriptDir(config.dir!);
+        if (!fs.existsSync(scriptPath)) {
+            const err = new Error(`Cannot spawn ${config.name}: Directory ${scriptPath} does not exist. Please check deployment package.`);
+            writeLog(botId, [`[ERROR] ${err.message}`]);
+            return reject(err);
+        }
+
         const isSingleRun = args.includes('--single-run');
         const isProduction = process.env.NODE_ENV === 'production';
         
-        let childUrl = 'node';
+        let childUrl = process.execPath; // Deterministic path to node
         let childArgs = [];
 
         // In production, we favor the compiled JS to avoid npx/ts-node overhead and PATH issues
         if (isProduction && config.compiledScript) {
-            childUrl = 'node';
             childArgs = [config.compiledScript, ...args];
         } else if (config.runtime === 'ts-node') {
             childUrl = os.platform() === 'win32' ? 'npx.cmd' : 'npx';
