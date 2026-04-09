@@ -186,14 +186,14 @@ export default function AdminDashboard() {
                                 { label: 'Azure (PR)', status: health?.redis?.primary },
                                 { label: 'Upstash (SC)', status: health?.redis?.secondary },
                                 { label: 'Render (TR)', status: health?.redis?.tertiary },
-                                { label: 'MongoDB', status: health?.mongodb === 'connected' ? 'connected' : 'unavailable' }
+                                { label: 'MongoDB', status: health?.mongodb }
                             ].map((db, i) => (
                                 <div key={i} className="flex flex-col items-center border-l border-white/5 pl-8">
                                     <span className="text-[9px] font-black uppercase tracking-widest text-white/20 mb-2">{db.label}</span>
                                     <div className="flex items-center gap-2">
-                                        <div className={`w-2 h-2 rounded-full ${db.status === 'connected' ? 'bg-emerald-500 shadow-[0_0_10px_#10b981]' : 'bg-red-500/50'}`} />
-                                        <span className={`text-[10px] font-black uppercase tracking-widest ${db.status === 'connected' ? 'text-emerald-400' : 'text-white/20'}`}>
-                                            {db.status === 'connected' ? 'Online' : 'Offline'}
+                                        <div className={`w-2 h-2 rounded-full ${db.status === 'healthy' ? 'bg-emerald-500 shadow-[0_0_10px_#10b981]' : 'bg-red-500/50'}`} />
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${db.status === 'healthy' ? 'text-emerald-400' : 'text-white/20'}`}>
+                                            {db.status === 'healthy' ? 'Online' : 'Offline'}
                                         </span>
                                     </div>
                                 </div>
