@@ -68,10 +68,14 @@ export const getDeepHealth = async () => {
     return {
         timestamp: new Date().toISOString(),
         mongodb: isMongoConnected ? 'healthy' : 'down',
-        redisPrimary: redisProbe.primary ? 'healthy' : 'down',
-        redisSecondary: redisProbe.secondary ? 'healthy' : 'down',
-        status: alerts.length === 0 ? 'operational' : 'outage',
-        alerts
+        redis: {
+            primary: redisProbe.primary ? 'healthy' : 'down',
+            secondary: redisProbe.secondary ? 'healthy' : 'down',
+            tertiary: redisProbe.tertiary ? 'healthy' : 'down'
+        },
+        status: alerts.length === 0 ? 'ok' : 'error',
+        alerts,
+        circuits: {}
     };
 };
 
