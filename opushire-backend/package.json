@@ -21,7 +21,7 @@
     "@google/genai": "^1.43.0",
     "@google/generative-ai": "^0.24.1",
     "@qdrant/js-client-rest": "^1.17.0",
-    "axios": "^1.13.6",
+    "axios": "^1.15.0",
     "basic-ftp": "^5.2.1",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.71.0",
