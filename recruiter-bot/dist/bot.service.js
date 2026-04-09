@@ -10,6 +10,7 @@ const adzuna_provider_1 = require("./providers/adzuna.provider");
 const telegram_provider_1 = require("./providers/telegram.provider");
 const translator_1 = require("./providers/translator");
 const himalayas_provider_1 = require("./providers/himalayas.provider");
+const jsearch_provider_1 = require("./providers/jsearch.provider");
 const spam_filter_1 = require("./providers/spam-filter");
 let lastStatus = {
     lastRun: null,
@@ -101,21 +102,23 @@ async function fetchAllJobs() {
     console.log('🤖 RECRUITER BOT — Fetch cycle starting...');
     console.log('🤖 ═══════════════════════════════════════');
     const results = [];
-    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw, himalayasRaw] = await Promise.all([
+    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw, himalayasRaw, jsearchRaw] = await Promise.all([
         (0, remotive_provider_1.fetchRemotiveJobs)(),
         (0, arbeitnow_provider_1.fetchArbeitnowJobs)(),
         (0, adzuna_provider_1.fetchAdzunaJobs)(),
         (0, telegram_provider_1.fetchTelegramJobs)(),
         (0, himalayas_provider_1.fetchHimalayasJobs)(),
+        (0, jsearch_provider_1.fetchJSearchJobs)(),
     ]);
     // Auto-translate non-English jobs to English
     console.log('🌐 [Translator] Checking for non-English jobs...');
-    const [remotiveJobsAI, arbeitnowJobsAI, adzunaJobsAI, telegramJobsAI, himalayasJobsAI] = await Promise.all([
+    const [remotiveJobsAI, arbeitnowJobsAI, adzunaJobsAI, telegramJobsAI, himalayasJobsAI, jsearchJobsAI] = await Promise.all([
         (0, translator_1.translateJobs)(remotiveRaw),
         (0, translator_1.translateJobs)(arbeitnowRaw),
         (0, translator_1.translateJobs)(adzunaRaw),
         (0, translator_1.translateJobs)(telegramRaw),
         (0, translator_1.translateJobs)(himalayasRaw),
+        (0, translator_1.translateJobs)(jsearchRaw),
     ]);
     console.log('🛡️ [Spam Filter] Auditing payloads for garbage via strict Llama-3 AI firewall...');
     const remotiveJobs = await (0, spam_filter_1.filterSpamJobs)(remotiveJobsAI);
@@ -123,6 +126,7 @@ async function fetchAllJobs() {
     const adzunaJobs = await (0, spam_filter_1.filterSpamJobs)(adzunaJobsAI);
     const telegramJobs = await (0, spam_filter_1.filterSpamJobs)(telegramJobsAI);
     const himalayasJobs = await (0, spam_filter_1.filterSpamJobs)(himalayasJobsAI);
+    const jsearchJobs = await (0, spam_filter_1.filterSpamJobs)(jsearchJobsAI);
     if (remotiveJobs.length > 0) {
         results.push(await storeJobs(remotiveJobs, 'remotive'));
     }
@@ -153,6 +157,12 @@ async function fetchAllJobs() {
     else {
         results.push({ source: 'himalayas', fetched: 0, newJobs: 0, duplicates: 0, errors: [] });
     }
+    if (jsearchJobs.length > 0) {
+        results.push(await storeJobs(jsearchJobs, 'jsearch'));
+    }
+    else {
+        results.push({ source: 'jsearch', fetched: 0, newJobs: 0, duplicates: 0, errors: ['Skipped — JSEARCH_API_KEY not set'] });
+    }
     const totalNew = results.reduce((sum, r) => sum + r.newJobs, 0);
     const totalDuplicates = results.reduce((sum, r) => sum + r.duplicates, 0);
     lastStatus = { lastRun: new Date(), results, totalNew, totalDuplicates };
@@ -165,14 +175,15 @@ function getBotStatus() {
     return lastStatus;
 }
 async function getBotJobStats() {
-    const [total, remotive, arbeitnow, adzuna, telegram, himalayas] = await Promise.all([
+    const [total, remotive, arbeitnow, adzuna, telegram, himalayas, jsearch] = await Promise.all([
         Job_1.BotJob.countDocuments({ source: { $ne: 'manual' } }),
         Job_1.BotJob.countDocuments({ source: 'remotive' }),
         Job_1.BotJob.countDocuments({ source: 'arbeitnow' }),
         Job_1.BotJob.countDocuments({ source: 'adzuna' }),
         Job_1.BotJob.countDocuments({ source: 'telegram' }),
         Job_1.BotJob.countDocuments({ source: 'himalayas' }),
+        Job_1.BotJob.countDocuments({ source: 'jsearch' }),
     ]);
-    return { total, remotive, arbeitnow, adzuna, telegram, himalayas };
+    return { total, remotive, arbeitnow, adzuna, telegram, himalayas, jsearch };
 }
 //# sourceMappingURL=bot.service.js.map

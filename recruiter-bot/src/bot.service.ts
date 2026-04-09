@@ -5,6 +5,7 @@ import { fetchAdzunaJobs } from './providers/adzuna.provider';
 import { fetchTelegramJobs } from './providers/telegram.provider';
 import { translateJobs } from './providers/translator';
 import { fetchHimalayasJobs } from './providers/himalayas.provider';
+import { fetchJSearchJobs } from './providers/jsearch.provider';
 import { filterSpamJobs } from './providers/spam-filter';
 
 export interface FetchResult {
@@ -122,22 +123,24 @@ export async function fetchAllJobs(): Promise<BotStatus> {
 
     const results: FetchResult[] = [];
 
-    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw, himalayasRaw] = await Promise.all([
+    const [remotiveRaw, arbeitnowRaw, adzunaRaw, telegramRaw, himalayasRaw, jsearchRaw] = await Promise.all([
         fetchRemotiveJobs(),
         fetchArbeitnowJobs(),
         fetchAdzunaJobs(),
         fetchTelegramJobs(),
         fetchHimalayasJobs(),
+        fetchJSearchJobs(),
     ]);
 
     // Auto-translate non-English jobs to English
     console.log('🌐 [Translator] Checking for non-English jobs...');
-    const [remotiveJobsAI, arbeitnowJobsAI, adzunaJobsAI, telegramJobsAI, himalayasJobsAI] = await Promise.all([
+    const [remotiveJobsAI, arbeitnowJobsAI, adzunaJobsAI, telegramJobsAI, himalayasJobsAI, jsearchJobsAI] = await Promise.all([
         translateJobs(remotiveRaw),
         translateJobs(arbeitnowRaw),
         translateJobs(adzunaRaw),
         translateJobs(telegramRaw),
         translateJobs(himalayasRaw),
+        translateJobs(jsearchRaw),
     ]);
 
     console.log('🛡️ [Spam Filter] Auditing payloads for garbage via strict Llama-3 AI firewall...');
@@ -146,6 +149,7 @@ export async function fetchAllJobs(): Promise<BotStatus> {
     const adzunaJobs = await filterSpamJobs(adzunaJobsAI);
     const telegramJobs = await filterSpamJobs(telegramJobsAI);
     const himalayasJobs = await filterSpamJobs(himalayasJobsAI);
+    const jsearchJobs = await filterSpamJobs(jsearchJobsAI);
 
     if (remotiveJobs.length > 0) {
         results.push(await storeJobs(remotiveJobs, 'remotive'));
@@ -177,6 +181,12 @@ export async function fetchAllJobs(): Promise<BotStatus> {
         results.push({ source: 'himalayas', fetched: 0, newJobs: 0, duplicates: 0, errors: [] });
     }
 
+    if (jsearchJobs.length > 0) {
+        results.push(await storeJobs(jsearchJobs, 'jsearch'));
+    } else {
+        results.push({ source: 'jsearch', fetched: 0, newJobs: 0, duplicates: 0, errors: ['Skipped — JSEARCH_API_KEY not set'] });
+    }
+
     const totalNew = results.reduce((sum, r) => sum + r.newJobs, 0);
     const totalDuplicates = results.reduce((sum, r) => sum + r.duplicates, 0);
 
@@ -194,13 +204,14 @@ export function getBotStatus(): BotStatus {
 }
 
 export async function getBotJobStats() {
-    const [total, remotive, arbeitnow, adzuna, telegram, himalayas] = await Promise.all([
+    const [total, remotive, arbeitnow, adzuna, telegram, himalayas, jsearch] = await Promise.all([
         BotJob.countDocuments({ source: { $ne: 'manual' } }),
         BotJob.countDocuments({ source: 'remotive' }),
         BotJob.countDocuments({ source: 'arbeitnow' }),
         BotJob.countDocuments({ source: 'adzuna' }),
         BotJob.countDocuments({ source: 'telegram' }),
         BotJob.countDocuments({ source: 'himalayas' }),
+        BotJob.countDocuments({ source: 'jsearch' }),
     ]);
-    return { total, remotive, arbeitnow, adzuna, telegram, himalayas };
+    return { total, remotive, arbeitnow, adzuna, telegram, himalayas, jsearch };
 }
