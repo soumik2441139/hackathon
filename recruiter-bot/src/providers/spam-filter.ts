@@ -40,18 +40,20 @@ We strictly only want legitimate software engineering, design, and IT jobs (Juni
 Jobs:
 ${summaries}
 
-Return ONLY a perfectly formatted JSON array of the IDs that are 100% LEGIT. Example: [0, 1, 3]
-Do not return markdown, do not return explanations. Just the JSON array.
+Return ONLY a valid JSON object with a single key "ids" containing an array of the IDs that are 100% LEGIT.
+Example: {"ids": [0, 1, 3]}
+Do not return markdown, do not return explanations. Just the JSON object.
         `.trim();
 
         try {
             const { data } = await axios.post(
                 'https://api.groq.com/openai/v1/chat/completions',
                 {
-                    model: 'llama3-8b-8192',
+                    model: 'llama-3.1-8b-instant',  // llama3-8b-8192 is deprecated
                     messages: [{ role: 'user', content: prompt }],
                     temperature: 0.1,
-                    response_format: { type: 'json_object' } // Groq JSON mode
+                    response_format: { type: 'json_object' },
+                    max_tokens: 256,
                 },
                 {
                     headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
