@@ -224,12 +224,41 @@ function scrapeGeneric($: cheerio.CheerioAPI): ScrapedJob {
     return result;
 }
 
+// ─── URL Blocklist ─────────────────────────────────────────────────────────
+// These domains will NEVER contain scrapeable job detail pages.
+// Short-link redirectors, WhatsApp, Google Forms, social media safety warnings.
+// Always skip them before making any HTTP / AI call.
+const UNSCRAPPABLE_HOSTNAMES = new Set([
+    'bit.ly', 'tinyurl.com', 'lnkd.in', 't.co', 'ow.ly', 'buff.ly',
+    'cutt.ly', 'rb.gy', 'shorturl.at', 'tiny.cc',
+    'whatsapp.com', 'wa.me',
+    'docs.google.com',          // Google Forms / Docs — never job pages
+    'forms.gle',
+    't.me',                     // Telegram links
+    'instagram.com', 'facebook.com', 'twitter.com', 'x.com',
+]);
+
+// Any URL whose PATH starts with these segments is also junk.
+const UNSCRAPPABLE_PATH_PREFIXES = [
+    '/safety/go',               // linkedin.com/safety/go redirect
+    '/channel/',                // WhatsApp broadcast channels
+];
+
+function isUnscrappable(url: string): boolean {
+    try {
+        const { hostname, pathname } = new URL(url);
+        if (UNSCRAPPABLE_HOSTNAMES.has(hostname)) return true;
+        if (UNSCRAPPABLE_PATH_PREFIXES.some(p => pathname.startsWith(p))) return true;
+    } catch { return true; } // malformed URL — skip
+    return false;
+}
+
 // ─── URL Fetcher ────────────────────────────────────────────────────────────
 
 import { aiScrapeJob } from './ai-scraper';
 
 export async function deepScrapeJob(url: string): Promise<ScrapedJob> {
-    if (!url || url.includes('t.me')) return { ...EMPTY_RESULT };
+    if (!url || isUnscrappable(url)) return { ...EMPTY_RESULT };
 
     try {
         const { data: html } = await axios.get(url, {
@@ -268,9 +297,12 @@ export async function deepScrapeJob(url: string): Promise<ScrapedJob> {
         }
 
         // --- AI FALLBACK ---
-        // If Cheerio failed to extract meaningful requirements or responsibilities,
-        // we pass the raw HTML text to the Gemini LLM to parse it intelligently.
-        if (scrapeResult.responsibilities.length === 0 || scrapeResult.requirements.length === 0) {
+        // Only use Gemini if Cheerio failed AND this looks like a real job portal
+        // (not a JS-heavy SPA like Workday/Oracle which Cheerio can never parse).
+        const jsHeavyHosts = ['myworkdayjobs.com', 'oraclecloud.com', 'eightfold.ai', 'avature.net', 'njoyn.com'];
+        const isJsHeavy = jsHeavyHosts.some(h => hostname.endsWith(h));
+
+        if (!isJsHeavy && (scrapeResult.responsibilities.length === 0 || scrapeResult.requirements.length === 0)) {
             const rawText = $('body').text() || html;
             scrapeResult = await aiScrapeJob(rawText, url, scrapeResult);
         }
