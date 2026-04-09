@@ -23,6 +23,11 @@ export async function storeExample(
   input: string,
   output: string,
 ): Promise<void> {
+  // Don't store examples with empty text — would corrupt the embedding index
+  if (!input?.trim() || !output?.trim()) {
+    console.warn(`⚠️ [RAG] Skipped empty example for ${botId}`);
+    return;
+  }
   try {
     const embedding = await embedText(input);
     await BotExample.create({ botId, input, output, embedding });
