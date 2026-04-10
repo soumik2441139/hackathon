@@ -10,10 +10,19 @@ class CacheManager {
         if (SystemConfig.redisTertiaryUrl) {
             this.client = new IORedis(SystemConfig.redisTertiaryUrl, {
                 maxRetriesPerRequest: null,
+                // Fail fast (5 s) instead of hanging for the OS default (~10 s).
+                // Without this, every cold start of a hibernated Render instance
+                // generates a flood of ETIMEDOUT log entries before the first retry.
+                connectTimeout: 5000,
+                // Don't connect eagerly on module load — wait for the first
+                // actual cache.get/set call. This prevents hammering a sleeping
+                // Render node before probeRedis() has had a chance to run.
+                lazyConnect: true,
                 enableOfflineQueue: true,
                 connectionName: 'api-cache-tier1',
-                // Implements Enterprise pattern: Exponential backoff
-                retryStrategy: (times) => Math.min(times * 100, 3000),
+                // Cap backoff at 30 s so a fully-dead Render instance doesn't
+                // create a high-frequency retry hot-loop.
+                retryStrategy: (times) => Math.min(times * 200, 30000),
                 reconnectOnError: () => true
             });
             this.client.on('error', (err) => logError('CACHE_TIER1', 'Redis Cache Error', err));

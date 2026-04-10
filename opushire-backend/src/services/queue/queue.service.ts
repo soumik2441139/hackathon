@@ -13,6 +13,8 @@ type RedisConnectionOptions = {
   password?: string;
   tls?: { servername: string; rejectUnauthorized: boolean };
   maxRetriesPerRequest: null;
+  connectTimeout?: number;
+  lazyConnect?: boolean;
   enableOfflineQueue: boolean;
   connectionName: string;
   retryStrategy?: (times: number) => number;
@@ -48,11 +50,19 @@ function buildRedisOptions(
     ...(config.password ? { password: config.password } : {}),
     ...(config.tls ? { tls: { servername: config.host, rejectUnauthorized: false } } : {}),
     maxRetriesPerRequest: null,
+    // Fail fast on unreachable hosts instead of waiting the OS default (~10s).
+    // This prevents cascading ETIMEDOUT storms when all Redis nodes are down.
+    connectTimeout: 5000,
+    // Don't connect immediately on construction — wait until first command.
+    // Needed so CacheManager / BullMQ don't hammer a sleeping Render instance
+    // the moment the module is imported before probeRedis() has run.
+    lazyConnect: true,
     // Enable offline queueing for both producers and workers to handle transient blips.
     enableOfflineQueue: true,
     connectionName,
     // Enterprise Pattern: Exponential Backoff Reconnection & Circuit Awareness
-    retryStrategy: (times: number) => Math.min(times * 100, 3000),
+    // Cap raised to 30 s so a dead node doesn't create a hot retry loop.
+    retryStrategy: (times: number) => Math.min(times * 200, 30000),
     reconnectOnError: (err: Error) => true,
   };
 }
@@ -104,8 +114,12 @@ function getTertiaryConnectionOptions(target: 'producer' | 'worker') {
   return {
     connectionName: target === 'worker' ? 'bullmq-tertiary-worker' : 'bullmq-tertiary',
     maxRetriesPerRequest: null,
+    // Fail fast on connect — same reasoning as buildRedisOptions above.
+    connectTimeout: 5000,
+    lazyConnect: true,
     enableOfflineQueue: target === 'worker',
-    retryStrategy: (times: number) => Math.min(times * 100, 3000),
+    // Cap at 30 s to avoid hot retry loop on a hibernated Render instance.
+    retryStrategy: (times: number) => Math.min(times * 200, 30000),
     reconnectOnError: (err: Error) => true,
   };
 }
@@ -455,7 +469,8 @@ export function startRegisteredWorkers(): any {
     log('WORKER', `Secondary worker started on ${PHYSICAL_QUEUE_NAME} (Heavy jobs)`);
   }
 
-  // Start Tertiary Worker
+  // Start Tertiary Worker — reuse the singleton connection (getTertiaryConnection)
+  // instead of creating an anonymous IORedis per call, which leaked connections.
   if (tertiaryProcessors.size > 0 && !tertiaryWorker) {
     tertiaryWorker = new Worker(PHYSICAL_QUEUE_NAME, async (job) => {
       const logicalQueue = parseLogicalQueueName(job.name);
@@ -463,7 +478,7 @@ export function startRegisteredWorkers(): any {
       if (!processor) throw new Error(`No tertiary processor for ${job.name}`);
       return processor(job.data);
     }, {
-      connection: new IORedis(SystemConfig.redisTertiaryUrl!, getTertiaryConnectionOptions('worker')) as any,
+      connection: getTertiaryConnection() as any,
       concurrency: WORKER_CONCURRENCY,
     });
     attachWorkerEvents(tertiaryWorker, 'WORKER_TERTIARY');
