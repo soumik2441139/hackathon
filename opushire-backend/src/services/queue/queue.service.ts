@@ -324,6 +324,15 @@ export function resetRedisProbe() {
   _secondaryRedisAvailable = null;
 }
 
+function getTargetTier(name: QueueName): 'primary' | 'secondary' | 'tertiary' {
+  const isCore = ['match-resumes', 'career-advisor', 'email-notifications', 'job-outreach'].includes(name);
+  const isHeavy = ['scan-jobs', 'fix-tags', 'supervise-tags', 'linkedin-enrich', 'match-candidates', 'fetch-jobs'].includes(name);
+  
+  if (isCore && !!SystemConfig.redisTertiaryUrl) return 'tertiary';
+  if (isHeavy && !!SystemConfig.redisSecondary && _secondaryRedisAvailable !== false) return 'secondary';
+  return 'primary';
+}
+
 /**
  * Get or create a Queue instance by name.
  * Returns null if Redis was probed and is unreachable.
@@ -332,17 +341,12 @@ export function getQueue(name: QueueName): Queue | null {
   if (_redisAvailable === false) return null;
 
   if (!queueMap.has(name)) {
-    // Routing Logic: Specific heavy queues go to secondary (Upstash), core logic goes to tertiary (Render)
-    const isCore = ['match-resumes', 'career-advisor', 'email-notifications', 'job-outreach'].includes(name);
-    const isHeavy = ['scan-jobs', 'fix-tags', 'supervise-tags', 'linkedin-enrich', 'match-candidates', 'fetch-jobs'].includes(name);
+    const tier = getTargetTier(name);
     
-    const useTertiary = isCore && !!SystemConfig.redisTertiaryUrl;
-    const useSecondary = isHeavy && !!SystemConfig.redisSecondary && _secondaryRedisAvailable !== false;
-
     let q: Queue;
-    if (useTertiary) {
+    if (tier === 'tertiary') {
       q = getTertiaryQueue();
-    } else if (useSecondary) {
+    } else if (tier === 'secondary') {
       q = getSharedQueue(true);
     } else {
       q = getSharedQueue(false);
@@ -416,33 +420,27 @@ export function startRegisteredWorkers(): any {
 
   if (!WORKERS_ENABLED || _redisAvailable === false) return result;
 
-  // Separate processors by target instance
-  const primaryProcessors = new Map<QueueName, ProcessorFn>();
-  const secondaryProcessors = new Map<QueueName, ProcessorFn>();
-  const tertiaryProcessors = new Map<QueueName, ProcessorFn>();
-  
+  // Verify which tiers are available
   const canUseSecondary = !!SystemConfig.redisSecondary && _secondaryRedisAvailable === true;
   const canUseTertiary = !!SystemConfig.redisTertiaryUrl;
 
-  for (const [name, proc] of processorMap.entries()) {
-    const isCore = ['match-resumes', 'career-advisor', 'email-notifications', 'job-outreach'].includes(name);
-    const isHeavy = ['scan-jobs', 'fix-tags', 'supervise-tags', 'linkedin-enrich', 'match-candidates', 'fetch-jobs'].includes(name);
-    
-    if (isCore && canUseTertiary) {
-      tertiaryProcessors.set(name, proc);
-    } else if (isHeavy && canUseSecondary) {
-      secondaryProcessors.set(name, proc);
-    } else {
-      primaryProcessors.set(name, proc);
-    }
+  // We need to know if any queues are mapped to specific workers to decide whether to start them.
+  const tiersWithJobs = new Set<'primary' | 'secondary' | 'tertiary'>();
+  for (const name of processorMap.keys()) {
+    tiersWithJobs.add(getTargetTier(name));
   }
 
-  // Start Primary Worker
-  if (primaryProcessors.size > 0 && !sharedWorker) {
+  // Start Primary Worker (handles everything not handled by others)
+  if (!sharedWorker) {
     sharedWorker = new Worker(PHYSICAL_QUEUE_NAME, async (job) => {
       const logicalQueue = parseLogicalQueueName(job.name);
-      const processor = logicalQueue ? primaryProcessors.get(logicalQueue) : null;
-      if (!processor) throw new Error(`No primary processor for ${job.name}`);
+      if (!logicalQueue) throw new Error(`Could not parse logical queue from ${job.name}`);
+      
+      const targetTier = getTargetTier(logicalQueue);
+      if (targetTier !== 'primary') return; // Skip if handled by another specialized worker
+
+      const processor = processorMap.get(logicalQueue);
+      if (!processor) throw new Error(`No processor for ${job.name}`);
       return processor(job.data);
     }, {
       connection: getWorkerConnectionOptions(false),
@@ -453,11 +451,16 @@ export function startRegisteredWorkers(): any {
     log('WORKER', `Primary worker started on ${PHYSICAL_QUEUE_NAME}`);
   }
 
-  // Start Secondary Worker
-  if (secondaryProcessors.size > 0 && !secondaryWorker) {
+  // Start Secondary Worker (Upstash)
+  if (canUseSecondary && !secondaryWorker) {
     secondaryWorker = new Worker(PHYSICAL_QUEUE_NAME, async (job) => {
       const logicalQueue = parseLogicalQueueName(job.name);
-      const processor = logicalQueue ? secondaryProcessors.get(logicalQueue) : null;
+      if (!logicalQueue) return;
+      
+      const targetTier = getTargetTier(logicalQueue);
+      if (targetTier !== 'secondary') return; // Skip if not assigned to this tier
+
+      const processor = processorMap.get(logicalQueue);
       if (!processor) throw new Error(`No secondary processor for ${job.name}`);
       return processor(job.data);
     }, {
@@ -469,12 +472,16 @@ export function startRegisteredWorkers(): any {
     log('WORKER', `Secondary worker started on ${PHYSICAL_QUEUE_NAME} (Heavy jobs)`);
   }
 
-  // Start Tertiary Worker — reuse the singleton connection (getTertiaryConnection)
-  // instead of creating an anonymous IORedis per call, which leaked connections.
-  if (tertiaryProcessors.size > 0 && !tertiaryWorker) {
+  // Start Tertiary Worker (Render)
+  if (canUseTertiary && !tertiaryWorker) {
     tertiaryWorker = new Worker(PHYSICAL_QUEUE_NAME, async (job) => {
       const logicalQueue = parseLogicalQueueName(job.name);
-      const processor = logicalQueue ? tertiaryProcessors.get(logicalQueue) : null;
+      if (!logicalQueue) return;
+
+      const targetTier = getTargetTier(logicalQueue);
+      if (targetTier !== 'tertiary') return; // Skip if not assigned to this tier
+
+      const processor = processorMap.get(logicalQueue);
       if (!processor) throw new Error(`No tertiary processor for ${job.name}`);
       return processor(job.data);
     }, {
