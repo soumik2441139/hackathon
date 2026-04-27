@@ -22,34 +22,26 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: 'npm'
-          cache-dependency-path: package-lock.json
 
       - name: npm install, build, and zip
         run: |
-          # Build recruiter-bot first
+          # 1. Install all dependencies at the Root to satisfy the Workspace tree
+          npm install --include=optional
+
+          # 2. Build recruiter-bot first
           cd recruiter-bot
-          npm ci
           npm run build --if-present
-          rm -rf node_modules
-          npm install --omit=dev --no-workspaces --install-links
           cd ..
 
-          # Build backend orchestrator
+          # 3. Build backend orchestrator
           cd opushire-backend
-          # Use npm ci for clean, predictable installation in CI
-          npm ci
-          
-          # Force rebuild of native modules for the Linux runner platform
-          npm rebuild
-          
           npm run build --if-present
           
-          # Copy compiled recruiter bot INTO opushire-backend so Azure sees it locally via CLI spawn
+          # 4. Copy compiled recruiter bot INTO opushire-backend so Azure sees it locally via CLI spawn
           cp -r ../recruiter-bot ./recruiter-bot
           
-          # Remove dev dependencies and reinstall production deps standalone
-          # This ensures we don't carry Windows binaries or unnecessary dev tools to Azure
+          # 5. Remove dev dependencies and reinstall production deps standalone
+          # This ensures we don't carry monolithic binaries or dev tools to Azure
           rm -rf node_modules
           npm install --omit=dev --no-workspaces --install-links
           
@@ -58,7 +50,6 @@ jobs:
           
           # Bundle the monolithic deployment zip
           zip -r ../backend.zip .
-
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4

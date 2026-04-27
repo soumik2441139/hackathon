@@ -22,14 +22,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: 'npm'
-          cache-dependency-path: package-lock.json
 
       - name: npm install, build, and zip standalone
-        working-directory: opushire
         run: |
           set -e
-          npm install
+          
+          # Root install to satisfy Monorepo workspace lock tree
+          npm install --include=optional
+          
+          # Move to frontend app
+          cd opushire
           echo "NEXT_PUBLIC_API_URL=https://opushire-backend.azurewebsites.net/api" > .env.production
           npm run build --if-present
           echo "--- Verifying standalone output ---"
