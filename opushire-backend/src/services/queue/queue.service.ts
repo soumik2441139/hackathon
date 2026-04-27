@@ -236,6 +236,11 @@ function attachSharedEvents() {
 function attachWorkerEvents(worker: Worker, scope: 'WORKER_PRIMARY' | 'WORKER_SECONDARY' | 'WORKER_TERTIARY') {
   worker.on('error', (err) => {
     logError(scope, 'Worker runtime error', err);
+    // Safety Valve: Prevent OOM cascade if Upstash limits are hit
+    if (err.message && err.message.includes('max requests limit exceeded')) {
+      logError(scope, 'Upstash Rate limit exceeded - Shutting down worker to prevent infinite OOM loop.');
+      worker.close().catch(() => {});
+    }
   });
 
   worker.on('failed', (job, err) => {
@@ -298,6 +303,13 @@ export async function probeRedis(): Promise<{ primary: boolean; secondary: boole
       const config = SystemConfig.redisSecondary!;
       const isOfflineError = err.message?.includes("Stream isn't writeable");
       if (!isOfflineError) logError('REDIS_SECONDARY', `Unreachable (${config.host})`, err);
+      // Auto-disable secondary if it's completely unreachable/rate limited on probe
+      if (err.message?.includes('max requests limit exceeded')) {
+         logError('REDIS_SECONDARY', `Upstash Rate limit exhausted. Disabling secondary tier globally.`);
+         _secondaryRedisAvailable = false;
+         result.secondary = false;
+         return result;
+      }
     }
   }
 
@@ -314,7 +326,9 @@ export async function probeRedis(): Promise<{ primary: boolean; secondary: boole
   }
 
   _redisAvailable = result.primary;
-  _secondaryRedisAvailable = SystemConfig.redisSecondary ? result.secondary : null;
+  if (_secondaryRedisAvailable !== false) {
+     _secondaryRedisAvailable = SystemConfig.redisSecondary ? result.secondary : null;
+  }
   return result;
 }
 
@@ -485,7 +499,8 @@ export function startRegisteredWorkers(): any {
       if (!processor) throw new Error(`No tertiary processor for ${job.name}`);
       return processor(job.data);
     }, {
-      connection: getTertiaryConnection() as any,
+      // FIX: Ensure BullMQ Worker uses a DEDICATED connection, not the shared producer connection
+      connection: new IORedis(SystemConfig.redisTertiaryUrl!, getTertiaryConnectionOptions('worker')),
       concurrency: WORKER_CONCURRENCY,
     });
     attachWorkerEvents(tertiaryWorker, 'WORKER_TERTIARY');
