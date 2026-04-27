@@ -25,7 +25,10 @@ jobs:
 
       - name: npm install, build, and zip
         run: |
-          # 1. Install all dependencies at the Root to satisfy the Workspace tree
+          # Delete potentially corrupted Windows lockfile
+          rm -f package-lock.json
+          
+          # 1. Install all dependencies at the Root dynamically for Linux
           npm install --include=optional
 
           # 2. Build recruiter-bot first

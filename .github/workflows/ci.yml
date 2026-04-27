@@ -21,7 +21,10 @@ jobs:
         node-version: 20
         
     - name: Install Monorepo Dependencies
-      run: npm install --include=optional
+      run: |
+        # Wipe windows generated lockfile to allow free Linux resolution
+        rm -f package-lock.json
+        npm install --include=optional
       
     - name: Build Next.js Frontend
       run: npm run build -w opushire
