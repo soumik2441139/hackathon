@@ -39,10 +39,18 @@ export async function fetchLiveJobs(profile: CandidateProfile): Promise<RawJob[]
                 hoursOld:       HOURS_OLD,
                 isRemote:       profile.remote,
                 countryIndeed:  'IN',  // India-focused
-            } as any);
+            } as unknown as Parameters<typeof scrapeJobs>[0]);
 
             // ts-jobspy returns { jobs: RawJob[] } in v2.x
-            const jobs: RawJob[] = (result as any)?.jobs ?? (Array.isArray(result) ? result : []);
+            type ScrapeResult = { jobs?: RawJob[] } | RawJob[];
+            const untypedResult = result as unknown as ScrapeResult;
+            let jobs: RawJob[] = [];
+            
+            if (untypedResult && !Array.isArray(untypedResult) && 'jobs' in untypedResult && Array.isArray(untypedResult.jobs)) {
+                jobs = untypedResult.jobs;
+            } else if (Array.isArray(untypedResult)) {
+                jobs = untypedResult;
+            }
 
             for (const job of jobs) {
                 const url = job.job_url;
@@ -52,8 +60,9 @@ export async function fetchLiveJobs(profile: CandidateProfile): Promise<RawJob[]
             }
 
             log('JOB_FETCHER', `"${searchTerm}": ${jobs.length} results`);
-        } catch (err: any) {
-            log('JOB_FETCHER', `Search "${searchTerm}" failed: ${err.message}`);
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            log('JOB_FETCHER', `Search "${searchTerm}" failed: ${msg}`);
         }
     }
 
