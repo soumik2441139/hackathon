@@ -5,6 +5,32 @@ import { log, logError } from '../../utils/logger';
 import { cosineSimilarity } from '../../utils/math';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { env } from '../../config/env';
+import type { Types } from 'mongoose';
+
+// ─── Lean document shapes (mirrors Mongoose schemas) ─────────────
+interface EpisodicDoc {
+    _id: Types.ObjectId;
+    agentId: string;
+    action: string;
+    context?: string;
+    outcome: string;
+    success: boolean;
+    metadata?: unknown;
+    embedding: number[];
+    createdAt: Date;
+}
+
+interface SemanticDoc {
+    _id: Types.ObjectId;
+    agentId: string;
+    rule: string;
+    confidence: number;
+    source?: string;
+    usageCount: number;
+    lastUsed?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 // ─── Qdrant collection for episodic memories ─────────────────────
 const EPISODES_COLLECTION = 'opushire-episodes';
@@ -46,7 +72,7 @@ async function getQdrant(): Promise<QdrantClient | null> {
 // Tier 1: Working Memory
 // ═══════════════════════════════════════════════════════════════════
 
-export async function setWorkingMemory(agentId: string, key: string, value: any): Promise<void> {
+export async function setWorkingMemory(agentId: string, key: string, value: unknown): Promise<void> {
   await WorkingMemory.findOneAndUpdate(
     { agentId, key },
     { value, createdAt: new Date() },
@@ -54,7 +80,7 @@ export async function setWorkingMemory(agentId: string, key: string, value: any)
   );
 }
 
-export async function getWorkingMemory(agentId: string, key: string): Promise<any> {
+export async function getWorkingMemory(agentId: string, key: string): Promise<unknown> {
   const doc = await WorkingMemory.findOne({ agentId, key });
   return doc?.value ?? null;
 }
@@ -73,7 +99,7 @@ export async function recordEpisode(
   context: string,
   outcome: string,
   success: boolean,
-  metadata?: any,
+  metadata?: Record<string, unknown>,
 ): Promise<void> {
   try {
     const embedding = await embedText(`${action} ${context}`);
@@ -133,9 +159,9 @@ export async function recallSimilarEpisodes(
 
     if (episodes.length === 0) return [];
 
-    const scored = episodes
-      .filter((e: any) => e.embedding?.length === queryVec.length)
-      .map((e: any) => ({
+    const scored = (episodes as EpisodicDoc[])
+      .filter((e) => e.embedding?.length === queryVec.length)
+      .map((e) => ({
         action: e.action,
         outcome: e.outcome,
         success: e.success,
@@ -174,7 +200,7 @@ export async function getSemanticRules(
     .lean();
 
   // Increment usage count for retrieved rules
-  const ids = rules.map((r: any) => r._id);
+  const ids = (rules as SemanticDoc[]).map((r) => r._id);
   if (ids.length > 0) {
     await SemanticMemory.updateMany(
       { _id: { $in: ids } },
@@ -182,7 +208,7 @@ export async function getSemanticRules(
     );
   }
 
-  return rules.map((r: any) => r.rule);
+  return (rules as SemanticDoc[]).map((r) => r.rule);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -203,16 +229,17 @@ export async function distillMemories(agentId: string): Promise<string[]> {
 
     if (episodes.length < 5) return []; // Not enough data to learn from
 
-    const successes = episodes.filter((e: any) => e.success);
-    const failures = episodes.filter((e: any) => !e.success);
+    const typedEpisodes = episodes as EpisodicDoc[];
+    const successes = typedEpisodes.filter((e) => e.success);
+    const failures = typedEpisodes.filter((e) => !e.success);
 
     const prompt = `You are analyzing the performance history of an AI agent called "${agentId}".
 
 Here are its recent SUCCESSFUL actions:
-${successes.slice(0, 15).map((e: any) => `- Action: ${e.action} | Context: ${e.context} | Outcome: ${e.outcome}`).join('\n')}
+${successes.slice(0, 15).map((e) => `- Action: ${e.action} | Context: ${e.context} | Outcome: ${e.outcome}`).join('\n')}
 
 Here are its recent FAILED actions:
-${failures.slice(0, 15).map((e: any) => `- Action: ${e.action} | Context: ${e.context} | Outcome: ${e.outcome}`).join('\n')}
+${failures.slice(0, 15).map((e) => `- Action: ${e.action} | Context: ${e.context} | Outcome: ${e.outcome}`).join('\n')}
 
 Based on this history, extract 3-5 concise rules or patterns that the agent should follow to improve its success rate.
 Return ONLY a JSON array of strings, each being a rule. No markdown, just raw JSON.

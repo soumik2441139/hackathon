@@ -326,7 +326,7 @@ export const admin = {
     },
 
     reports: {
-        getAll: () => request<{ success: boolean; data: Record<string, any> }>('/admin/reports'),
+        getAll: () => request<{ success: boolean; data: Record<string, any[]> }>('/admin/reports'),
         getByDate: (date: string) => request<{ success: boolean; data: DailyReport[] }>(`/admin/reports/${date}`),
     }
 };
