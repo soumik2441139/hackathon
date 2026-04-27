@@ -10,12 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  build-frontend:
+  build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./opushire
-
     steps:
     - uses: actions/checkout@v4
     
@@ -23,38 +19,18 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
-        cache: 'npm'
-        cache-dependency-path: 'package-lock.json'
         
-    - name: Install dependencies
-      run: npm install
+    - name: Install Monorepo Dependencies
+      run: npm install --include=optional
       
-    - name: Build Next.js
-      run: npm run build
+    - name: Build Next.js Frontend
+      run: npm run build -w opushire
       env:
         NEXT_PUBLIC_API_URL: http://localhost:5000/api
 
-  build-backend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./opushire-backend
+    - name: Build Express.js Backend
+      run: npm run build -w opushire-backend
 
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Use Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-        cache: 'npm'
-        cache-dependency-path: 'package-lock.json'
-        
-    - name: Install dependencies
-      run: npm install
-      
-    - name: Build Express.js App
-      run: npm run build
-
-    - name: Run unit tests
+    - name: Run Unit Tests
       run: npx jest --selectProjects unit --ci --passWithNoTests
+      working-directory: ./opushire-backend
