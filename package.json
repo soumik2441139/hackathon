@@ -29,5 +29,11 @@
   },
   "devDependencies": {
     "dotenv": "^17.3.1"
+  },
+  "overrides": {
+    "uuid": "^14.0.0",
+    "svix": {
+      "uuid": "^14.0.0"
+    }
   }
 }
