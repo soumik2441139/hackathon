@@ -37,3 +37,9 @@ jobs:
     - name: Run Unit Tests
       run: npx jest --selectProjects unit --ci --passWithNoTests
       working-directory: ./opushire-backend
+      env:
+        MONGODB_URI: "mongodb://unit-test-cluster:27017/test"
+        JWT_SECRET: "test-environment-secret-jwt-token"
+        GEMINI_API_KEY: "dummy-gemini-key"
+        GROQ_API_KEY: "dummy-groq-key"
+        OPENROUTER_API_KEY: "dummy-openrouter-key"
