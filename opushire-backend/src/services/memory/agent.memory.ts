@@ -2,6 +2,32 @@ import { WorkingMemory, EpisodicMemory, SemanticMemory } from '../../models/Agen
 import { embedText } from '../ai/embedding.service';
 import { safeGeminiCall } from '../ai/gemini.client';
 import { log, logError } from '../../utils/logger';
+import { cosineSimilarity } from '../../utils/math';
+import { QdrantClient } from '@qdrant/js-client-rest';
+import { env } from '../../config/env';
+
+// ─── Qdrant collection for episodic memories ─────────────────────
+const EPISODES_COLLECTION = 'opushire-episodes';
+let qdrantClient: QdrantClient | null = null;
+
+async function getQdrant(): Promise<QdrantClient | null> {
+    if (qdrantClient) return qdrantClient;
+    if (!env.VECTOR_DB_URL) return null;
+    try {
+        qdrantClient = new QdrantClient({ url: env.VECTOR_DB_URL, apiKey: env.VECTOR_DB_API_KEY });
+        const colls = await qdrantClient.getCollections();
+        if (!colls.collections.some(c => c.name === EPISODES_COLLECTION)) {
+            await qdrantClient.createCollection(EPISODES_COLLECTION, {
+                vectors: { size: 768, distance: 'Cosine' },
+            });
+            log('AGENT_MEMORY', `Created Qdrant collection: ${EPISODES_COLLECTION}`);
+        }
+        return qdrantClient;
+    } catch (err) {
+        logError('AGENT_MEMORY', 'Qdrant init failed — falling back to MongoDB brute-force', err);
+        return null;
+    }
+}
 
 /**
  * Agent Memory Service — 3-tier self-improving memory for AI agents.
@@ -51,7 +77,20 @@ export async function recordEpisode(
 ): Promise<void> {
   try {
     const embedding = await embedText(`${action} ${context}`);
-    await EpisodicMemory.create({ agentId, action, context, outcome, success, metadata, embedding });
+    const doc = await EpisodicMemory.create({ agentId, action, context, outcome, success, metadata, embedding });
+
+    // Also upsert into Qdrant for O(log n) ANN retrieval
+    const qd = await getQdrant();
+    if (qd) {
+        const id = doc._id.toString();
+        const hash = Buffer.from(id).toString('hex').padEnd(32, '0').slice(0, 32);
+        const uuid = `${hash.slice(0,8)}-${hash.slice(8,12)}-4000-8000-${hash.slice(20,32)}`;
+        await qd.upsert(EPISODES_COLLECTION, {
+            wait: false,
+            points: [{ id: uuid, vector: embedding, payload: { agentId, action, outcome, success } }],
+        });
+    }
+
     log('AGENT_MEMORY', `Recorded episode for ${agentId}: ${action} → ${success ? 'success' : 'failure'}`);
   } catch (err) {
     logError('AGENT_MEMORY', 'Failed to record episode', err);
@@ -65,6 +104,28 @@ export async function recallSimilarEpisodes(
 ): Promise<{ action: string; outcome: string; success: boolean }[]> {
   try {
     const queryVec = await embedText(currentContext);
+
+    // ── Strategy 1: Use Qdrant ANN (O(log n)) if available ──
+    const qd = await getQdrant();
+    if (qd) {
+        const results = await qd.search(EPISODES_COLLECTION, {
+            vector: queryVec,
+            limit: k,
+            with_payload: true,
+            filter: { must: [{ key: 'agentId', match: { value: agentId } }] },
+        });
+
+        if (results.length > 0) {
+            log('AGENT_MEMORY', `Retrieved ${results.length} episodes via Qdrant ANN for ${agentId}`);
+            return results.map(hit => ({
+                action: (hit.payload?.action as string) || '',
+                outcome: (hit.payload?.outcome as string) || '',
+                success: (hit.payload?.success as boolean) ?? false,
+            }));
+        }
+    }
+
+    // ── Strategy 2: Fallback to MongoDB brute-force (O(n)) ──
     const episodes = await EpisodicMemory.find({ agentId })
       .sort({ createdAt: -1 })
       .limit(100)
@@ -72,7 +133,6 @@ export async function recallSimilarEpisodes(
 
     if (episodes.length === 0) return [];
 
-    // Score by cosine similarity
     const scored = episodes
       .filter((e: any) => e.embedding?.length === queryVec.length)
       .map((e: any) => ({
@@ -219,15 +279,4 @@ export async function buildMemoryContext(
   return context;
 }
 
-// ─── Utility ─────────────────────────────────────────────────────
 
-function cosineSimilarity(a: number[], b: number[]): number {
-  let dot = 0, normA = 0, normB = 0;
-  for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i];
-    normA += a[i] * a[i];
-    normB += b[i] * b[i];
-  }
-  const denom = Math.sqrt(normA) * Math.sqrt(normB);
-  return denom === 0 ? 0 : dot / denom;
-}

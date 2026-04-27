@@ -4,6 +4,7 @@ import { Admin } from '../models/Admin';
 import { Job } from '../models/Job';
 import { Application } from '../models/Application';
 import { createError } from '../middleware/errorHandler';
+import { log, logError } from '../utils/logger';
 
 export const getAllUsers = async (role?: string) => {
     if (role === 'student') return Student.find().sort({ createdAt: -1 });
@@ -127,12 +128,12 @@ export const debugDatabase = async (forceMigrate: boolean = false) => {
         };
 
         if (forceMigrate) {
-            console.log('🚀 [Manual-Migration] Forced reorganization triggered via API.');
+            log('ADMIN', 'Forced reorganization triggered via API.');
 
             // Check local users collection
             const localUsers = await db.collection('users').find({}).toArray();
             if (localUsers.length > 0) {
-                console.log(`🚀 [Manual-Migration] Found ${localUsers.length} users to split...`);
+                log('ADMIN', `Found ${localUsers.length} users to split...`);
                 for (const user of localUsers) {
                     const target = user.role === 'admin' ? 'admins' : 'students';
                     await db.collection(target).updateOne({ _id: user._id }, { $set: user }, { upsert: true });
@@ -151,7 +152,7 @@ export const debugDatabase = async (forceMigrate: boolean = false) => {
 
         return results;
     } catch (err: any) {
-        console.error('❌ [Debug-DB] Error:', err);
+        logError('ADMIN', 'Debug-DB Error', err);
         throw err; // Re-throw so controller catch it and returns 500
     }
 };

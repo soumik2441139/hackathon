@@ -2,6 +2,7 @@ import { embedText } from '../ai/embedding.service';
 import { addVector } from './faiss.store';
 import { normalizeSkills } from '../../utils/skillNormalizer';
 import { IJob } from '../../models/Job';
+import { log, logError } from '../../utils/logger';
 
 export async function autoEmbedJob(job: IJob): Promise<void> {
     try {
@@ -18,8 +19,8 @@ export async function autoEmbedJob(job: IJob): Promise<void> {
         const vector = await embedText(text);
         addVector(job._id.toString(), vector);
         
-        console.log(`[FAISS] Job ${job._id} indexed successfully.`);
+        log('FAISS', `Job ${job._id} indexed successfully.`);
     } catch (e) {
-        console.error(`[FAISS] Failed to auto-embed job ${job._id}:`, e);
+        logError('FAISS', `Failed to auto-embed job ${job._id}`, e);
     }
 }

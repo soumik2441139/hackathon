@@ -1,6 +1,7 @@
 import { safeGeminiCall } from './gemini.client';
 import { IParsedData } from '../../models/Resume';
 import { IJob } from '../../models/Job'; // Assuming standard job structure
+import { logError } from '../../utils/logger';
 
 export async function explainMatch(candidate: IParsedData, job: any): Promise<string> {
     const prompt = `
@@ -26,7 +27,7 @@ Required format:
     try {
         return await safeGeminiCall(prompt);
     } catch (e) {
-        console.error("Match LLM Explanation Failed:", e);
+        logError('JOB_MATCHER', 'Match LLM Explanation Failed', e);
         return JSON.stringify({ match_score: 0, reason: "Error generating explanation" });
     }
 }

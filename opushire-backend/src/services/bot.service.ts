@@ -5,6 +5,7 @@ import fs from 'fs';
 import BotReport from '../models/BotReport';
 import { getQueue, enqueue, type QueueName } from './queue/queue.service';
 import { WebSocketService } from './websocket.service';
+import { log, logError } from '../utils/logger';
 
 type BotRuntime = 'node' | 'ts-node';
 
@@ -61,7 +62,9 @@ const LOG_DIR = process.env.NODE_ENV === 'production'
     : path.resolve(process.cwd(), 'logs');
 
 if (!fs.existsSync(LOG_DIR)) {
-    try { fs.mkdirSync(LOG_DIR, { recursive: true }); } catch (err) { }
+    try { fs.mkdirSync(LOG_DIR, { recursive: true }); } catch (err) {
+        log('BOT_SERVICE', `Failed to create log directory ${LOG_DIR}: ${(err as Error).message}`);
+    }
 }
 
 function getLogFilePath(botId: string): string {
@@ -245,7 +248,7 @@ export const getAllBotStatuses = async () => {
         try {
             return await getBotStatus(bot.id);
         } catch (err) {
-            console.error(`[STATUS_ERROR] Bot ${bot.id}:`, err);
+            logError('BOT_SERVICE', `Status error for bot ${bot.id}`, err);
             return { 
                 ...bot, 
                 status: 'error', 
@@ -271,7 +274,7 @@ export const getBotLogs = (botId: string) => {
 };
 
 export const startPipeline = async () => {
-    console.log('[Scheduler] Initiating full autonomous sequential bot pipeline...');
+    log('BOT_SERVICE', 'Initiating full autonomous sequential bot pipeline...');
     
     // By iterating through the BOTS array sequentially with `await`, 
     // the system perfectly guarantees the legacy Node scraper finishes downloading entirely
@@ -279,12 +282,12 @@ export const startPipeline = async () => {
     for (const bot of BOTS) {
         try {
             await startBot(bot.id);
-            console.log(`[Scheduler] Successfully engaged Agent: ${bot.name} (${bot.id})`);
+            log('BOT_SERVICE', `Successfully engaged Agent: ${bot.name} (${bot.id})`);
         } catch (err: any) {
             // If the bot is already running or paused, it will gracefully catch and continue
-            console.error(`[Scheduler] Ignored warning engaging ${bot.name}:`, err.message);
+            logError('BOT_SERVICE', `Ignored warning engaging ${bot.name}: ${err.message}`, err);
         }
     }
     
-    console.log('[Scheduler] Full autonomous pipeline sequence securely initialized.');
+    log('BOT_SERVICE', 'Full autonomous pipeline sequence securely initialized.');
 };

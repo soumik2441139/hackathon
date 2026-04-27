@@ -55,3 +55,6 @@ jobs:
       
     - name: Build Express.js App
       run: npm run build
+
+    - name: Run unit tests
+      run: npx jest --selectProjects unit --ci --passWithNoTests

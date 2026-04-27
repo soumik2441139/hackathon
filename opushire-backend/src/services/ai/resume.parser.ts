@@ -1,6 +1,7 @@
 import { safeGeminiCall } from './gemini.client';
 import { normalizeSkills } from '../../utils/skillNormalizer';
 import { IParsedData } from '../../models/Resume';
+import { logError } from '../../utils/logger';
 
 export async function parseResumeWithLLM(resumeText: string): Promise<{ parsedData: IParsedData, extraData: any, fullParsedJSON: any }> {
     const prompt = `
@@ -27,7 +28,7 @@ ${resumeText}
     try {
         full = JSON.parse(text);
     } catch (e) {
-        console.error("Failed to parse Gemini output as JSON", e);
+        logError('RESUME_PARSER', 'Failed to parse Gemini output as JSON', e);
         throw new Error("Resume Parsing Failed: Invalid JSON returned by LLM");
     }
 

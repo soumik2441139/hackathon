@@ -214,8 +214,9 @@ export const buildLatexPdf = async (req: AuthRequest, res: Response): Promise<vo
         fs.writeFileSync(texFile, latexSource);
 
         // 2. Compile LaTeX
-        // Running twice for references/toc if needed (standard LaTeX practice)
-        await execPromise(`pdflatex -interaction=nonstopmode -output-directory="${workingDir}" "${texFile}"`);
+        // Running with -no-shell-escape to sandbox against \write18 command injection.
+        // -interaction=nonstopmode prevents interactive prompts on errors.
+        await execPromise(`pdflatex -no-shell-escape -interaction=nonstopmode -output-directory="${workingDir}" "${texFile}"`);
         
         if (!fs.existsSync(pdfFile)) {
             throw new Error("LaTeX compilation failed to produce a PDF. Check your syntax.");

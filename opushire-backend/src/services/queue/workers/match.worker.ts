@@ -18,7 +18,7 @@ export function registerMatchWorker() {
     await resume.save();
 
     if (matches.length > 0) {
-      await (BotStat as any).incrementMetric('resumesMatched', 1);
+      await BotStat.incrementMetric('resumesMatched', 1);
     }
 
     await enqueue('career-advisor', 'advise', { resumeId: data.resumeId });
@@ -29,7 +29,7 @@ export function registerMatchWorker() {
     const job = await JobModel.findById(data.jobId);
     if (!job || job.isArchived) return { skipped: true };
 
-    const jobText = `${job.title} ${(job as any).verifiedTags?.join(', ') || ''} ${job.company}`;
+    const jobText = `${job.title} ${job.verifiedTags?.join(', ') || ''} ${job.company}`;
     let jobEmbedding: number[];
     try {
       jobEmbedding = await embedText(jobText);
@@ -59,7 +59,7 @@ export function registerMatchWorker() {
     }
 
     if (notificationsTriggered > 0) {
-      await (BotStat as any).incrementMetric('resumesMatched', notificationsTriggered);
+      await BotStat.incrementMetric('resumesMatched', notificationsTriggered);
     }
 
     return { candidatesScanned: results.length, notificationsTriggered };

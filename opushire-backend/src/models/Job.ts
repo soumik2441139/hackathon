@@ -32,6 +32,7 @@ export interface IJob extends Document {
     verifiedTags?: string[];
     statusHistory?: { from: string; to: string; actor: string; timestamp: Date }[];
     proposedTags?: string[];
+    longTagsToFix?: string[];
     isArchived?: boolean;
     archiveReason?: string;
     createdAt: Date;
@@ -86,6 +87,7 @@ const JobSchema = new Schema<IJob>(
         },
         verifiedTags: [{ type: String, trim: true }],
         proposedTags: [{ type: String, trim: true }],
+        longTagsToFix: [{ type: String, trim: true }],
         statusHistory: [{
             from: String,
             to: String,

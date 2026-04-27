@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { assertSafePublicUrl } from '../utils/urlSafety';
+import { logError } from '../utils/logger';
 
 /**
  * Fetches an image from a URL and converts it to a Base64 data URI.
@@ -27,12 +28,7 @@ export const imageToBase64 = async (url: string): Promise<string> => {
         const base64 = Buffer.from(response.data as any, 'binary').toString('base64');
         return `data:${contentType};base64,${base64}`;
     } catch (error: any) {
-        console.error(`❌ Failed to convert image to base64: ${url}`);
-        if (error.response) {
-            console.error(`   Status: ${error.response.status}`);
-        } else {
-            console.error(`   Error: ${error.message}`);
-        }
+        logError('IMAGE', `Failed to convert image to base64: ${url}`, error);
         return url; // Fallback to original URL if fetch fails
     }
 };

@@ -1,8 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { geminiBreaker, groqBreaker } from '../../utils/circuitBreaker';
+import { llmLatency } from '../../metrics/business.metrics';
+import { log, logError } from '../../utils/logger';
+import { env } from '../../config/env';
 import axios from 'axios';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
 
 export const geminiModel = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash'
@@ -28,30 +31,31 @@ export async function safeGeminiCall(prompt: string): Promise<string> {
 
     try {
         // Attempt 1: OpenRouter Auto Free Tier
-        const openRouterApi = process.env.OPENROUTER_API_KEY;
+        const openRouterApi = env.OPENROUTER_API_KEY;
         if (!openRouterApi) throw new Error('OPENROUTER_API_KEY is not defined');
 
+        const endTimer = llmLatency.startTimer({ model: 'openrouter/auto' });
         const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
             model: 'openrouter/auto',
             messages: [{ role: 'user', content: prompt }]
         }, {
             headers: {
                 'Authorization': `Bearer ${openRouterApi}`,
-                'HTTP-Referer': process.env.FRONTEND_URL || 'http://localhost:3000',
+                'HTTP-Referer': env.FRONTEND_URL,
                 'X-Title': 'OpusHire',
                 'Content-Type': 'application/json'
             },
             timeout: 15000
         });
-
+        endTimer({ status: 'success' });
         return cleanText(response.data.choices[0].message.content);
     } catch (openRouterErr: any) {
-        console.warn(`⚠️ [ROUTER] OpenRouter Failed (${openRouterErr.message}) -> Falling back to Groq`);
+        logError('LLM_ROUTER', `OpenRouter failed → falling back to Groq`, openRouterErr);
         
         try {
             // Attempt 2: Groq Fallback
             return await groqBreaker.exec(async () => {
-                const groqApi = process.env.GROQ_API_KEY;
+                const groqApi = env.GROQ_API_KEY;
                 if (!groqApi) throw new Error('GROQ_API_KEY is not defined');
                 
                 const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
@@ -65,7 +69,7 @@ export async function safeGeminiCall(prompt: string): Promise<string> {
                 return cleanText(response.data.choices[0].message.content);
             });
         } catch (groqErr: any) {
-            console.warn(`⚠️ [ROUTER] Groq Failed (${groqErr.message}) -> Falling back to Gemini Native`);
+            logError('LLM_ROUTER', `Groq failed → falling back to Gemini Native`, groqErr);
             
             // Attempt 3: Gemini Native Fallback
             return await geminiBreaker.exec(async () => {

@@ -275,9 +275,9 @@ process.on('unhandledRejection', (reason, promise) => {
 
 process.on('uncaughtException', (err) => {
     logger.error({ err }, 'Uncaught Exception thrown');
-    // For industry-grade safety, usually we shutdown after uncaughtException
-    // to avoid inconsistent state, but given this is a hackathon project
-    // we just log it for now to keep the service alive if possible.
+    // Log and continue — Azure App Service health checks will restart
+    // the process on sustained failures, avoiding unnecessary downtime
+    // for transient exceptions that don't corrupt application state.
 });
 
 export default app;

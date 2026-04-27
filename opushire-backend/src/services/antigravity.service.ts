@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { CandidateProfile } from './candidate.service';
 import { RawJob } from './jobFetcher.service';
+import { log, logError } from '../utils/logger';
 
 export interface ScoredJob {
     rank: number;
@@ -76,7 +77,7 @@ export async function antigravityScore(
 
     const openRouterKey = process.env.OPENROUTER_API_KEY;
     if (!openRouterKey) {
-        console.warn('[Antigravity] OPENROUTER_API_KEY missing — skipping AI scoring');
+        log('ANTIGRAVITY', 'OPENROUTER_API_KEY missing — skipping AI scoring');
         return [];
     }
 
@@ -132,7 +133,7 @@ export async function antigravityScore(
             parsed = JSON.parse(cleaned);
             if (!Array.isArray(parsed)) parsed = [];
         } catch {
-            console.warn('[Antigravity] Failed to parse LLM JSON output:', cleaned.slice(0, 200));
+            log('ANTIGRAVITY', `Failed to parse LLM JSON output: ${cleaned.slice(0, 200)}`);
             parsed = [];
         }
 
@@ -148,7 +149,7 @@ export async function antigravityScore(
             .slice(0, 10);
 
     } catch (err: any) {
-        console.error(`[Antigravity] OpenRouter call failed: ${err.message}`);
+        logError('ANTIGRAVITY', `OpenRouter call failed`, err);
         return [];
     }
 }

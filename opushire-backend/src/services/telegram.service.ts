@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { env } from '../config/env';
+import { log, logError } from '../utils/logger';
 
 export class TelegramService {
     private static botToken = env.TELEGRAM_BOT_TOKEN;
@@ -10,7 +11,7 @@ export class TelegramService {
      */
     static async sendMessage(chatId: string, message: string): Promise<boolean> {
         if (!this.botToken || !chatId) {
-            console.warn('[Telegram] Skipping send — missing BOT_TOKEN or chatId');
+            log('TELEGRAM', 'Skipping send — missing BOT_TOKEN or chatId');
             return false;
         }
 
@@ -23,10 +24,10 @@ export class TelegramService {
                 disable_web_page_preview: false,
             }, { timeout: 10000 });
 
-            console.log(`[Telegram] Message sent to ${chatId}`);
+            log('TELEGRAM', `Message sent to ${chatId}`);
             return true;
         } catch (err: any) {
-            console.error(`[Telegram] Error sending message: ${err.response?.data?.description || err.message}`);
+            logError('TELEGRAM', `Error sending message: ${err.response?.data?.description || err.message}`, err);
             return false;
         }
     }

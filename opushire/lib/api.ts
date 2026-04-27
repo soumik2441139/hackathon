@@ -215,6 +215,42 @@ export const applications = {
 };
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
+
+/** A job awaiting manual review after AI tag-fixing. */
+export interface PendingJob {
+    _id: string;
+    title: string;
+    company: string;
+    tags: string[];
+    verifiedTags: string[];
+}
+
+/** Runtime status of a bot process (legacy CLI or cloud-native). */
+export interface BotStatus {
+    id: string;
+    name: string;
+    description?: string;
+    dir?: string;
+    script?: string;
+    color?: string;
+    status: 'online' | 'stopped' | 'error' | 'starting' | 'stopping';
+    uptime?: number;
+    lastRun?: string;
+    type?: 'legacy' | 'cloud-native';
+}
+
+/** Aggregated daily pipeline report. */
+export interface DailyReport {
+    date: string;
+    jobsAdded: number;
+    anomaliesFound: number;
+    fixesMade: number;
+    hallucinationsCaught: number;
+    approvals: number;
+    jobsArchived: number;
+    resumesMatched: number;
+}
+
 export const admin = {
     getUsers: (role?: string) =>
         request<{ success: boolean; data: import('./types').User[] }>(`/admin/users${role ? `?role=${role}` : ''}`),
@@ -254,8 +290,7 @@ export const admin = {
         request<{ success: boolean; data: unknown }>('/admin/debug-db?force=true'),
 
     getPendingJobs: () =>
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        request<{ success: boolean; data: any[] }>('/admin/pending-jobs'),
+        request<{ success: boolean; data: PendingJob[] }>('/admin/pending-jobs'),
 
     resolvePendingJob: (id: string, action: 'approve' | 'reject') =>
         request<{ success: boolean; data: Record<string, unknown> }>(`/admin/apply-fix/${id}`, {
@@ -275,16 +310,13 @@ export const admin = {
 
     bots: {
         getStatuses: () =>
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            request<{ success: boolean; data: any[] }>('/admin/bots'),
+            request<{ success: boolean; data: BotStatus[] }>('/admin/bots'),
         pipeline: () =>
             request<{ success: boolean; message: string }>('/admin/bots/pipeline', { method: 'POST' }),
         start: (id: string) =>
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            request<{ success: boolean; data: any }>(`/admin/bots/${id}/start`, { method: 'POST' }),
+            request<{ success: boolean; data: BotStatus }>(`/admin/bots/${id}/start`, { method: 'POST' }),
         stop: (id: string) =>
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            request<{ success: boolean; data: any }>(`/admin/bots/${id}/stop`, { method: 'POST' }),
+            request<{ success: boolean; data: BotStatus }>(`/admin/bots/${id}/stop`, { method: 'POST' }),
         getLogs: (id: string) =>
             request<{ success: boolean; data: string[] }>(`/admin/bots/${id}/logs`),
     },
@@ -294,10 +326,8 @@ export const admin = {
     },
 
     reports: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        getAll: () => request<{ success: boolean; data: any }>('/admin/reports'),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        getByDate: (date: string) => request<{ success: boolean; data: any[] }>(`/admin/reports/${date}`),
+        getAll: () => request<{ success: boolean; data: Record<string, any> }>('/admin/reports'),
+        getByDate: (date: string) => request<{ success: boolean; data: DailyReport[] }>(`/admin/reports/${date}`),
     }
 };
 

@@ -2,6 +2,7 @@ import { findSimilar } from '../vector/similarity.search';
 import { rerank } from '../ranking/rerank.service';
 import { explainMatch } from '../ai/job.matcher';
 import { IParsedData, IResumeMatch } from '../../models/Resume';
+import { logError } from '../../utils/logger';
 
 export async function getMatches(resumeText: string, candidate: IParsedData): Promise<IResumeMatch[]> {
     // 1. Broad Vector Search (Top 20 from FAISS)
@@ -31,7 +32,7 @@ export async function getMatches(resumeText: string, candidate: IParsedData): Pr
                 explanation: explanationJsonStr
             });
         } catch (e) {
-            console.error(`Failed to explain match for job ${jobId}`, e);
+            logError('MATCH', `Failed to explain match for job ${jobId}`, e);
             // Fallback
             finalMatches.push({
                 job: jobId,

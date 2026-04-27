@@ -19,7 +19,7 @@ export function registerAdvisorWorker() {
     resume.markModified('extraData');
     await resume.save();
 
-    await (BotStat as any).incrementMetric('advisoriesGenerated', 1);
+    await BotStat.incrementMetric('advisoriesGenerated', 1);
 
     return { advised: true };
   });
@@ -28,7 +28,7 @@ export function registerAdvisorWorker() {
     log('WORKER', `LinkedIn enrichment requested for ${data.resumeId} (${data.linkedinUrl})`);
     
     // Increment metric for attempt/success (even if stubbed for now)
-    await (BotStat as any).incrementMetric('profilesEnriched', 1);
+    await BotStat.incrementMetric('profilesEnriched', 1);
     
     return { enriched: true, reason: 'Enrichment event recorded' };
   });

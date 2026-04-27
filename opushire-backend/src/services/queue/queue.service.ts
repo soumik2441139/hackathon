@@ -150,7 +150,7 @@ async function checkEvictionPolicy(client: IORedis, label: string) {
     const result = await client.config('GET', 'maxmemory-policy');
     const policy = Array.isArray(result) ? result[1] : null;
     if (policy && policy !== 'noeviction') {
-      console.warn(`[REDIS_${label}] IMPORTANT! Eviction policy is "${policy}". It should be "noeviction" for BullMQ stability.`);
+      log('REDIS', `[${label}] IMPORTANT! Eviction policy is "${policy}". It should be "noeviction" for BullMQ stability.`);
     }
   } catch (err) {
     // Some Redis providers (like Upstash) might disable CONFIG command.

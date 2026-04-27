@@ -3,6 +3,7 @@ import { Job } from '../models/Job';
 import { User } from '../models/User';
 import Resume from '../models/Resume';
 import { assertSafePublicUrl } from '../utils/urlSafety';
+import { log, logError } from '../utils/logger';
 
 // Trusted portals where auto-submit is allowed
 const SUBMIT_ALLOWLIST = [
@@ -46,10 +47,10 @@ export async function autoApplyToJob(jobId: string, userId: string) {
         page.setDefaultTimeout(20000);
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/114.0.0.0 Safari/537.36');
 
-        console.log(`[Auto-Apply] Navigating to ${safeExternalUrl}...`);
+        log('AUTO_APPLY', `Navigating to ${safeExternalUrl}...`);
         await page.goto(safeExternalUrl, { waitUntil: 'networkidle2', timeout: 30000 });
 
-        console.log(`[Auto-Apply] Attempting to fill application form for ${user.name}...`);
+        log('AUTO_APPLY', `Attempting to fill application form for ${user.name}...`);
 
         const phone = user.phone || '';
         const linkedin = user.linkedin || `https://linkedin.com/in/${user.name.split(' ')[0].toLowerCase()}`;
@@ -108,7 +109,7 @@ export async function autoApplyToJob(jobId: string, userId: string) {
         if (resume?.fileUrl) {
             const fileInputs = await page.$$('input[type="file"]');
             if (fileInputs.length > 0) {
-                console.log('[Auto-Apply] Resume file input detected — skipping file upload (CDN-hosted resume).');
+                log('AUTO_APPLY', 'Resume file input detected — skipping file upload (CDN-hosted resume).');
             }
         }
 
@@ -131,15 +132,15 @@ export async function autoApplyToJob(jobId: string, userId: string) {
 
             if (submitted) {
                 await new Promise(r => setTimeout(r, 3000));
-                console.log('[Auto-Apply] Application submitted on allowlisted ATS.');
+                log('AUTO_APPLY', 'Application submitted on allowlisted ATS.');
                 return { success: true, message: 'Application auto-filled and submitted.' };
             }
         }
 
-        console.log(`[Auto-Apply] Form populated successfully. Submit ${canSubmit ? 'button not found' : 'disabled (set AUTO_APPLY_SUBMIT=true for allowlisted portals)'}.`);
+        log('AUTO_APPLY', `Form populated successfully. Submit ${canSubmit ? 'button not found' : 'disabled (set AUTO_APPLY_SUBMIT=true for allowlisted portals)'}.`);
         return { success: true, message: 'Auto-fill completed. Manual submit required for this portal.' };
     } catch (err: any) {
-        console.error('[Auto-Apply] Error:', err.message);
+        logError('AUTO_APPLY', `Error: ${err.message}`, err);
         throw new Error(`Auto-Apply failed: ${err.message}`);
     } finally {
         await browser.close();

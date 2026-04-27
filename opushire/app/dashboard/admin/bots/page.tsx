@@ -8,27 +8,9 @@ import {
     FileText, ChevronDown, ChevronRight, Clock
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { admin as adminApi } from '@/lib/api';
+import { admin as adminApi, type BotStatus, type PendingJob } from '@/lib/api';
 import { BarVisualizer, type AgentState } from '@/components/ui/BarVisualizer';
 
-interface BotConfig {
-    id: string;
-    name: string;
-    description: string;
-    dir: string;
-    script: string;
-    color: string;
-    status: 'online' | 'stopped' | 'error';
-    uptime: number;
-}
-
-interface PendingJob {
-    _id: string;
-    title: string;
-    company: string;
-    tags: string[];
-    verifiedTags: string[];
-}
 
 interface BotStats {
     jobsAdded?: number;
@@ -61,7 +43,7 @@ interface BotReport {
 
 export default function AdminBotsDashboard() {
     const { user: currentUser } = useAuth();
-    const [bots, setBots] = useState<BotConfig[]>([]);
+    const [bots, setBots] = useState<BotStatus[]>([]);
     const [stats, setStats] = useState<BotStats>({});
     const [pendingJobs, setPendingJobs] = useState<PendingJob[]>([]);
     const [loading, setLoading] = useState(true);
@@ -117,7 +99,7 @@ export default function AdminBotsDashboard() {
                 adminApi.bots.getStatuses(),
                 adminApi.botStats.getToday()
             ]);
-            setBots(statusRes.data as BotConfig[]);
+            setBots(statusRes.data as BotStatus[]);
             if (statsRes.success) setStats(statsRes.data || {});
         } catch (err) {
             console.error('Failed to fetch bot statuses', err);

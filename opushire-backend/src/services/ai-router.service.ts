@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { env } from '../config/env';
+import { log, logError } from '../utils/logger';
 
 // Required interface for prompts
 interface RouterOptions {
@@ -19,13 +21,13 @@ interface RouterResponse {
  * it automatically re-routes the task to a massive, slow model.
  */
 export async function routeAIExtraction(options: RouterOptions): Promise<any> {
-    const groqKey = process.env.GROQ_API_KEY;
+    const groqKey = env.GROQ_API_KEY;
     if (!groqKey) {
         throw new Error('GROQ_API_KEY is not defined in environment variables.');
     }
 
     // Step 1: The Fast Model (Llama 8B)
-    console.log('[AI Router] 🚀 Querying Primary Fast Model (llama-3.1-8b-instant)...');
+    log('AI_ROUTER', 'Querying Primary Fast Model (llama-3.1-8b-instant)...');
     try {
         const primaryResult = await queryGroq(
             'llama-3.1-8b-instant',
@@ -37,17 +39,17 @@ export async function routeAIExtraction(options: RouterOptions): Promise<any> {
         const parsedPrimary = parseResponse(primaryResult);
 
         if (parsedPrimary.confidence_score >= 85) {
-            console.log(`[AI Router] ✅ Primary Model Success (Confidence: ${parsedPrimary.confidence_score}%)`);
+            log('AI_ROUTER', `Primary Model Success (Confidence: ${parsedPrimary.confidence_score}%)`);
             return parsedPrimary;
         } else {
-            console.log(`[AI Router] ⚠️ Primary Model Low Confidence (${parsedPrimary.confidence_score}%). Escalating...`);
+            log('AI_ROUTER', `Primary Model Low Confidence (${parsedPrimary.confidence_score}%). Escalating...`);
         }
     } catch (e: any) {
-        console.log(`[AI Router] ❌ Primary Model Failed/Crashed (${e.message}). Escalating...`);
+        log('AI_ROUTER', `Primary Model Failed (${e.message}). Escalating...`);
     }
 
     // Step 2: The Fallback Model (Llama-3.3-70B Versatile)
-    console.log('[AI Router] 🛡️ Triggering Fallback Heavy Model (llama-3.3-70b-versatile)...');
+    log('AI_ROUTER', 'Triggering Fallback Heavy Model (llama-3.3-70b-versatile)...');
     try {
         const fallbackResult = await queryGroq(
             'llama-3.3-70b-versatile',
@@ -57,10 +59,10 @@ export async function routeAIExtraction(options: RouterOptions): Promise<any> {
         );
 
         const parsedFallback = parseResponse(fallbackResult);
-        console.log(`[AI Router] ✅ Fallback Model Completed (Confidence: ${parsedFallback.confidence_score}%)`);
+        log('AI_ROUTER', `Fallback Model Completed (Confidence: ${parsedFallback.confidence_score}%)`);
         return parsedFallback;
     } catch (e: any) {
-        console.log(`[AI Router] ❌ Fallback Model Failed/Crashed (${e.message}).`);
+        logError('AI_ROUTER', 'Fallback Model Failed', e);
         throw new Error('AI Router failed on all models.');
     }
 }
@@ -80,7 +82,7 @@ async function queryGroq(model: string, systemPrompt: string, userPrompt: string
         },
         {
             headers: {
-                'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+                'Authorization': `Bearer ${env.GROQ_API_KEY}`,
                 'Content-Type': 'application/json'
             }
         }

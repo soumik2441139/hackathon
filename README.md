@@ -112,6 +112,45 @@ stateDiagram-v2
 - **Resume Insight Engine:** Uses `pdf-parse` and `pdf-lib` to extract text, which is then vectorized for 80%+ semantic similarity matching in `Qdrant`.
 - **Learning Path Advisor:** Generates customized skill-gap roadmaps for students based on their resume vs. leading job requirements.
 
+### End-to-End Data Flow
+
+> **The answer to "walk me through how a job gets from scraping to a student's dashboard":**
+
+```mermaid
+flowchart LR
+    subgraph Ingestion ["⬇️ Ingestion"]
+        R["Recruiter Bot\n(8 Providers)"]
+        D["Dedup Service\n(Redis SET NX)"]
+    end
+
+    subgraph QA ["🤖 AI Quality Pipeline"]
+        S["Scanner\n(detect messy tags)"]
+        F["Fixer\n(RAG + Memory → Gemini)"]
+        SV["Supervisor\n(hallucination check)"]
+    end
+
+    subgraph Storage ["💾 Storage"]
+        M["MongoDB Atlas"]
+        Q["Qdrant\n(768-dim embeddings)"]
+    end
+
+    subgraph Delivery ["📬 Delivery"]
+        MA["Matcher\n(FAISS → Rerank)"]
+        E["Email Worker\n(SMTP/Resend)"]
+        WS["WebSocket\n(Real-time)"]
+    end
+
+    R -->|"scrape"| D -->|"new jobs"| M
+    M -->|"BullMQ"| S -->|"queue"| F
+    F -->|"proposed fix"| SV
+    SV -->|"approved"| M
+    SV -->|"rejected"| F
+    M -->|"embed"| Q
+    Q -->|"ANN search"| MA
+    MA -->|"top matches"| E
+    MA -->|"live"| WS
+```
+
 ---
 
 ## 📂 Project Directory Structure

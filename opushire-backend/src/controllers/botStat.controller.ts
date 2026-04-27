@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import BotStat from '../models/BotStat';
+import { logError } from '../utils/logger';
 
 // GET /api/bots/stats/today
 export const getTodayStats = async (req: Request, res: Response) => {
@@ -9,7 +10,7 @@ export const getTodayStats = async (req: Request, res: Response) => {
 
         // If no stats exist for today yet, return a clean object with 0s
         if (!stat) {
-            stat = {
+            const defaults = {
                 date: today,
                 jobsAdded: 0,
                 anomaliesFound: 0,
@@ -20,13 +21,17 @@ export const getTodayStats = async (req: Request, res: Response) => {
                 resumesMatched: 0,
                 advisoriesGenerated: 0,
                 profilesEnriched: 0,
-                ghostJobsRemoved: 0
-            } as any;
+                ghostJobsRemoved: 0,
+                jobMatchesSaved: 0,
+            };
+            res.status(200).json({ success: true, data: defaults });
+            return;
         }
 
         res.status(200).json({ success: true, data: stat });
     } catch (error: any) {
-        console.error('Error fetching bot stats:', error);
+        logError('BOT_STATS', 'Error fetching bot stats', error);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
+

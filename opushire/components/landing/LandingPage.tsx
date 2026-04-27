@@ -345,20 +345,20 @@ export const LandingPage = () => {
       <section className="py-20 border-y border-white/5 bg-vantablack">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
           <div className="stat-item">
-            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">50+</div>
-            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Active Members</div>
+            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">1,200+</div>
+            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Jobs Scraped</div>
           </div>
           <div className="stat-item">
-            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">25+</div>
-            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Global Partners</div>
+            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">8</div>
+            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Data Sources</div>
           </div>
           <div className="stat-item">
-            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">$420M+</div>
-            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Contract Value</div>
+            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">11</div>
+            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">AI Agents</div>
           </div>
           <div className="stat-item">
-            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">94%</div>
-            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Promotion Rate</div>
+            <div className="text-3xl md:text-5xl font-extrabold mb-2 text-white">3</div>
+            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Redis Clusters</div>
           </div>
         </div>
       </section>

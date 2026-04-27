@@ -3,6 +3,7 @@ import path from "path";
 import { PDFDocument, rgb, degrees } from "pdf-lib";
 import { assertSafePath } from "../../utils/pathSafety";
 import { uploadDir } from "../../middleware/uploadResume";
+import { log } from "../../utils/logger";
 
 /**
  * Iterates through every page of a Resume PDF and natively burns a translucent
@@ -43,7 +44,7 @@ export async function watermarkPdf(inputPath: string, text: string): Promise<str
     fs.writeFileSync(safeOutput, outBytes);
     return safeOutput;
   } catch (err: any) {
-    console.warn(`[Watermark] PDF is possibly encrypted or malformed: ${err.message}`);
+    log('WATERMARK', `PDF is possibly encrypted or malformed: ${err.message}`);
     return safeInput;
   }
 }

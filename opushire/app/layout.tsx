@@ -5,6 +5,7 @@ import { Navbar } from "@/components/ui/Navbar";
 import { Footer } from "@/components/ui/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -31,7 +32,9 @@ export default function RootLayout({
         <SmoothScrollProvider>
           <AuthProvider>
             <Navbar />
-            {children}
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
             <Footer />
           </AuthProvider>
         </SmoothScrollProvider>

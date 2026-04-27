@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import IORedis from 'ioredis';
 import { SystemConfig } from '../config/system.config';
+import { log, logError } from '../utils/logger';
 
 const JOB_DEDUP_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
@@ -20,7 +21,7 @@ function getDedupClient(): IORedis {
             connectionName: 'jobdedup',
         });
         dedupClient.on('error', (err) => {
-            console.error('[JobDedup] Redis error:', err.message);
+            logError('JOB_DEDUP', 'Redis connection error', err);
         });
     }
     return dedupClient;
@@ -65,7 +66,7 @@ export async function filterNewJobs<T extends { job_url?: string; applyUrl?: str
             // If set === null, key already existed → duplicate, skip
         } catch (err: any) {
             // On Redis error, treat as new (fail-open) so we don't silently drop jobs
-            console.warn(`[JobDedup] Redis check failed for ${url}, failing open: ${err.message}`);
+            log('JOB_DEDUP', `Redis check failed for ${url}, failing open: ${err.message}`);
             newJobs.push(job);
         }
     }

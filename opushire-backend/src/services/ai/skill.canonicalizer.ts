@@ -1,4 +1,5 @@
 import { geminiModel } from './gemini.client';
+import { logError } from '../../utils/logger';
 
 export async function canonicalizeSkillsAI(skills: string[] = []): Promise<string[]> {
     if (!skills || skills.length === 0) return [];
@@ -27,7 +28,7 @@ ${skills.join(", ")}
         }
         return skills;
     } catch (err) {
-        console.error("Error canonicalizing skills:", err);
+        logError('SKILL_CANON', 'Error canonicalizing skills', err);
         return skills; // Fallback to original
     }
 }

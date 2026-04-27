@@ -15,7 +15,7 @@ export function registerCleanupWorker() {
     );
 
     if (archived.modifiedCount > 0) {
-      await (BotStat as any).incrementMetric('jobsArchived', archived.modifiedCount);
+      await BotStat.incrementMetric('jobsArchived', archived.modifiedCount);
     }
 
     return { deleted: deleted.deletedCount, archived: archived.modifiedCount };

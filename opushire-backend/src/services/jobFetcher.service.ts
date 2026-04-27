@@ -1,5 +1,6 @@
 import { scrapeJobs } from 'ts-jobspy';
 import { CandidateProfile } from './candidate.service';
+import { log } from '../utils/logger';
 
 const HOURS_OLD   = 24;
 const RESULTS_CAP = 50;
@@ -28,7 +29,7 @@ export async function fetchLiveJobs(profile: CandidateProfile): Promise<RawJob[]
 
     for (const searchTerm of searchTerms) {
         try {
-            console.log(`[JobFetcher] Fetching: "${searchTerm}" @ ${location}`);
+            log('JOB_FETCHER', `Fetching: "${searchTerm}" @ ${location}`);
 
             const result = await scrapeJobs({
                 siteName:       ['linkedin', 'indeed', 'naukri'],
@@ -50,12 +51,12 @@ export async function fetchLiveJobs(profile: CandidateProfile): Promise<RawJob[]
                 allJobs.push(job);
             }
 
-            console.log(`[JobFetcher] "${searchTerm}": ${jobs.length} results`);
+            log('JOB_FETCHER', `"${searchTerm}": ${jobs.length} results`);
         } catch (err: any) {
-            console.warn(`[JobFetcher] Search "${searchTerm}" failed: ${err.message}`);
+            log('JOB_FETCHER', `Search "${searchTerm}" failed: ${err.message}`);
         }
     }
 
-    console.log(`[JobFetcher] Total: ${allJobs.length} unique jobs across all queries`);
+    log('JOB_FETCHER', `Total: ${allJobs.length} unique jobs across all queries`);
     return allJobs;
 }

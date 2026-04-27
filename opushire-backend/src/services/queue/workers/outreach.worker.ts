@@ -8,7 +8,7 @@ import { TelegramService } from '../../telegram.service';
  * notifies candidates via Telegram if they have opted-in.
  */
 export function registerOutreachWorker() {
-    createWorker('job-outreach' as any, async (job: { data?: { candidateId?: string } }) => {
+    createWorker('job-outreach', async (job: { data?: { candidateId?: string } }) => {
         const targetCandidateId = job.data?.candidateId;
         
         // 1. Find matches with high score >= 85

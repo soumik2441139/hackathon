@@ -5,14 +5,15 @@ import { storeExample } from '../../rag/rag.service';
 import { recordEpisode } from '../../memory/agent.memory';
 import BotStat from '../../../models/BotStat';
 import { safeGeminiCall } from '../../ai/gemini.client';
+import { hallucinationsTotal, supervisorVerdicts } from '../../../metrics/business.metrics';
 
 export function registerSuperviseWorker() {
   createWorker('supervise-tags', async (data: { jobId: string }) => {
     const job = await JobModel.findById(data.jobId);
     if (!job || job.tagTileStatus !== 'PENDING_REVIEW') return { skipped: true };
 
-    const originalTags = (job as any).longTagsToFix || job.tags.filter((t: string) => t.length > 25);
-    const proposedTags = (job as any).proposedTags || [];
+    const originalTags = job.longTagsToFix || job.tags.filter((t: string) => t.length > 25);
+    const proposedTags = job.proposedTags || [];
 
     const prompt = `You are a strict QA bot. The original job requirements were:\n`
       + originalTags.join('\n')
@@ -31,7 +32,7 @@ export function registerSuperviseWorker() {
 
       await storeExample('fix-worker', originalTags.join(', '), proposedTags.join(', '));
       await recordEpisode('supervise-worker', 'approve-tags', originalTags.join(', '), `Approved: ${proposedTags.join(', ')}`, true);
-      
+      supervisorVerdicts.inc({ verdict: 'approve' });
       await enqueue('match-candidates', 'hunt', { jobId: job._id.toString() });
       return { status: 'READY_TO_APPLY' };
     }
@@ -41,7 +42,9 @@ export function registerSuperviseWorker() {
       $unset: { proposedTags: '' },
     });
 
-    await (BotStat as any).incrementMetric('hallucinationsCaught', 1);
+    await BotStat.incrementMetric('hallucinationsCaught', 1);
+    hallucinationsTotal.inc();
+    supervisorVerdicts.inc({ verdict: 'reject' });
 
     await recordEpisode('supervise-worker', 'reject-tags', originalTags.join(', '), `Rejected: ${proposedTags.join(', ')}`, false);
     await recordEpisode('fix-worker', 'generate-keywords', originalTags.join(', '), `Rejected by supervisor`, false);

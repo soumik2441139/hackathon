@@ -2,10 +2,11 @@ import Job from '../../models/Job';
 import { embedText } from '../ai/embedding.service';
 import { addVector } from './faiss.store';
 import { normalizeSkills } from '../../utils/skillNormalizer';
+import { log, logError } from '../../utils/logger';
 
 export async function indexAllJobs(): Promise<void> {
     try {
-        console.log("Starting bulk job vectorization...");
+        log('JOB_VECTORIZER', 'Starting bulk job vectorization...');
         const jobs = await Job.find({});
         
         let count = 0;
@@ -25,8 +26,8 @@ export async function indexAllJobs(): Promise<void> {
             count++;
         }
         
-        console.log(`✅ ${count} Jobs successfully indexed into FAISS`);
+        log('JOB_VECTORIZER', `${count} Jobs successfully indexed into FAISS`);
     } catch (e) {
-        console.error("Bulk indexing failed:", e);
+        logError('JOB_VECTORIZER', 'Bulk indexing failed', e);
     }
 }

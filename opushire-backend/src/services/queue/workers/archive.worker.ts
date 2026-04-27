@@ -25,7 +25,7 @@ export function registerArchiveWorker() {
 
       if (res.status === 404 || res.status === 410) {
         job.isArchived = true;
-        (job as any).archiveReason = 'Ghost position detected (404/410)';
+        job.archiveReason = 'Ghost position detected (404/410)';
         await job.save();
         
         await BotStat.incrementMetric('ghostJobsRemoved', 1);

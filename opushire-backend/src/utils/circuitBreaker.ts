@@ -1,4 +1,5 @@
 import { log, logError } from './logger';
+import { circuitBreakerTransitions } from '../metrics/business.metrics';
 
 /**
  * Circuit Breaker for external API calls (LLM APIs, etc.)
@@ -46,6 +47,7 @@ export class CircuitBreaker {
     if (this.state === 'OPEN') {
       if (Date.now() - this.lastFailureTime >= this.resetTimeoutMs) {
         this.state = 'HALF_OPEN';
+        circuitBreakerTransitions.inc({ from_state: 'OPEN', to_state: 'HALF_OPEN' });
         log('CIRCUIT_BREAKER', `${this.name}: OPEN → HALF_OPEN (probing)`);
       } else {
         throw new CircuitOpenError(
@@ -71,6 +73,7 @@ export class CircuitBreaker {
         this.state = 'CLOSED';
         this.failureCount = 0;
         this.successCount = 0;
+        circuitBreakerTransitions.inc({ from_state: 'HALF_OPEN', to_state: 'CLOSED' });
         log('CIRCUIT_BREAKER', `${this.name}: HALF_OPEN → CLOSED (recovered)`);
       }
     } else {
@@ -89,9 +92,11 @@ export class CircuitBreaker {
     if (this.state === 'HALF_OPEN') {
       // Single failure in HALF_OPEN trips back to OPEN
       this.state = 'OPEN';
+      circuitBreakerTransitions.inc({ from_state: 'HALF_OPEN', to_state: 'OPEN' });
       log('CIRCUIT_BREAKER', `${this.name}: HALF_OPEN → OPEN (probe failed)`);
     } else if (this.failureCount >= this.failureThreshold) {
       this.state = 'OPEN';
+      circuitBreakerTransitions.inc({ from_state: 'CLOSED', to_state: 'OPEN' });
       log('CIRCUIT_BREAKER', `${this.name}: CLOSED → OPEN after ${this.failureCount} failures`);
     }
   }

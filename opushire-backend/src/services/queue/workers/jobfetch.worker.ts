@@ -6,6 +6,7 @@ import { antigravityScore }     from '../../antigravity.service';
 import { JobMatch }             from '../../../models/JobMatch';
 import BotStat                  from '../../../models/BotStat';
 import mongoose                 from 'mongoose';
+import { log }                  from '../../../utils/logger';
 
 export function registerJobFetchWorker() {
     createWorker('fetch-jobs', async (data: { candidateId: string }) => {
@@ -14,7 +15,7 @@ export function registerJobFetchWorker() {
         // ── 1. Build candidate profile ──────────────────────────────
         const profile = await getCandidateProfile(candidateId);
         if (!profile) {
-            console.warn(`[JobFetch] No profile found for candidate ${candidateId}`);
+            log('JOB_FETCH', `No profile found for candidate ${candidateId}`);
             return { skipped: true, reason: 'no_profile' };
         }
 
@@ -69,7 +70,7 @@ export function registerJobFetchWorker() {
             // Partial success — some inserted, some duplicates
             if (err.code === 11000 || err.name === 'BulkWriteError') {
                 saved = err.result?.nInserted ?? 0;
-                console.warn(`[JobFetch] ${saved} saved, rest were duplicates`);
+                log('JOB_FETCH', `${saved} saved, rest were duplicates`);
             } else {
                 throw err;
             }
@@ -77,7 +78,7 @@ export function registerJobFetchWorker() {
 
         // ── 6. Update stats ─────────────────────────────────────────
         if (saved > 0) {
-            await (BotStat as any).incrementMetric('jobMatchesSaved', saved).catch(() => {});
+            await BotStat.incrementMetric('jobMatchesSaved', saved).catch(() => {});
             // ── 7. Trigger Outreach immediately ─────────────────────
             await enqueue('job-outreach', 'immediate-outreach', { candidateId }).catch(() => {});
         }

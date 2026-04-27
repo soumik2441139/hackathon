@@ -12,6 +12,7 @@ export interface IBotStat extends Document {
     advisoriesGenerated: number;
     profilesEnriched: number;
     ghostJobsRemoved: number;
+    jobMatchesSaved: number;
 }
 
 // Interface for static methods
@@ -32,6 +33,7 @@ const botStatSchema = new Schema({
     advisoriesGenerated: { type: Number, default: 0 },
     profilesEnriched: { type: Number, default: 0 },
     ghostJobsRemoved: { type: Number, default: 0 },
+    jobMatchesSaved: { type: Number, default: 0 },
 }, {
     timestamps: true
 });

@@ -1,6 +1,7 @@
 import faiss from 'faiss-node';
 import fs from 'fs';
 import path from 'path';
+import { log, logError } from '../../utils/logger';
 
 const DIMENSIONS = 768; // Based on text-embedding-004 output size
 const PERSIST_DIR = path.join(__dirname, '..', '..', '..', 'data', 'faiss');
@@ -17,11 +18,11 @@ function initIndex(): faiss.IndexFlatL2 {
         if (fs.existsSync(INDEX_PATH) && fs.existsSync(IDMAP_PATH)) {
             const loaded = faiss.IndexFlatL2.read(INDEX_PATH);
             idMap = JSON.parse(fs.readFileSync(IDMAP_PATH, 'utf-8'));
-            console.log(`[FAISS] Loaded ${idMap.length} vectors from disk`);
+            log('FAISS', `Loaded ${idMap.length} vectors from disk`);
             return loaded;
         }
     } catch (e: any) {
-        console.warn(`[FAISS] Failed to load persisted index, starting fresh: ${e.message}`);
+        log('FAISS', `Failed to load persisted index, starting fresh: ${e.message}`);
     }
     return new faiss.IndexFlatL2(DIMENSIONS);
 }
@@ -34,7 +35,7 @@ function persistToDisk(): void {
         index.write(INDEX_PATH);
         fs.writeFileSync(IDMAP_PATH, JSON.stringify(idMap));
     } catch (e: any) {
-        console.error(`[FAISS] Persist failed: ${e.message}`);
+        logError('FAISS', `Persist failed: ${e.message}`, e);
     }
 }
 

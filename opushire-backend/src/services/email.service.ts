@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 import nodemailer from 'nodemailer';
 import { env } from '../config/env';
 import { createError } from '../middleware/errorHandler';
+import { log } from '../utils/logger';
 
 const VERIFICATION_TTL_MINUTES = 10;
 
@@ -96,10 +97,10 @@ export const sendVerificationCodeEmail = async ({
                 text,
                 html,
             });
-            console.log(`[EMAIL] Real SMTP delivery success to ${email}`);
+            log('EMAIL', `Real SMTP delivery success to ${email}`);
             return;
         } catch (err: any) {
-            console.warn(`[EMAIL] Real SMTP failed, falling back to Resend: ${err.message}`);
+            log('EMAIL', `Real SMTP failed, falling back to Resend: ${err.message}`);
         }
     }
 
@@ -189,10 +190,10 @@ export const sendAutoMatchEmail = async ({
                 subject,
                 html,
             });
-            console.log(`[EMAIL] Auto-Match alert successfully delivered via SMTP to ${email}`);
+            log('EMAIL', `Auto-Match alert successfully delivered via SMTP to ${email}`);
             return;
         } catch (err: any) {
-            console.warn(`[EMAIL] Real SMTP failed: ${err.message}`);
+            log('EMAIL', `Real SMTP failed: ${err.message}`);
         }
     }
 

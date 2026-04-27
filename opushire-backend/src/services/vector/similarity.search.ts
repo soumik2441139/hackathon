@@ -1,6 +1,7 @@
 import { embedText } from '../ai/embedding.service';
 import { search } from './faiss.store';
 import Job, { IJob } from '../../models/Job';
+import { logError } from '../../utils/logger';
 
 export async function findSimilar(text: string, limit: number = 20): Promise<IJob[]> {
     try {
@@ -18,7 +19,7 @@ export async function findSimilar(text: string, limit: number = 20): Promise<IJo
         
         return sortedJobs;
     } catch (e) {
-        console.error("Similarity Search Failed:", e);
+        logError('VECTOR_SEARCH', 'Similarity search failed', e);
         return [];
     }
 }

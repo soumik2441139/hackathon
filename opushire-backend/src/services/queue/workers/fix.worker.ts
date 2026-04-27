@@ -15,13 +15,13 @@ const FIXER_STOP_WORDS = new Set([
   'to', 'of', 'in', 'on', 'at', 'by', 'as', 'an', 'a', 'is', 'are', 'be'
 ]);
 
-function parseKeywordList(text: string): string[] {
+export function parseKeywordList(text: string): string[] {
   return text.replace(/[*_]/g, '').replace(/\n/g, ', ').split(',')
     .map((k: string) => k.replace(/[^a-zA-Z0-9+#\s]/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase())
     .filter(Boolean).slice(0, 3);
 }
 
-function extractFallbackKeywords(lines: string[]): string[] {
+export function extractFallbackKeywords(lines: string[]): string[] {
   const counts = new Map<string, number>();
   for (const line of lines || []) {
     const words = String(line || '').toLowerCase().replace(/[^a-z0-9+#\s]/g, ' ').split(/\s+/).filter(Boolean);
@@ -40,7 +40,7 @@ export function registerFixWorker() {
     if (!job || job.tagTileStatus !== 'NEEDS_SHORTENING') return { skipped: true };
 
 
-    const longTags = ((job as any).longTagsToFix || job.tags || []) as string[];
+    const longTags = (job.longTagsToFix || job.tags || []) as string[];
     const tagsText = longTags.join('\n');
 
     const examples = await getExamples('fix-worker', tagsText, 3);
