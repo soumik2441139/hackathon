@@ -21,7 +21,7 @@ export const imageToBase64 = async (url: string): Promise<string> => {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }
         });
-        let contentType = response.headers['content-type'] || 'image/png';
+        let contentType = String(response.headers['content-type'] || 'image/png');
         // Handle cases where multiple content-types might be returned or other weirdness
         if (contentType.includes(';')) contentType = contentType.split(';')[0];
 
