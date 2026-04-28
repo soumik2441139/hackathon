@@ -22,7 +22,7 @@ export interface IBotJob extends Document {
     deadline?: Date;
     featured: boolean;
     posted: string;
-    source: 'manual' | 'remotive' | 'arbeitnow' | 'adzuna' | 'telegram';
+    source: 'manual' | 'remotive' | 'arbeitnow' | 'adzuna' | 'telegram' | 'himalayas' | 'jsearch' | 'linkedin' | 'activejobsdb';
     externalId: string;
     externalUrl: string;
     createdAt: Date;
@@ -59,7 +59,7 @@ const BotJobSchema = new Schema<IBotJob>(
         posted: { type: String },
         source: {
             type: String,
-            enum: ['manual', 'remotive', 'arbeitnow', 'adzuna', 'telegram'],
+            enum: ['manual', 'remotive', 'arbeitnow', 'adzuna', 'telegram', 'himalayas', 'jsearch', 'linkedin', 'activejobsdb'],
             required: true,
         },
         externalId: { type: String, required: true, unique: true },
