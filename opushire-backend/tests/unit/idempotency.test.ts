@@ -122,7 +122,7 @@ describe('Idempotency Middleware', () => {
     expect(next).not.toHaveBeenCalled();
     expect(res._status).toBe(201);
     expect(res._body).toEqual({ success: true, id: 'job-123' });
-    expect(res._headers['X-Idempotent-Replayed']).toBe('true');
+    expect((res as any)._headers['X-Idempotent-Replayed']).toBe('true');
   });
 
   it('should degrade gracefully when Redis client is null', async () => {
