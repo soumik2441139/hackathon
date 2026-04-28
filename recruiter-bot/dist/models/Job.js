@@ -64,7 +64,7 @@ const BotJobSchema = new mongoose_1.Schema({
     posted: { type: String },
     source: {
         type: String,
-        enum: ['manual', 'remotive', 'arbeitnow', 'adzuna', 'telegram'],
+        enum: ['manual', 'remotive', 'arbeitnow', 'adzuna', 'telegram', 'himalayas', 'jsearch', 'linkedin', 'activejobsdb'],
         required: true,
     },
     externalId: { type: String, required: true, unique: true },
