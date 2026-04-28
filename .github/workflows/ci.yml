@@ -26,6 +26,11 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         
+    - name: Install Native Build Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libblas-dev liblapack-dev
+
     - name: Install Monorepo Dependencies
       run: |
         # Wipe windows generated lockfile to allow free Linux resolution
@@ -63,10 +68,16 @@ jobs:
       with:
         node-version: 22
 
+    - name: Install Native Build Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libblas-dev liblapack-dev
+
     - name: Install Dependencies
       run: |
         rm -f package-lock.json
         npm install --include=optional
+
 
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps chromium
@@ -117,10 +128,16 @@ jobs:
       with:
         node-version: 22
 
+    - name: Install Native Build Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libblas-dev liblapack-dev
+
     - name: Install Dependencies
       run: |
         rm -f package-lock.json
         npm install --include=optional
+
 
     - name: Build Backend
       run: npx tsc -p opushire-backend/tsconfig.json
