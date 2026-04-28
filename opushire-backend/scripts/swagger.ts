@@ -20,7 +20,7 @@ Endpoints are grouped by domain:
 - 🎓 **Career Advisor** — LLM-powered skill gap analysis
 - 🤖 **Bots** — Background AI micro-agent status & monitoring
     `,
-    contact: { name: 'Soumik', url: 'https://github.com/soumik2441139/hackathon' },
+    contact: { name: 'Soumik', url: 'https://github.com/soumik2441139/OpusHire' },
   },
   host: process.env.NODE_ENV === 'production'
     ? 'opushire-backend-app-hbarc3h7ckashzhb.centralindia-01.azurewebsites.net'

@@ -1,5 +1,5 @@
 {
-  "name": "hackathon",
+  "name": "opushire",
   "version": "1.0.0",
   "description": "<div align=\"center\">\r   <br />\r   <h1>OpusHire 🚀</h1>\r   <p><strong>Career Protocol for Students.</strong></p>\r   <p>The premium job portal designed explicitly for ambitious students and innovative tech companies.</p>\r   <br />",
   "main": "index.js",
@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/soumik2441139/hackathon.git"
+    "url": "git+https://github.com/soumik2441139/OpusHire.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/soumik2441139/hackathon/issues"
+    "url": "https://github.com/soumik2441139/OpusHire/issues"
   },
-  "homepage": "https://github.com/soumik2441139/hackathon#readme",
+  "homepage": "https://github.com/soumik2441139/OpusHire#readme",
   "workspaces": [
     "opushire",
     "opushire-backend",

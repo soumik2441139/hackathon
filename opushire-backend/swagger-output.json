@@ -6,7 +6,7 @@
     "description": "\n**OpusHire** - Enterprise-Grade Autonomous Career Protocol API.\n\nEndpoints are grouped by domain:\n- 🔐 **Auth** — Registration, Login, JWT token management\n- 💼 **Jobs** — Job listings, search, AI tag pipeline management  \n- 📄 **Resume** — Upload, parse, and AI-match candidate resumes\n- 🤝 **Applications** — Apply for jobs, track application status\n- 🧠 **AI Matching** — Semantic Qdrant vector search\n- 🎓 **Career Advisor** — LLM-powered skill gap analysis\n- 🤖 **Bots** — Background AI micro-agent status & monitoring\n    ",
     "contact": {
       "name": "Soumik",
-      "url": "https://github.com/soumik2441139/hackathon"
+      "url": "https://github.com/soumik2441139/OpusHire"
     }
   },
   "servers": [
