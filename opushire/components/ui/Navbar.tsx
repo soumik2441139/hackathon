@@ -19,7 +19,7 @@ export const Navbar = () => {
                         <span className="material-symbols-outlined text-white text-xl">deployed_code</span>
                     </div>
                     <span className="font-display text-xl font-bold tracking-tighter uppercase text-white">
-                        Opushire
+                        OpusHire
                     </span>
                 </Link>
 

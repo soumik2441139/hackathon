@@ -6,7 +6,7 @@ describe('API Health Checks', () => {
   it('GET / should return alive status', async () => {
     const res = await request(app).get('/');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ status: 'alive', message: 'Opushire Backend API' });
+    expect(res.body).toEqual({ status: 'alive', message: 'OpusHire Backend API' });
   });
 
   it('GET /health should return environmental variables', async () => {

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
-import { Job } from './src/models/Job';
-import { User } from './src/models/User';
+import { Job } from '../src/models/Job';
+import { User } from '../src/models/User';
+import { imageToBase64 } from '../src/services/image.service';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -10,7 +11,6 @@ if (!url) {
     console.error('❌ MONGODB_URI is not defined in the environment variables');
     process.exit(1);
 }
-import { imageToBase64 } from './src/services/image.service';
 
 const seedJobs = async () => {
     try {
@@ -21,7 +21,7 @@ const seedJobs = async () => {
         let user = await User.findOne({ email: 'admin@opushire.com' });
         if (!user) {
             user = await User.create({
-                name: 'Opushire Admin',
+                name: 'OpusHire Admin',
                 email: 'admin@opushire.com',
                 passwordHash: 'password123', // In real app it should be hashed, but fine for seed
                 role: 'admin'
@@ -48,7 +48,7 @@ const seedJobs = async () => {
                 openings: 2,
                 featured: true,
                 posted: "1 day ago",
-                postedBy: user._id
+                postedBy: user?._id
             },
             {
                 title: "Backend SWE (Go)",
@@ -68,7 +68,7 @@ const seedJobs = async () => {
                 openings: 5,
                 featured: true,
                 posted: "3 days ago",
-                postedBy: user._id
+                postedBy: user?._id
             },
             {
                 title: "Product Designer UI/UX",
@@ -88,7 +88,7 @@ const seedJobs = async () => {
                 openings: 1,
                 featured: false,
                 posted: "1 week ago",
-                postedBy: user._id
+                postedBy: user?._id
             },
             {
                 title: "Machine Learning Intern",
@@ -108,7 +108,7 @@ const seedJobs = async () => {
                 openings: 10,
                 featured: true,
                 posted: "Just now",
-                postedBy: user._id
+                postedBy: user?._id
             },
             {
                 title: "Full Stack Developer",
@@ -128,7 +128,7 @@ const seedJobs = async () => {
                 openings: 3,
                 featured: true,
                 posted: "2 hours ago",
-                postedBy: user._id
+                postedBy: user?._id
             }
         ];
 

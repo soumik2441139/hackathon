@@ -14,7 +14,7 @@ const manrope = Manrope({
 
 
 export const metadata: Metadata = {
-  title: "Opushire | Premium Student Job Portal",
+  title: "OpusHire | Premium Student Job Portal",
   description: "Connect with high-growth tech companies and land your dream internship.",
 };
 

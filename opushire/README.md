@@ -1,6 +1,6 @@
-# Opushire Frontend (Next.js Application)
+# OpusHire Frontend (Next.js Application)
 
-This is the front-end application for the **Opushire** premium student job portal. It is built using modern React server components and a custom glassmorphism design system.
+This is the front-end application for the **OpusHire** premium student job portal. It is built using modern React server components and a custom glassmorphism design system.
 
 ## 🚀 Tech Stack
 

@@ -17,7 +17,7 @@ export const CTASection = () => {
                             <span className="text-gradient">dream role?</span>
                         </h2>
                         <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto mb-12">
-                            Join thousands of students who have launched their careers through Opushire. Start your journey today.
+                            Join thousands of students who have launched their careers through OpusHire. Start your journey today.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link href="/register">

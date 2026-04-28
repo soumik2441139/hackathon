@@ -11,7 +11,7 @@ export const Footer = () => {
                             <div className="size-6 bg-primary rounded flex items-center justify-center transition-transform group-hover:scale-105">
                                 <span className="material-symbols-outlined text-white text-[14px]">deployed_code</span>
                             </div>
-                            <span className="text-lg font-bold tracking-tighter uppercase text-white">Opushire</span>
+                            <span className="text-lg font-bold tracking-tighter uppercase text-white">OpusHire</span>
                         </Link>
                         <p className="text-slate-500 text-sm leading-relaxed max-w-[200px]">Autonomous talent infrastructure for the next generation of industry leaders.</p>
                     </div>

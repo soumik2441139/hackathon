@@ -88,7 +88,7 @@ export default function CreateJobPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-white/70">Company Name *</label>
-                                    <input type="text" placeholder="e.g. Opushire" required value={form.company} onChange={set('company')} className={inputClass} />
+                                    <input type="text" placeholder="e.g. OpusHire" required value={form.company} onChange={set('company')} className={inputClass} />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-white/70">Location</label>

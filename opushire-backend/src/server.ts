@@ -120,7 +120,7 @@ app.use((req, res, next) => {
 
 // Health check
 app.get('/', (_req, res) => {
-    res.json({ status: 'alive', message: 'Opushire Backend API' });
+    res.json({ status: 'alive', message: 'OpusHire Backend API' });
 });
 
 app.get('/health', (_req, res) => {
@@ -227,7 +227,7 @@ const start = async () => {
 
     // Start HTTP server immediately — don't block on DB or Redis
     httpServer = app.listen(env.PORT, () => {
-        logger.info({ port: env.PORT, env: env.NODE_ENV }, `Opushire API running on http://localhost:${env.PORT}`);
+        logger.info({ port: env.PORT, env: env.NODE_ENV }, `OpusHire API running on http://localhost:${env.PORT}`);
     });
 
     // Mount Bidirectional WebSockets to the raw HTTP server instance
