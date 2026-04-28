@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+.env.example
+.vscode
+tests
+loadtest
+logs
+uploads
+dist
+swagger-output.json
+*.md
+jest.config.js
+tsconfig.tsbuildinfo

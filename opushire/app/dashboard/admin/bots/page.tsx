@@ -49,11 +49,14 @@ export default function AdminBotsDashboard() {
     const [loading, setLoading] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
 
-    useEffect(() => { setIsMounted(true); }, []);
+    useEffect(() => { 
+        const timeout = setTimeout(() => setIsMounted(true), 0);
+        return () => clearTimeout(timeout);
+    }, []);
 
     const [selectedBotId, setSelectedBotId] = useState<string | null>(null);
     const [logs, setLogs] = useState<string[]>([]);
-    const [isPollingLogs, setIsPollingLogs] = useState(false);
+    const isPollingLogs = !!selectedBotId;
 
     // Reports state
     const [reports, setReports] = useState<Record<string, BotReport[]>>({});
@@ -79,11 +82,9 @@ export default function AdminBotsDashboard() {
 
     useEffect(() => {
         if (!selectedBotId) {
-            setIsPollingLogs(false);
             return;
         }
 
-        setIsPollingLogs(true);
         fetchLogs(selectedBotId);
 
         const interval = setInterval(() => {
@@ -93,7 +94,7 @@ export default function AdminBotsDashboard() {
         return () => clearInterval(interval);
     }, [selectedBotId]);
 
-    const fetchBotStatuses = async () => {
+    async function fetchBotStatuses() {
         try {
             const [statusRes, statsRes] = await Promise.all([
                 adminApi.bots.getStatuses(),
@@ -106,27 +107,27 @@ export default function AdminBotsDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }
 
-    const fetchPendingJobs = async () => {
+    async function fetchPendingJobs() {
         try {
             const res = await adminApi.getPendingJobs();
             if (res.success) setPendingJobs(res.data);
         } catch (err) {
             console.error('Failed to fetch pending jobs', err);
         }
-    };
+    }
 
-    const fetchLogs = async (id: string) => {
+    async function fetchLogs(id: string) {
         try {
             const res = await adminApi.bots.getLogs(id);
             setLogs(res.data);
         } catch (err) {
             console.error('Failed to fetch logs', err);
         }
-    };
+    }
 
-    const fetchReports = async () => {
+    async function fetchReports() {
         setReportsLoading(true);
         try {
             const res = await adminApi.reports.getAll();
@@ -136,7 +137,7 @@ export default function AdminBotsDashboard() {
         } finally {
             setReportsLoading(false);
         }
-    };
+    }
 
     const handleAction = async (id: string, action: 'start' | 'stop') => {
         try {

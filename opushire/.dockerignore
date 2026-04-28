@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+.gitignore
+.env.local
+*.md
+e2e
+playwright-report
+test-results
+tsconfig.tsbuildinfo

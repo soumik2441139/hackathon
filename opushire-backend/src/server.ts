@@ -1,3 +1,6 @@
+// OpenTelemetry MUST be initialized before any other import
+import './config/tracing';
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -9,8 +12,9 @@ import { connectDB } from './config/db';
 import { corsOptions } from './config/cors';
 import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
-import { logger, setTraceId, getTraceId } from './utils/logger';
+import { logger, setTraceId, getTraceId, runWithTraceId, asyncStore } from './utils/logger';
 import crypto from 'crypto';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 import authRoutes from './routes/auth.routes';
 import jobRoutes from './routes/job.routes';
 import applicationRoutes from './routes/application.routes';
@@ -33,6 +37,7 @@ import { registerGlobalEvents } from './events/registerEvents';
 
 import { geminiBreaker, groqBreaker } from './utils/circuitBreaker';
 import { mongoSanitize } from './middleware/sanitize';
+import { createIdempotencyMiddleware } from './middleware/idempotency';
 import { isEmailVerificationConfigured } from './services/email.service';
 
 // BullMQ Workers — initialized lazily after Redis probe
@@ -94,10 +99,9 @@ const metricsMiddleware = promBundle({
 });
 app.use(metricsMiddleware);
 
-// Per-request trace ID & structured HTTP logging
+// Per-request trace ID & structured HTTP logging (async-safe via AsyncLocalStorage)
 app.use((req, res, next) => {
     const traceId = (req.headers['x-trace-id'] as string) || crypto.randomUUID();
-    setTraceId(traceId);
     res.setHeader('x-trace-id', traceId);
     const start = Date.now();
     res.on('finish', () => {
@@ -110,7 +114,8 @@ app.use((req, res, next) => {
             durationMs: Date.now() - start,
         }, `${req.method} ${req.originalUrl} ${res.statusCode}`);
     });
-    next();
+    // Run the rest of the request inside an isolated async context
+    asyncStore.run({ traceId }, () => next());
 });
 
 // Health check
@@ -174,10 +179,23 @@ if (existsSync(swaggerPath)) {
     app.get('/api/docs.json', (_req, res) => res.json(swaggerDocument));
 }
 
+// Idempotency Middleware — prevents duplicate processing on mutation endpoints
+// Uses Redis SET NX for lock acquisition; degrades gracefully if Redis is unavailable.
+const idempotency = createIdempotencyMiddleware(() => {
+    try {
+        // Lazy import to avoid circular dependency
+        const IORedis = require('ioredis');
+        const { env: appEnv } = require('./config/env');
+        // Reuse the primary Redis host for idempotency cache
+        if (!appEnv.REDIS_HOST) return null;
+        return new IORedis({ host: appEnv.REDIS_HOST, port: 6379, maxRetriesPerRequest: 1, lazyConnect: true });
+    } catch { return null; }
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/jobs', jobRoutes);
-app.use('/api/applications', applicationRoutes);
+app.use('/api/jobs', idempotency, jobRoutes);
+app.use('/api/applications', idempotency, applicationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/bots', botRoutes);
 app.use('/api/admin/bot-stats', botStatRoutes);
@@ -185,7 +203,7 @@ app.use('/api/admin/reports', reportRoutes);
 app.use('/api/freeapi', freeapiRoutes);
 
 // AI & Job Matching Ecosystem
-app.use('/api/resume', resumeRoutes);
+app.use('/api/resume', idempotency, resumeRoutes);
 app.use('/api/resume-score', resumeScoreRoutes);
 app.use('/api/match', matchRoutes);
 app.use('/api/career-advisor', careerAdvisorRoutes);

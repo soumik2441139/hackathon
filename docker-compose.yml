@@ -1,34 +1,73 @@
 version: '3.8'
 
+# ═══════════════════════════════════════════════════════════════════
+#  OpusHire Production Orchestrator
+#  Brings up the entire distributed ecosystem in ~3 minutes.
+#  Usage:  docker compose up --build -d
+#  Health: docker compose ps  (all services should show "healthy")
+# ═══════════════════════════════════════════════════════════════════
+
 services:
-  # 1. Reverse Proxy (API Gateway)
+  # ── 1. Reverse Proxy (API Gateway) ─────────────────────────────
   nginx:
-    image: nginx:alpine
+    image: nginx:1.27-alpine
+    container_name: opushire-gateway
+    restart: unless-stopped
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - frontend
-      - backend
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - opushire-net
+    labels:
+      com.opushire.role: "gateway"
+      com.opushire.tier: "edge"
 
-  # 2. Next.js App
+  # ── 2. Next.js Frontend ────────────────────────────────────────
   frontend:
     build:
       context: ./opushire
       dockerfile: Dockerfile
+    container_name: opushire-frontend
+    restart: unless-stopped
     env_file:
       - ./opushire/.env.local
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost/api
     expose:
       - "3000"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5
+    networks:
+      - opushire-net
+    labels:
+      com.opushire.role: "frontend"
+      com.opushire.tier: "presentation"
 
-  # 3. Express API (No more Bot Spawning!)
+  # ── 3. Express API ─────────────────────────────────────────────
   backend:
     build:
       context: ./opushire-backend
       dockerfile: Dockerfile
+    container_name: opushire-api
+    restart: unless-stopped
     env_file:
       - ./opushire-backend/.env
     environment:
@@ -42,44 +81,123 @@ services:
       - STORAGE_URL=http://minio:9000
       - STORAGE_ACCESS_KEY=minioadmin
       - STORAGE_SECRET_KEY=minioadmin
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_SERVICE_NAME=opushire-backend
     expose:
       - "5000"
     depends_on:
-      - mongo
-      - redis-primary
-      - minio
-      - qdrant
+      mongo:
+        condition: service_healthy
+      redis-primary:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    mem_limit: 1g
+    cpus: 1.0
+    networks:
+      - opushire-net
+    labels:
+      com.opushire.role: "api"
+      com.opushire.tier: "backend"
 
-  # 4. Core Database
+  # ── 4. MongoDB ─────────────────────────────────────────────────
   mongo:
     image: mongo:6.0
+    container_name: opushire-mongo
+    restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    mem_limit: 512m
+    networks:
+      - opushire-net
+    labels:
+      com.opushire.role: "database"
+      com.opushire.tier: "storage"
 
-  # 5, 6, 7. Triple Redis Architecture
+  # ── 5. Redis Primary (Core Routing & BullMQ) ──────────────────
   redis-primary:
     image: redis:7.2-alpine
-    command: redis-server --appendonly yes --maxmemory 50mb --maxmemory-policy allkeys-lru
+    container_name: opushire-redis-primary
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 50mb --maxmemory-policy noeviction
     ports:
       - "6379:6379"
-  
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    mem_limit: 128m
+    networks:
+      - opushire-net
+    labels:
+      com.opushire.role: "cache"
+      com.opushire.tier: "primary"
+
+  # ── 6. Redis Secondary (Background AI Workers) ────────────────
   redis-secondary:
     image: redis:7.2-alpine
+    container_name: opushire-redis-secondary
+    restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 30mb --maxmemory-policy volatile-lru
     ports:
       - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    mem_limit: 96m
+    networks:
+      - opushire-net
+    labels:
+      com.opushire.role: "cache"
+      com.opushire.tier: "secondary"
 
+  # ── 7. Redis Tertiary (Caching & Idempotency) ─────────────────
   redis-tertiary:
     image: redis:7.2-alpine
+    container_name: opushire-redis-tertiary
+    restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 20mb --maxmemory-policy volatile-lru
     ports:
       - "6381:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    mem_limit: 64m
+    networks:
+      - opushire-net
+    labels:
+      com.opushire.role: "cache"
+      com.opushire.tier: "tertiary"
 
-  # 8. Local Object Storage (Zero Cost S3/AzureBlob Alternative)
+  # ── 8. MinIO Object Storage (S3-compatible) ───────────────────
   minio:
     image: minio/minio
+    container_name: opushire-minio
+    restart: unless-stopped
     command: server /data --console-address ":9001"
     ports:
       - "9000:9000"
@@ -89,16 +207,75 @@ services:
       - MINIO_ROOT_PASSWORD=minioadmin
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    mem_limit: 256m
+    networks:
+      - opushire-net
+    labels:
+      com.opushire.role: "storage"
+      com.opushire.tier: "storage"
 
-  # 9. Free-Tier Vector Database
+  # ── 9. Qdrant Vector Database ──────────────────────────────────
   qdrant:
-    image: qdrant/qdrant
+    image: qdrant/qdrant:v1.12.1
+    container_name: opushire-qdrant
+    restart: unless-stopped
     ports:
       - "6333:6333"
     volumes:
       - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:6333/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    mem_limit: 512m
+    networks:
+      - opushire-net
+    labels:
+      com.opushire.role: "vector-db"
+      com.opushire.tier: "storage"
 
+  # ── 10. Jaeger (Distributed Tracing UI) ────────────────────────
+  jaeger:
+    image: jaegertracing/all-in-one:1.62
+    container_name: opushire-jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686"   # Jaeger UI
+      - "4318:4318"     # OTLP HTTP receiver
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:16686/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    mem_limit: 256m
+    networks:
+      - opushire-net
+    labels:
+      com.opushire.role: "observability"
+      com.opushire.tier: "platform"
+
+# ── Persistent Volumes ─────────────────────────────────────────
 volumes:
   mongodb_data:
+    driver: local
   minio_data:
+    driver: local
   qdrant_data:
+    driver: local
+
+# ── Isolated Network ──────────────────────────────────────────
+networks:
+  opushire-net:
+    driver: bridge
+    name: opushire-network

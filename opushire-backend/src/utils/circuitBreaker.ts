@@ -1,5 +1,6 @@
 import { log, logError } from './logger';
 import { circuitBreakerTransitions } from '../metrics/business.metrics';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 
 /**
  * Circuit Breaker for external API calls (LLM APIs, etc.)
@@ -43,27 +44,42 @@ export class CircuitBreaker {
   }
 
   async exec<T>(fn: () => Promise<T>): Promise<T> {
-    // Check if we should transition from OPEN → HALF_OPEN
-    if (this.state === 'OPEN') {
-      if (Date.now() - this.lastFailureTime >= this.resetTimeoutMs) {
-        this.state = 'HALF_OPEN';
-        circuitBreakerTransitions.inc({ from_state: 'OPEN', to_state: 'HALF_OPEN' });
-        log('CIRCUIT_BREAKER', `${this.name}: OPEN → HALF_OPEN (probing)`);
-      } else {
-        throw new CircuitOpenError(
-          `${this.name} circuit is OPEN — fast-failing to prevent cascade`,
-        );
-      }
-    }
+    const tracer = trace.getTracer('opushire-circuit-breaker');
+    return tracer.startActiveSpan(`circuit_breaker.${this.name}`, async (span) => {
+      span.setAttribute('circuit_breaker.name', this.name);
+      span.setAttribute('circuit_breaker.state', this.state);
+      span.setAttribute('circuit_breaker.failure_count', this.failureCount);
 
-    try {
-      const result = await fn();
-      this.onSuccess();
-      return result;
-    } catch (err) {
-      this.onFailure(err);
-      throw err;
-    }
+      try {
+        // Check if we should transition from OPEN → HALF_OPEN
+        if (this.state === 'OPEN') {
+          if (Date.now() - this.lastFailureTime >= this.resetTimeoutMs) {
+            this.state = 'HALF_OPEN';
+            circuitBreakerTransitions.inc({ from_state: 'OPEN', to_state: 'HALF_OPEN' });
+            log('CIRCUIT_BREAKER', `${this.name}: OPEN → HALF_OPEN (probing)`);
+          } else {
+            const err = new CircuitOpenError(
+              `${this.name} circuit is OPEN — fast-failing to prevent cascade`,
+            );
+            span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
+            span.end();
+            throw err;
+          }
+        }
+
+        const result = await fn();
+        this.onSuccess();
+        span.setStatus({ code: SpanStatusCode.OK });
+        span.end();
+        return result;
+      } catch (err: any) {
+        this.onFailure(err);
+        span.setStatus({ code: SpanStatusCode.ERROR, message: err?.message });
+        span.recordException(err);
+        span.end();
+        throw err;
+      }
+    });
   }
 
   private onSuccess() {

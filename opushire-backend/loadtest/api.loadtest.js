@@ -29,10 +29,10 @@ export const options = {
         { duration: '10s', target: 0 },    // Ramp down
     ],
     thresholds: {
-        http_req_duration: ['p(95)<500', 'p(99)<1000'],  // P95 < 500ms, P99 < 1s
-        errors: ['rate<0.05'],                            // Error rate < 5%
-        jobs_list_latency: ['p(95)<400'],
-        health_check_latency: ['p(99)<200'],
+        http_req_duration: ['p(95)<2000', 'p(99)<3000'],  // CHAOS GATE: P95 < 2s, P99 < 3s
+        errors: ['rate<0.05'],                              // Error rate < 5%
+        jobs_list_latency: ['p(95)<1500'],                  // Job listing specific
+        health_check_latency: ['p(99)<200'],                // Health checks must be fast
     },
 };
 

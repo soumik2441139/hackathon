@@ -2,7 +2,8 @@ import { Queue, Worker, QueueEvents } from 'bullmq';
 import IORedis from 'ioredis';
 import { env } from '../../config/env';
 import { SystemConfig } from '../../config/system.config';
-import { log, logError } from '../../utils/logger';
+import { log, logError, getTraceId } from '../../utils/logger';
+import { trace } from '@opentelemetry/api';
 
 // ─── Redis Connection ────────────────────────────────────────────
 // Azure Cache for Redis requires TLS. Support both local dev and production.
@@ -401,7 +402,24 @@ export async function enqueue(
     log('QUEUE', `Skipped enqueue to ${name} — Redis not available`);
     return;
   }
-  await q.add(buildLogicalJobName(name, jobName), data, opts);
+
+  // ── Distributed Trace Propagation ──
+  // Attach the current trace context so workers can link child spans.
+  const traceId = getTraceId();
+  const enrichedData = {
+    ...data,
+    ...(traceId ? { _traceContext: { traceId } } : {}),
+  };
+
+  // ── Idempotency via BullMQ jobId ──
+  // If an idempotencyKey is provided, use it as the BullMQ jobId.
+  // BullMQ silently ignores duplicate adds with the same jobId.
+  const jobOpts = { ...opts };
+  if (data._idempotencyKey) {
+    jobOpts.jobId = data._idempotencyKey;
+  }
+
+  await q.add(buildLogicalJobName(name, jobName), enrichedData, jobOpts);
 }
 
 // ─── Helper to create workers ────────────────────────────────────
@@ -454,6 +472,12 @@ export function startRegisteredWorkers(): any {
       
       const targetTier = getTargetTier(logicalQueue);
       if (targetTier !== 'primary') return; // Skip if handled by another specialized worker
+
+      // ── Distributed Trace: log inherited context ──
+      const traceCtx = job.data?._traceContext;
+      if (traceCtx?.traceId) {
+        log('WORKER', `Processing ${job.name} [traceId=${traceCtx.traceId}]`);
+      }
 
       const processor = processorMap.get(logicalQueue);
       if (!processor) throw new Error(`No processor for ${job.name}`);
