@@ -111,16 +111,18 @@ function getConnection(isSecondary = false): any {
 }
 
 function getTertiaryConnectionOptions(target: 'producer' | 'worker') {
+  const isSecure = SystemConfig.redisTertiaryUrl?.startsWith('rediss://');
   return {
     connectionName: target === 'worker' ? 'bullmq-tertiary-worker' : 'bullmq-tertiary',
     maxRetriesPerRequest: null,
-    // Fail fast on connect — same reasoning as buildRedisOptions above.
-    connectTimeout: 5000,
+    // Render instances often sleep; give them 20s to wake up on first connect.
+    connectTimeout: 20000,
     lazyConnect: true,
     enableOfflineQueue: target === 'worker',
     // Cap at 30 s to avoid hot retry loop on a hibernated Render instance.
     retryStrategy: (times: number) => Math.min(times * 200, 30000),
     reconnectOnError: (err: Error) => true,
+    ...(isSecure ? { tls: { rejectUnauthorized: false } } : {})
   };
 }
 
