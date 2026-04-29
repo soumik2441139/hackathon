@@ -19,19 +19,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: npm install, build, and zip standalone
         run: |
           set -e
-          
-          # Delete potentially corrupted Windows lockfile
-          rm -f package-lock.json
-          
-          # Root install to satisfy Monorepo workspace lock tree dynamically for Linux
-          npm install --include=optional
+          npm ci --omit=optional
+
           
           # Move to frontend app
           cd opushire
