@@ -94,9 +94,10 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_914A2F1F1604447EA94FD4E943464025 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_74FA6C070D134E819954A8DE818913AE }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_878262FAD14243D694B9BAC094B92841 }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
 
       - name: Configure Azure Web App settings
         uses: azure/appservice-settings@v1
