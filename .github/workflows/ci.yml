@@ -60,7 +60,17 @@ jobs:
   e2e-tests:
     runs-on: ubuntu-latest
     needs: build-and-test
+    services:
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
     steps:
+
     - uses: actions/checkout@v4
 
     - name: Use Node.js 22
@@ -88,12 +98,33 @@ jobs:
       env:
         NEXT_PUBLIC_API_URL: http://localhost:5000/api
 
+    - name: Build Backend for E2E
+      run: npx tsc -p opushire-backend/tsconfig.json
+
+    - name: Start Backend Server
+      run: |
+        cd opushire-backend
+        node dist/server.js &
+        sleep 10
+      env:
+        PORT: 5000
+        NODE_ENV: test
+        MONGODB_URI: mongodb://localhost:27017/test
+        REDIS_HOST: localhost
+        JWT_SECRET: ci-test-jwt-secret
+
     - name: Run Playwright E2E Tests
       run: npx playwright test --reporter=github
       working-directory: ./opushire
       env:
-        PLAYWRIGHT_BASE_URL: http://localhost:3000
         CI: true
+        PLAYWRIGHT_BASE_URL: http://localhost:3000
+        NEXT_PUBLIC_API_URL: http://localhost:5000/api
+        NEXTAUTH_URL: http://localhost:3000
+        NEXTAUTH_SECRET: ci-test-secret-minimum-32-chars-long
+        MONGODB_URI: mongodb://localhost:27017/test
+        JWT_SECRET: ci-test-jwt-secret
+
 
     - name: Upload Playwright Report
       uses: actions/upload-artifact@v4
